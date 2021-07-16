@@ -6,6 +6,9 @@ stm32_fetch_cube(L4)
 find_package(CMSIS COMPONENTS STM32L475VG REQUIRED)
 find_package(HAL COMPONENTS STM32L475VG REQUIRED)
 find_package(BSP COMPONENTS STM32L475E-IOT01 REQUIRED)
+#find_package(BSP COMPONENTS STM32L475E_IOT01 REQUIRED)
+
+
 
 # set parent scope path
 set(BOARD_DEMO_CONFIG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/config CACHE INTERNAL "Config path")
@@ -36,6 +39,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     FreeRTOSPlus::ThirdParty::mbedtls
     HAL::STM32::L4::RCC
     HAL::STM32::L4::RCCEx
+    HAL::STM32::L4::QSPI
+    HAL::STM32::L4::I2C
+    HAL::STM32::L4::I2CEx
     HAL::STM32::L4::SPI
     HAL::STM32::L4::RTC
     HAL::STM32::L4::UART
@@ -45,10 +51,16 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     HAL::STM32::L4::GPIO
     HAL::STM32::L4::CORTEX
     HAL::STM32::L4::RNG
+    HAL::STM32::L4::ADC
+    HAL::STM32::L4::ADCEx
     HAL::STM32::L4::TIM
     HAL::STM32::L4::TIMEx
     CMSIS::STM32::L475xx
     BSP::STM32::STM32L475E_IOT01
+    BSP::STM32::L4::LSM6DSL
+    BSP::STM32::L4::HTS221
+    BSP::STM32::L4::LIS3MDL
+    BSP::STM32::L4::LPS22HB
     STM32::NoSys
     az::iot_middleware::freertos
     SAMPLE::AZUREIOT
@@ -76,6 +88,9 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     FreeRTOSPlus::ThirdParty::mbedtls
     HAL::STM32::L4::RCC
     HAL::STM32::L4::RCCEx
+    HAL::STM32::L4::QSPI
+    HAL::STM32::L4::I2C
+    HAL::STM32::L4::I2CEx
     HAL::STM32::L4::SPI
     HAL::STM32::L4::RTC
     HAL::STM32::L4::UART
@@ -85,10 +100,16 @@ target_link_libraries(${PROJECT_NAME}-pnp PRIVATE
     HAL::STM32::L4::GPIO
     HAL::STM32::L4::CORTEX
     HAL::STM32::L4::RNG
+    HAL::STM32::L4::ADC
+    HAL::STM32::L4::ADCEx
     HAL::STM32::L4::TIM
     HAL::STM32::L4::TIMEx
     CMSIS::STM32::L475xx
     BSP::STM32::STM32L475E_IOT01
+    BSP::STM32::L4::LSM6DSL
+    BSP::STM32::L4::HTS221
+    BSP::STM32::L4::LIS3MDL
+    BSP::STM32::L4::LPS22HB
     STM32::NoSys
     az::iot_middleware::freertos
     SAMPLE::AZUREIOTPNP

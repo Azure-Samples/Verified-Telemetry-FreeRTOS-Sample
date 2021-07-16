@@ -28,6 +28,16 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+
+#include "stm32l475e_iot01.h"
+#include "stm32l475e_iot01_accelero.h"
+#include "stm32l475e_iot01_gyro.h"
+#include "stm32l475e_iot01_hsensor.h"
+#include "stm32l475e_iot01_magneto.h"
+#include "stm32l475e_iot01_psensor.h"
+#include "stm32l475e_iot01_tsensor.h"
+
+#include "stm32l475e_iot01.h"
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
@@ -74,6 +84,11 @@ extern SPI_HandleTypeDef hspi;
 **********************/
 RTC_HandleTypeDef xHrtc;
 RNG_HandleTypeDef xHrng;
+ADC_HandleTypeDef hadc1;
+TIM_HandleTypeDef TimCCHandle;
+
+#define DEFAULT_TIM_CC1_PULSE 4000
+
 StaticSemaphore_t xSemaphoreBuffer;
 xSemaphoreHandle xWifiSemaphoreHandle;
 
@@ -87,6 +102,13 @@ static uint64_t ulGlobalEntryTime = 1639093301;
 static void SystemClock_Config( void );
 static void Console_UART_Init( void );
 static void RTC_Init( void );
+static void Init_MEM1_Sensors(void);
+
+
+static void MX_ADC1_Init(void);
+static void MX_GPIO_Init(void);
+static void InitTimers(void);
+static void STM32_Error_Handler(void);
 
 /*
  * Prototypes for the demos that can be started from this project.
@@ -377,8 +399,210 @@ static void prvMiscInitialization( void )
     {
         Error_Handler();
     }
+
+        // Initialize timers
+    InitTimers();
+
+    MX_GPIO_Init();
+
+    MX_ADC1_Init();
+
+    Init_MEM1_Sensors();
+
 }
 /*-----------------------------------------------------------*/
+
+/**
+ * @brief  This function is executed in case of error occurrence.
+ * @param  None
+ * @retval None
+ */
+void STM32_Error_Handler(void)
+{
+    printf("FATAL: STM32 Error Handler\r\n");
+
+    // User may add here some code to deal with this error
+    while (1)
+    {
+    }
+}
+
+/**
+ * @brief ADC1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_ADC1_Init(void)
+{
+
+    /* USER CODE BEGIN ADC1_Init 0 */
+
+    /* USER CODE END ADC1_Init 0 */
+
+    ADC_MultiModeTypeDef multimode = {0};
+    ADC_ChannelConfTypeDef sConfig = {0};
+
+    /* USER CODE BEGIN ADC1_Init 1 */
+
+    /* USER CODE END ADC1_Init 1 */
+    /** Common config
+     */
+    hadc1.Instance                   = ADC1;
+    hadc1.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
+    hadc1.Init.Resolution            = ADC_RESOLUTION_12B;
+    hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+    hadc1.Init.ScanConvMode          = ADC_SCAN_DISABLE;
+    hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
+    hadc1.Init.LowPowerAutoWait      = DISABLE;
+    hadc1.Init.ContinuousConvMode    = DISABLE;
+    hadc1.Init.NbrOfConversion       = 1;
+    hadc1.Init.DiscontinuousConvMode = DISABLE;
+    hadc1.Init.NbrOfDiscConversion   = 1;
+    hadc1.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
+    hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    hadc1.Init.DMAContinuousRequests = DISABLE;
+    hadc1.Init.Overrun               = ADC_OVR_DATA_PRESERVED;
+    hadc1.Init.OversamplingMode      = DISABLE;
+    if (HAL_ADC_Init(&hadc1) != HAL_OK)
+    {
+        STM32_Error_Handler();
+    }
+    /** Configure the ADC multi-mode
+     */
+    multimode.Mode = ADC_MODE_INDEPENDENT;
+    if (HAL_ADCEx_MultiModeConfigChannel(&hadc1, &multimode) != HAL_OK)
+    {
+        STM32_Error_Handler();
+    }
+    /** Configure Regular Channel
+     */
+    sConfig.Channel      = ADC_CHANNEL_1;
+    sConfig.Rank         = ADC_REGULAR_RANK_1;
+    sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
+    sConfig.SingleDiff   = ADC_SINGLE_ENDED;
+    sConfig.OffsetNumber = ADC_OFFSET_NONE;
+    sConfig.Offset       = 0;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        STM32_Error_Handler();
+    }
+    /* USER CODE BEGIN ADC1_Init 2 */
+
+    /* USER CODE END ADC1_Init 2 */
+}
+
+
+
+static void Init_MEM1_Sensors(void)
+{
+    // Accelero
+    if (ACCELERO_OK != BSP_ACCELERO_Init())
+    {
+        printf("Error Accelero Sensor\r\n");
+    }
+
+    // Gyro
+    if (GYRO_OK != BSP_GYRO_Init())
+    {
+        printf("Error Gyroscope Sensor\r\n");
+    }
+
+    // Mag
+    if (MAGNETO_OK != BSP_MAGNETO_Init())
+    {
+        printf("Error Magneto Sensor\r\n");
+    }
+
+    // Humidity
+    if (HSENSOR_OK != BSP_HSENSOR_Init())
+    {
+        printf("Error Humidity Sensor\r\n");
+    }
+
+    // Temperature
+    if (TSENSOR_OK != BSP_TSENSOR_Init())
+    {
+        printf("Error Temperature Sensor\r\n");
+    }
+
+    // Pressure
+    if (PSENSOR_OK != BSP_PSENSOR_Init())
+    {
+        printf("Error Pressure Sensor\r\n");
+    }
+}
+
+
+
+/**
+ * @brief GPIO Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_GPIO_Init(void)
+{
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+    /* GPIO Ports Clock Enable */
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin : PB8 */
+    GPIO_InitStruct.Pin   = GPIO_PIN_8;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin : PB8 */
+    GPIO_InitStruct.Pin = GPIO_PIN_9;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+}
+
+/**
+ * @brief  Function for initializing timers for sending the Telemetry data to IoT hub
+ * @param  None
+ * @retval None
+ */
+static void InitTimers(void)
+{
+    uint32_t uwPrescalerValue;
+
+    // Timer Output Compare Configuration Structure declaration
+    TIM_OC_InitTypeDef sConfig;
+
+    // Compute the prescaler value to have TIM3 counter clock equal to 2 KHz
+    uwPrescalerValue = (uint32_t)((SystemCoreClock / 2000) - 1);
+
+    // Set TIM1 instance (Motion)
+    TimCCHandle.Instance           = TIM1;
+    TimCCHandle.Init.Period        = 65535;
+    TimCCHandle.Init.Prescaler     = uwPrescalerValue;
+    TimCCHandle.Init.ClockDivision = 0;
+    TimCCHandle.Init.CounterMode   = TIM_COUNTERMODE_UP;
+    if (HAL_TIM_OC_Init(&TimCCHandle) != HAL_OK)
+    {
+        STM32_Error_Handler();
+    }
+
+    // Configure the Output Compare channels
+    // Common configuration for all channels
+    sConfig.OCMode     = TIM_OCMODE_TOGGLE;
+    sConfig.OCPolarity = TIM_OCPOLARITY_LOW;
+
+    // Output Compare Toggle Mode configuration: Channel1
+    sConfig.Pulse = DEFAULT_TIM_CC1_PULSE;
+    if (HAL_TIM_OC_ConfigChannel(&TimCCHandle, &sConfig, TIM_CHANNEL_1) != HAL_OK)
+    {
+        STM32_Error_Handler();
+    }
+}
+
 
 /**
  * @brief Initializes the system clock.

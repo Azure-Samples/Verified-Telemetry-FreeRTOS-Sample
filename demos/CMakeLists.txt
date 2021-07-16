@@ -23,7 +23,10 @@ if(NOT (TARGET SAMPLE::AZUREIOTPNP))
     target_sources(SAMPLE::AZUREIOTPNP INTERFACE
       ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp/sample_azure_iot_pnp.c
       ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp/sample_freertos_verified_telemetry_init.c
-      ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp/sample_vt_device_driver.c)
+      ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp/sample_vt_device_driver.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp/sample_pnp_device_component.c
+      )
+    #${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp/sample_pnp_device_component.c)
     #target_include_directories(SAMPLE::AZUREIOTPNP INTERFACE
     #${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp)
 

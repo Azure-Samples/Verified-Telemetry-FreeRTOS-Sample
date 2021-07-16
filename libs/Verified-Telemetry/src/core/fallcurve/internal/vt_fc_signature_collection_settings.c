@@ -23,6 +23,7 @@ VT_UINT fc_signature_compute_collection_settings(
     VT_FLOAT adc_ref_volt             = 0;
     VT_ULONG falltime_calib_test      = 0;
     VT_FLOAT pearson_coeff_calib_test = 0;
+    VT_UINT falltime_datapoints       = 0;
 
     fc_object->device_driver->adc_init(fc_object->sensor_handle->adc_id,
         fc_object->sensor_handle->adc_controller,
@@ -40,7 +41,7 @@ VT_UINT fc_signature_compute_collection_settings(
         fc_object->sensor_handle->gpio_id, fc_object->sensor_handle->gpio_port, fc_object->sensor_handle->gpio_pin);
     start_tick_count = (VT_UINT)fc_object->device_driver->tick();
 
-    while (time_to_fall <= max_time_allowed)
+    while (time_to_fall < max_time_allowed)
     {
         adc_value = fc_object->device_driver->adc_read(
             fc_object->sensor_handle->adc_id, fc_object->sensor_handle->adc_controller, fc_object->sensor_handle->adc_channel);
@@ -75,7 +76,7 @@ VT_UINT fc_signature_compute_collection_settings(
     else
     {
         *confidence_metric    = 100;
-        *sampling_interval_us = round(time_to_fall / (float)VT_FC_SAMPLE_LENGTH);
+        *sampling_interval_us = round(time_to_fall / 100.0f);
     }
     if (*sampling_interval_us < VT_FC_MIN_SAMPLING_INTERVAL_US)
     {
@@ -99,7 +100,8 @@ VT_UINT fc_signature_compute_collection_settings(
         return VT_ERROR;
     }
 
-    *sampling_interval_us = round((float)falltime_calib_test / (float)VT_FC_SAMPLE_LENGTH);
+    falltime_datapoints   = round((float)falltime_calib_test / (float)*sampling_interval_us);
+    *sampling_interval_us = round(((float)(*sampling_interval_us) * (float)falltime_datapoints) / (float)VT_FC_SAMPLE_LENGTH);
     if (*sampling_interval_us < VT_FC_MIN_SAMPLING_INTERVAL_US)
     {
         *sampling_interval_us = VT_FC_MIN_SAMPLING_INTERVAL_US;

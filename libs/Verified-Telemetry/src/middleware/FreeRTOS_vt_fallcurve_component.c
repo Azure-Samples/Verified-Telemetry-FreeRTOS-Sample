@@ -532,7 +532,7 @@ AzureIoTResult_t FreeRTOS_vt_fallcurve_compute_sensor_status_global(FreeRTOS_VT_
     VT_UINT sensor_status = 0;
     VT_UINT sensor_drift  = 100;
     printf("calling vt_fallcurve_object_sensor_status \n");
-    //vt_fallcurve_object_sensor_status(&(handle->fc_object), &sensor_status, &sensor_drift);
+    vt_fallcurve_object_sensor_status(&(handle->fc_object), &sensor_status, &sensor_drift);
     handle->telemetry_status = (sensor_status > 0) ? false : true;
     return eAzureIoTSuccess;
 }
@@ -564,8 +564,8 @@ AzureIoTResult_t FreeRTOS_vt_fallcurve_process_command(FreeRTOS_VT_FALLCURVE_COM
     if (((pnp_command_name_length == (sizeof(command_reset_fingerprint) - 1)) &&
             (!(strncmp((CHAR*)pnp_command_name_ptr, (CHAR*)command_reset_fingerprint, pnp_command_name_length)))) == 1)
     {
-        //dm_status = (reset_refernce_fallcurve(handle, json_reader_ptr) != eAzureIoTSuccess) ? SAMPLE_COMMAND_ERROR_STATUS
-        //                                                                                        : SAMPLE_COMMAND_SUCCESS_STATUS;
+        dm_status = (reset_refernce_fallcurve(handle, json_reader_ptr) != eAzureIoTSuccess) ? SAMPLE_COMMAND_ERROR_STATUS
+                                                                                                : SAMPLE_COMMAND_SUCCESS_STATUS;
         printf("reset_refernce_fallcurve \n");
         if (hub_store_all_db(handle, xAzureIoTHubClient))
         {
@@ -581,8 +581,8 @@ AzureIoTResult_t FreeRTOS_vt_fallcurve_process_command(FreeRTOS_VT_FALLCURVE_COM
     else if (((pnp_command_name_length == (sizeof(command_retrain_fingerprint) - 1)) &&
                  (!(strncmp((CHAR*)pnp_command_name_ptr, (CHAR*)command_retrain_fingerprint, pnp_command_name_length)))) == 1)
     {
-        //dm_status = (retrain_refernce_fallcurve(handle, json_reader_ptr) != eAzureIoTSuccess) ? SAMPLE_COMMAND_ERROR_STATUS
-        //                                                                                          : SAMPLE_COMMAND_SUCCESS_STATUS;
+        dm_status = (retrain_refernce_fallcurve(handle, json_reader_ptr) != eAzureIoTSuccess) ? SAMPLE_COMMAND_ERROR_STATUS
+                                                                                                  : SAMPLE_COMMAND_SUCCESS_STATUS;
         printf("Retrain_refernce_fallcurve \n");
         if (hub_store_all_db(handle, xAzureIoTHubClient))
         {

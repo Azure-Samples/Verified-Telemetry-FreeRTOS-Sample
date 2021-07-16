@@ -5,28 +5,27 @@
 #define _SAMPLE_VT_DEVICE_DRIVER_H
 
 #include <stdint.h>
-
-uint16_t vt_tick_timer;
+#include "stm32l4xx_hal.h"
 
 /* ADC Definitions */
-uint16_t vt_adc_id_sensor_1 ;
-uint16_t vt_adc_id_sensor_2 ;
+extern uint16_t vt_adc_id_sensor_1;
+extern uint16_t vt_adc_id_sensor_2;
 
-uint16_t vt_adc_controller_sensor_1 ;
-uint16_t vt_adc_controller_sensor_2 ;
+extern ADC_HandleTypeDef vt_adc_controller_sensor_1;
+extern ADC_HandleTypeDef vt_adc_controller_sensor_2;
 
-uint32_t vt_adc_channel_sensor_1 ;
-uint32_t vt_adc_channel_sensor_2 ;
+extern uint32_t vt_adc_channel_sensor_1;
+extern uint32_t vt_adc_channel_sensor_2;
 
 /* GPIO Definitions */
-uint16_t vt_gpio_id_sensor_1 ;
-uint16_t vt_gpio_id_sensor_2 ;
+extern uint16_t vt_gpio_id_sensor_1;
+extern uint16_t vt_gpio_id_sensor_2;
 
-uint16_t* vt_gpio_port_sensor_1 ;
-uint16_t* vt_gpio_port_sensor_2 ;
+extern GPIO_TypeDef* vt_gpio_port_sensor_1;
+extern GPIO_TypeDef* vt_gpio_port_sensor_2;
 
-uint16_t vt_gpio_pin_sensor_1 ;
-uint16_t vt_gpio_pin_sensor_2 ;
+extern uint16_t vt_gpio_pin_sensor_1;
+extern uint16_t vt_gpio_pin_sensor_2;
 
 /* Define prototypes. */
 

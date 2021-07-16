@@ -47,6 +47,9 @@ extern RTC_HandleTypeDef xHrtc;
 extern RNG_HandleTypeDef xHrng;
 extern TIM_HandleTypeDef htim6;
 
+extern UART_HandleTypeDef UartHandle;
+extern ADC_HandleTypeDef hadc1;
+
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/

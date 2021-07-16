@@ -24,6 +24,7 @@
 
 /* Transport interface implementation include header for TLS. */
 #include "transport_tls_socket.h"
+#include "sample_pnp_device_component.h"
 
 /* Crypto helper header. */
 #include "crypto.h"
@@ -188,7 +189,10 @@ char * deviceTelemetryName[7]={   "soilMoistureExternal1",
 
 
     FreeRTOS_VERIFIED_TELEMETRY_DB * verified_telemetry_DB;
+    #define SAMPLE_DEFAULT_DEVICE_SENSOR_READING (22)
 
+    SAMPLE_PNP_DEVICE_COMPONENT sample_device;
+    static const CHAR sample_device_component[] = "sampleDevice";
 
 /*
 static float deviceTelemetryValue[7];
@@ -247,7 +251,7 @@ char allReportedPropertyType[6]={'b',
  * Note that the process loop also has a timeout, so the total time between
  * publishes is the sum of the two delays.
  */
-#define sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS           ( pdMS_TO_TICKS( 5000U ) )
+#define sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS           ( pdMS_TO_TICKS( 3000U ) )
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
@@ -371,11 +375,11 @@ static int32_t prvTelemetryPayloadCreate(char *ucScratchBuffer,
     return AzureIoTJSONWriter_GetBytesUsed(&xWriter);
 }
 */
-
+ 
 static int32_t prvProcessSetLedStateCommand(const uint8_t * pucPayload,
                                         uint32_t ulPayloadLength )
 {
-     
+      
     AzureIoTResult_t xResult;
     AzureIoTJSONReader_t xReader;
 
@@ -1130,6 +1134,13 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                pxMessage->pvMessagePayload ) );
 
 
+    AzureIoTJSONReader_t xReader;
+    AzureIoTJSONWriter_t xWriter;
+    AzureIoTResult_t xResult;
+    UINT status_code;
+    xResult = AzureIoTJSONReader_Init( &xReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
+    configASSERT( xResult == eAzureIoTSuccess );
+
     sampleDeviceComponontNameLength=strlen(sampleazureiotSAMPLE_DEVICE_COMPONENT_NAME);
     soilMoistureOneComponontNameLength=strlen(sampleazureiotSOIL_MOISTURE_ONE_COMPONENT_NAME);
     soilMoistureTwoComponontNameLength=strlen(sampleazureiotSOIL_MOISTURE_TWO_COMPONENT_NAME);
@@ -1201,9 +1212,20 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
         if( ( setLedStateCommandNameLength == pxMessage->usCommandNameLength ) &&
             ( strncmp( sampleazureiotSET_LED_STATUS_COMMAND, (const char *)pxMessage->pucCommandName, setLedStateCommandNameLength ) == 0 ) )
         {
-                prvProcessSetLedStateCommand(pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
+                //prvProcessSetLedStateCommand(pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
 
-                if( AzureIoTHubClient_SendCommandResponse( xHandle, pxMessage, 200,
+                sample_pnp_device_process_command(&sample_device,
+                        (UCHAR *)pxMessage->pucComponentName,
+                        pxMessage->usComponentNameLength,
+                        (UCHAR *)pxMessage->pucCommandName,
+                        pxMessage->usCommandNameLength,
+                        &xReader,
+                        &xWriter,
+                        &status_code);
+
+                sample_pnp_device_led_state_property(&sample_device,&xAzureIoTHubClient);
+
+                if( AzureIoTHubClient_SendCommandResponse( xHandle, pxMessage, status_code,
                                                         NULL,
                                                         0 ) != eAzureIoTSuccess )
                 {
@@ -1925,7 +1947,7 @@ AzureIoTResult_t sendTelemetrySampleDevice()
     deviceTelemetryValue[4] = humidityPercentage;
     deviceTelemetryValue[5] = acceleration;
     deviceTelemetryValue[6] = magnetic;
-
+ 
     //just for simulation
 soilMoistureExternal1++;soilMoistureExternal2++;temperature++;pressure++;humidityPercentage++;acceleration++;magnetic++;
     //just for simulation 
@@ -1948,6 +1970,8 @@ soilMoistureExternal1++;soilMoistureExternal2++;temperature++;pressure++;humidit
     
 }
 */
+
+
 
 static AzureIoTResult_t prvProcessReportedProperties( AzureIoTHubClientPropertiesResponse_t * pxMessage,
                                             AzureIoTHubClientPropertyType_t xPropertyType )
@@ -2301,9 +2325,16 @@ static void prvAzureDemoTask( void * pvParameters )
     verified_telemetry_DB.components_num=1;
     verified_telemetry_DB.first_component=((void *) &FreeRTOS_Object);
     */
-
+ 
 
     verified_telemetry_DB=sample_nx_verified_telemetry_user_init();
+
+    sample_pnp_device_init(&sample_device,
+                (UCHAR*)sample_device_component,
+                sizeof(sample_device_component) - 1,
+                SAMPLE_DEFAULT_DEVICE_SENSOR_READING,
+                verified_telemetry_DB);
+
 
     AzureIoTHubClientComponent_t component_list[NUM_COMPONENTS]; 
     component_list[0] = azureiothubCREATE_COMPONENT("sampleDevice"); 
@@ -2445,6 +2476,8 @@ static void prvAzureDemoTask( void * pvParameters )
             //configASSERT( xResult == eAzureIoTSuccess );
 
             //send reported property
+            sample_pnp_device_telemetry_send(&sample_device,&xAzureIoTHubClient);
+            /*
             FreeRTOS_vt_verified_telemetry_message_create_send(verified_telemetry_DB,
                                                                 &xAzureIoTHubClient,
                                                                 (const UCHAR *)"sampleDevice",
@@ -2452,6 +2485,7 @@ static void prvAzureDemoTask( void * pvParameters )
                                                                 0,
                                                                 (const UCHAR *)sampleazuretelemetryMESSAGE,
                                                                 strlen(sampleazuretelemetryMESSAGE));
+            */
             //xResult = prvReportedPropertiesSend();
             //configASSERT( xResult == eAzureIoTSuccess );
 
