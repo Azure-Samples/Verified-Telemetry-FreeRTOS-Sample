@@ -162,7 +162,7 @@ static bool statusBool=true;
 int32_t ConfidenceMetriclocalone;
 int32_t ConfidenceMetriclocaltwo;
 
- 
+  
 //vt variables
 
 #define NUM_COMPONENTS 4
@@ -171,7 +171,6 @@ static bool enableVerifiedTelemetryWritableProperty;
 static bool setLedState;
 static bool telemetryStatusSoilMoisture1;
 static bool telemetryStatusSoilMoisture2;
-static bool vTDevicedeviceStatus;
 #define sampleazureiotPROPERTY_ENABLE_VERIFIED_TELEMETRY "enableVerifiedTelemetry"
 #define sampleazureiotSAMPLE_DEVICE_COMPONENT_NAME                    "sampleDevice"
 #define sampleazureiotSOIL_MOISTURE_ONE_COMPONENT_NAME                    "vTsoilMoistureExternal1"
@@ -194,39 +193,6 @@ char * deviceTelemetryName[7]={   "soilMoistureExternal1",
     SAMPLE_PNP_DEVICE_COMPONENT sample_device;
     static const CHAR sample_device_component[] = "sampleDevice";
 
-/*
-static float deviceTelemetryValue[7];
-
-static float soilMoistureExternal1=0;
-static float soilMoistureExternal2=0;
-static float temperature=0;
-static float pressure=0;
-static float humidityPercentage=0;
-static float acceleration=0;
-static float magnetic=0;
-*/
-/*
-char * componentNames[NUM_COMPONENTS]={   "sampleDevice",
-                                    "vTDevice",
-                                    "vTsoilMoistureExternal1",
-                                    "vTsoilMoistureExternal2"};
-
-uint32_t numberOfReportedPropertiesInComponents[NUM_COMPONENTS]={1,1,2,2};
-
-char * allReportedPropertyNames[6]={"ledState",
-                                    "deviceStatus",
-                                    "telemetryStatus",
-                                    "fingerprintType",
-                                    "telemetryStatus",
-                                    "fingerprintType"};
-
-char allReportedPropertyType[6]={'b',
-                                    'b',
-                                    'b',
-                                    's',
-                                    'b',
-                                    's'};
-*/
 //vt variables end
 /**
  * @brief The payload to send to the Device Provisioning Service
@@ -348,625 +314,18 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
 static uint8_t ucMQTTMessageBuffer[ democonfigNETWORK_BUFFER_SIZE ];
  
 /*-----------------------------------------------------------*/
-/*
-static int32_t prvTelemetryPayloadCreate(char *ucScratchBuffer, 
-                                        unsigned long ucScratchBufferSize,
-                                        char *telemetryKey, double telemetryValue)
-{
-    AzureIoTJSONWriter_t xWriter;
-    AzureIoTResult_t xResult;
-    xResult = AzureIoTJSONWriter_Init(&xWriter, (uint8_t *)ucScratchBuffer, ucScratchBufferSize);
-    configASSERT(xResult == eAzureIoTSuccess);
 
-    //AzureIoTJSONWriter_AppendString(&xWriter,sampleazureiotREPORTED,strlen(sampleazureiotREPORTED));
-
-    xResult = AzureIoTJSONWriter_AppendBeginObject(&xWriter);
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue(&xWriter, (const uint8_t *)telemetryKey,
-                                                               strlen(telemetryKey),
-                                                               telemetryValue, sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS);
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    xResult = AzureIoTJSONWriter_AppendEndObject(&xWriter);
-    configASSERT(xResult == eAzureIoTSuccess);
-
-
-    return AzureIoTJSONWriter_GetBytesUsed(&xWriter);
-}
-*/
  
-static int32_t prvProcessSetLedStateCommand(const uint8_t * pucPayload,
-                                        uint32_t ulPayloadLength )
-{
-      
-    AzureIoTResult_t xResult;
-    AzureIoTJSONReader_t xReader;
-
-    xResult = AzureIoTJSONReader_Init( &xReader, pucPayload, ulPayloadLength );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONReader_NextToken( &xReader );
-    configASSERT( xResult == eAzureIoTSuccess );
-    xResult = AzureIoTJSONReader_GetTokenBool( &xReader,&setLedState);
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    printf(" setLedState %d \n",setLedState);
-
-
-//need to make this comonent reorted roerty send
-
-    AzureIoTJSONWriter_t xWriter;
-    int32_t lBytesWritten;
-
-
-    xResult = AzureIoTJSONWriter_Init( &xWriter, ucPropertyPayloadBuffer, sizeof( ucPropertyPayloadBuffer ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderBeginComponent(&xAzureIoTHubClient,&xWriter,
-                                                    (const uint8_t *)sampleazureiotSAMPLE_DEVICE_COMPONENT_NAME,
-                                                    strlen(sampleazureiotSAMPLE_DEVICE_COMPONENT_NAME));
-
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, (const uint8_t *)sampleazureiotPROPERTY_REPORTED_LED_STATE,
-                                                     strlen( sampleazureiotPROPERTY_REPORTED_LED_STATE ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBool( &xWriter, setLedState);
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderEndComponent(&xAzureIoTHubClient,&xWriter);
-
-    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
-
-
-    if( lBytesWritten < 0 )
-    {
-        LogError( ( "Error getting the bytes written for the properties confirmation JSON" ) );
-    }
-    else
-    {
-        xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
-
-        if( xResult != eAzureIoTSuccess )
-        {
-            LogError( ( "There was an error sending the reported properties: 0x%08x", xResult ) );
-        }
-    }
-    printf(" next2 ");
-
-    return xResult;
-
-}
-
-static int32_t prvReportedPropertiesSendForSampleDevice()
-{
-
-
-    AzureIoTResult_t xResult;
-    AzureIoTJSONWriter_t xWriter;
-    int32_t lBytesWritten;
-
-    xResult = AzureIoTJSONWriter_Init( &xWriter, ucPropertyPayloadBuffer, sizeof( ucPropertyPayloadBuffer ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderBeginComponent(&xAzureIoTHubClient,&xWriter,
-                                                    (const uint8_t *)"sampleDevice",
-                                                    strlen("sampleDevice"));
-
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, (const uint8_t *)"ledState",
-                                                     strlen( "ledState" ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBool( &xWriter, setLedState);
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderEndComponent(&xAzureIoTHubClient,&xWriter);
-
-    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
-
-
-    if( lBytesWritten < 0 )
-    {
-        LogError( ( "Error getting the bytes written for the properties confirmation JSON" ) );
-    }
-    else
-    {
-        xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
-
-        if( xResult != eAzureIoTSuccess )
-        {
-            LogError( ( "There was an error sending the reported properties: 0x%08x", xResult ) );
-        }
-    }
-
-    return xResult;
-
-}
-
-static int32_t prvReportedPropertiesSendForvTDevice()
-{
-    AzureIoTResult_t xResult;
-    AzureIoTJSONWriter_t xWriter;
-    int32_t lBytesWritten;
-
-    xResult = AzureIoTJSONWriter_Init( &xWriter, ucPropertyPayloadBuffer, sizeof( ucPropertyPayloadBuffer ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderBeginComponent(&xAzureIoTHubClient,&xWriter,
-                                                    (const uint8_t *)"vTDevice",
-                                                    strlen("vTDevice"));
-
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, (const uint8_t *)"deviceStatus",
-                                                     strlen( "deviceStatus" ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBool( &xWriter, vTDevicedeviceStatus);
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderEndComponent(&xAzureIoTHubClient,&xWriter);
-
-    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
-
-
-    if( lBytesWritten < 0 )
-    {
-        LogError( ( "Error getting the bytes written for the properties confirmation JSON" ) );
-    }
-    else
-    {
-        xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
-
-        if( xResult != eAzureIoTSuccess )
-        {
-            LogError( ( "There was an error sending the reported properties: 0x%08x", xResult ) );
-        }
-    }
-
-    return xResult;
-
-}
-
-static int32_t prvReportedPropertiesSendForvTsoilMoistureExternal1()
-{
-    AzureIoTResult_t xResult;
-    AzureIoTJSONWriter_t xWriter;
-    int32_t lBytesWritten;
-
-    xResult = AzureIoTJSONWriter_Init( &xWriter, ucPropertyPayloadBuffer, sizeof( ucPropertyPayloadBuffer ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderBeginComponent(&xAzureIoTHubClient,&xWriter,
-                                                    (const uint8_t *)"vTsoilMoistureExternal1",
-                                                    strlen("vTsoilMoistureExternal1"));
-
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, (const uint8_t *)"telemetryStatus",
-                                                     strlen( "telemetryStatus" ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBool( &xWriter, true);
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, (const uint8_t *)"fingerprintType",
-                                                     strlen( "fingerprintType" ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendString( &xWriter, (const uint8_t *)"Fallcurve",strlen("Fallcurve"));
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderEndComponent(&xAzureIoTHubClient,&xWriter);
-
-    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
-
-
-    if( lBytesWritten < 0 )
-    {
-        LogError( ( "Error getting the bytes written for the properties confirmation JSON" ) );
-    }
-    else
-    {
-        xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
-
-        if( xResult != eAzureIoTSuccess )
-        {
-            LogError( ( "There was an error sending the reported properties: 0x%08x", xResult ) );
-        }
-    }
-
-    return xResult;
-
-}
-
-
-static int32_t prvReportedPropertiesSendForvTsoilMoistureExternal2()
-{
-    AzureIoTResult_t xResult;
-    AzureIoTJSONWriter_t xWriter;
-    int32_t lBytesWritten;
-
-    xResult = AzureIoTJSONWriter_Init( &xWriter, ucPropertyPayloadBuffer, sizeof( ucPropertyPayloadBuffer ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderBeginComponent(&xAzureIoTHubClient,&xWriter,
-                                                    (const uint8_t *)"vTsoilMoistureExternal2",
-                                                    strlen("vTsoilMoistureExternal2"));
-
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, (const uint8_t *)"telemetryStatus",
-                                                     strlen( "telemetryStatus" ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBool( &xWriter, true);
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, (const uint8_t *)"fingerprintType",
-                                                     strlen( "fingerprintType" ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendString( &xWriter, (const uint8_t *)"Fallcurve",strlen("Fallcurve"));
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderEndComponent(&xAzureIoTHubClient,&xWriter);
-
-    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
-
-
-    if( lBytesWritten < 0 )
-    {
-        LogError( ( "Error getting the bytes written for the properties confirmation JSON" ) );
-    }
-    else
-    {
-        xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
-
-        if( xResult != eAzureIoTSuccess )
-        {
-            LogError( ( "There was an error sending the reported properties: 0x%08x", xResult ) );
-        }
-    }
-
-    return xResult;
-
-}
-
-
-static int32_t prvReportedPropertiesSendForConfidenceMetricSoilMoisture1()
-{
-    AzureIoTResult_t xResult;
-    AzureIoTJSONWriter_t xWriter;
-    int32_t lBytesWritten;
-
-    xResult = AzureIoTJSONWriter_Init( &xWriter, ucPropertyPayloadBuffer, sizeof( ucPropertyPayloadBuffer ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderBeginComponent(&xAzureIoTHubClient,&xWriter,
-                                                    (const uint8_t *)"vTsoilMoistureExternal1",
-                                                    strlen("vTsoilMoistureExternal1"));
-
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, (const uint8_t *)"fingerprintTemplateConfidenceMetric",
-                                                     strlen( "fingerprintTemplateConfidenceMetric" ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendInt32( &xWriter, 50);
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderEndComponent(&xAzureIoTHubClient,&xWriter);
-
-    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
-
-
-    if( lBytesWritten < 0 )
-    {
-        LogError( ( "Error getting the bytes written for the properties confirmation JSON" ) );
-    }
-    else
-    {
-        xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
-
-        if( xResult != eAzureIoTSuccess )
-        {
-            LogError( ( "There was an error sending the reported properties: 0x%08x", xResult ) );
-        }
-    }
-
-    return xResult;
-
-}
-
-
-static int32_t prvReportedPropertiesSendfingerprintTemplateMapSoilMoisture1()
-{
-    AzureIoTResult_t xResult;
-    AzureIoTJSONWriter_t xWriter;
-    int32_t lBytesWritten;
-
-    xResult = AzureIoTJSONWriter_Init( &xWriter, ucPropertyPayloadBuffer, sizeof( ucPropertyPayloadBuffer ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderBeginComponent(&xAzureIoTHubClient,&xWriter,
-                                                    (const uint8_t *)"vTsoilMoistureExternal1",
-                                                    strlen("vTsoilMoistureExternal1"));
-
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, (const uint8_t *)"fingerprintTemplate",
-                                                     strlen( "fingerprintTemplate" ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, (const uint8_t *)"firstValue",
-                                                     strlen( "firstValue" ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendString( &xWriter,(const uint8_t *)"testStringone",strlen("testStringone"));
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, (const uint8_t *)"secondValue",
-                                                     strlen( "secondValue" ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendString( &xWriter,(const uint8_t *)"testString",strlen("testString"));
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderEndComponent(&xAzureIoTHubClient,&xWriter);
-
-    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
-
-
-    if( lBytesWritten < 0 )
-    {
-        LogError( ( "Error getting the bytes written for the properties confirmation JSON" ) );
-    }
-    else
-    {
-        xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
-
-        if( xResult != eAzureIoTSuccess )
-        {
-            LogError( ( "There was an error sending the reported properties: 0x%08x", xResult ) );
-        }
-    }
-
-    return xResult;
-
-}
-
-
-static int32_t prvReportedPropertiesSendfingerprintTemplateMapSoilMoisture2()
-{
-    AzureIoTResult_t xResult;
-    AzureIoTJSONWriter_t xWriter;
-    int32_t lBytesWritten;
-
-    xResult = AzureIoTJSONWriter_Init( &xWriter, ucPropertyPayloadBuffer, sizeof( ucPropertyPayloadBuffer ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderBeginComponent(&xAzureIoTHubClient,&xWriter,
-                                                    (const uint8_t *)"vTsoilMoistureExternal2",
-                                                    strlen("vTsoilMoistureExternal2"));
-
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, (const uint8_t *)"fingerprintTemplate",
-                                                     strlen( "fingerprintTemplate" ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, (const uint8_t *)"firstValueSensor2",
-                                                     strlen( "firstValueSensor2" ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendString( &xWriter,(const uint8_t *)"testStringSensor2",strlen("testStringSensor2"));
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, (const uint8_t *)"secondValueSensor2",
-                                                     strlen( "secondValueSensor2" ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendString( &xWriter,(const uint8_t *)"testStringSensor2",strlen("testStringSensor2"));
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderEndComponent(&xAzureIoTHubClient,&xWriter);
-
-    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
-
-
-    if( lBytesWritten < 0 )
-    {
-        LogError( ( "Error getting the bytes written for the properties confirmation JSON" ) );
-    }
-    else
-    {
-        xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
-
-        if( xResult != eAzureIoTSuccess )
-        {
-            LogError( ( "There was an error sending the reported properties: 0x%08x", xResult ) );
-        }
-    }
-
-    return xResult;
-
-}
-
-static int32_t prvReportedPropertiesSendForConfidenceMetricSoilMoisture2()
-{
-    AzureIoTResult_t xResult;
-    AzureIoTJSONWriter_t xWriter;
-    int32_t lBytesWritten;
-
-    xResult = AzureIoTJSONWriter_Init( &xWriter, ucPropertyPayloadBuffer, sizeof( ucPropertyPayloadBuffer ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderBeginComponent(&xAzureIoTHubClient,&xWriter,
-                                                    (const uint8_t *)"vTsoilMoistureExternal2",
-                                                    strlen("vTsoilMoistureExternal2"));
-
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, (const uint8_t *)"fingerprintTemplateConfidenceMetric",
-                                                     strlen( "fingerprintTemplateConfidenceMetric" ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendInt32( &xWriter, 0x64);
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderEndComponent(&xAzureIoTHubClient,&xWriter);
-
-    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
-
-
-    if( lBytesWritten < 0 )
-    {
-        LogError( ( "Error getting the bytes written for the properties confirmation JSON" ) );
-    }
-    else
-    {
-        xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
-
-        if( xResult != eAzureIoTSuccess )
-        {
-            LogError( ( "There was an error sending the reported properties: 0x%08x", xResult ) );
-        }
-    }
-
-    return xResult;
-
-}
-
-/*
-char * componentNames[NUM_COMPONENTS]={   "sampleDevice",
-                                    "vTDevice",
-                                    "vTsoilMoistureExternal1",
-                                    "vTsoilMoistureExternal2"};
-
-uint32_t numberOfReportedPropertiesInComponents[NUM_COMPONENTS]={1,1,2,2};
-
-char * allReportedPropertyNames[6]={"ledState",
-                                    "deviceStatus",
-                                    "telemetryStatus",
-                                    "fingerprintType",
-                                    "telemetryStatus",
-                                    "fingerprintType"};
-
-char allReportedPropertyType[6]={'b',
-                                    'b',
-                                    'b',
-                                    's',
-                                    'b',
-                                    's'};
-*/
 
 static int32_t prvReportedPropertiesSend()
 {
     AzureIoTResult_t xResult;
-
-    //xResult = prvReportedPropertiesSendForSampleDevice();  
-    //configASSERT( xResult == eAzureIoTSuccess );
-
-    //xResult = prvReportedPropertiesSendForvTDevice();  
-    //configASSERT( xResult == eAzureIoTSuccess );
-
-    //xResult = prvReportedPropertiesSendForvTsoilMoistureExternal1();  
-    //configASSERT( xResult == eAzureIoTSuccess );
-
-    //xResult = prvReportedPropertiesSendForvTsoilMoistureExternal2();  
-    //configASSERT( xResult == eAzureIoTSuccess );
-
-    //xResult = prvReportedPropertiesSendForConfidenceMetricSoilMoisture1();  
-    //configASSERT( xResult == eAzureIoTSuccess );
-
-    //xResult = prvReportedPropertiesSendForConfidenceMetricSoilMoisture2();  
-    //configASSERT( xResult == eAzureIoTSuccess );
-
-    //xResult = prvReportedPropertiesSendfingerprintTemplateMapSoilMoisture1();  
-    //configASSERT( xResult == eAzureIoTSuccess );
-
-    //xResult = prvReportedPropertiesSendfingerprintTemplateMapSoilMoisture2();  
-    //configASSERT( xResult == eAzureIoTSuccess );  
 
     xResult = FreeRTOS_vt_send_desired_property_after_boot(verified_telemetry_DB,&xAzureIoTHubClient,NX_AZURE_IOT_PNP_PROPERTIES);
 
     return xResult;
 }
 
-static void prvProcessSetResetFingerprintOneCommand()
-{
-    printf(" Fingerprint Reset one \n");
-}
-
-
-static void prvProcessRetrainFingerprintOneCommand()
-{
-    printf(" retrain Fingerprint one \n");
-}
-
-static void prvProcessSetResetFingerprintTwoCommand()
-{
-    printf(" Fingerprint Reset two \n");
-}
-
-
-static void prvProcessRetrainFingerprintTwoCommand()
-{
-    printf(" retrain Fingerprint two \n");
-}
 
 static int32_t prvProcessStatusCommand(const uint8_t * pucPayload,
                                         uint32_t ulPayloadLength )
@@ -1114,8 +473,6 @@ static int32_t prvInvokeMaxMinCommand( const uint8_t * pucPayload,
 /**
  * @brief Command message callback handler
  */
-//when ever we recive a command we recive a pxMessage struct, this would have the commonent name command name and command payload
-//we need to check ommonent name command name and process command payload no need to ahve a secal fucntion for comonent command
 static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                               void * pvContext )
 {
@@ -1187,7 +544,6 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                     LogError( ( "Error sending command response" ) );
                 }
 
-                //prvStatusCommandPropertyUpdate();
 
         }
 
@@ -1212,7 +568,6 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
         if( ( setLedStateCommandNameLength == pxMessage->usCommandNameLength ) &&
             ( strncmp( sampleazureiotSET_LED_STATUS_COMMAND, (const char *)pxMessage->pucCommandName, setLedStateCommandNameLength ) == 0 ) )
         {
-                //prvProcessSetLedStateCommand(pxMessage->pvMessagePayload, pxMessage->ulPayloadLength );
 
                 sample_pnp_device_process_command(&sample_device,
                         (UCHAR *)pxMessage->pucComponentName,
@@ -1232,13 +587,11 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                     LogError( ( "Error sending command response" ) );
                 }
 
-                //prvStatusCommandPropertyUpdate();
 
         }
 
         else
         {
-            /* Not for max min report (not for this device) */
             LogInfo( ( "Received command is not for this device" ) );
 
             if( AzureIoTHubClient_SendCommandResponse( xHandle, pxMessage, 404,
@@ -1270,7 +623,6 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                                             pxMessage->usCommandNameLength,
                                             NULL,NULL,0);
 
-                //prvProcessSetResetFingerprintOneCommand();
 
                 if( AzureIoTHubClient_SendCommandResponse( xHandle, pxMessage, 200,
                                                         NULL,
@@ -1291,7 +643,6 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                                             (UCHAR *)pxMessage->pucCommandName,
                                             pxMessage->usCommandNameLength,
                                             NULL,NULL,0);
-                //prvProcessRetrainFingerprintOneCommand();
 
                 if( AzureIoTHubClient_SendCommandResponse( xHandle, pxMessage, 200,
                                                         NULL,
@@ -1300,7 +651,6 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                     LogError( ( "Error sending command response" ) );
                 }
 
-                //prvStatusCommandPropertyUpdate();
 
         }
 
@@ -1334,7 +684,6 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                                             (UCHAR *)pxMessage->pucCommandName,
                                             pxMessage->usCommandNameLength,
                                             NULL,NULL,0);
-                //prvProcessSetResetFingerprintTwoCommand();
 
                 if( AzureIoTHubClient_SendCommandResponse( xHandle, pxMessage, 200,
                                                         NULL,
@@ -1355,7 +704,6 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                                             (UCHAR *)pxMessage->pucCommandName,
                                             pxMessage->usCommandNameLength,
                                             NULL,NULL,0);
-                //prvProcessRetrainFingerprintTwoCommand();
 
                 if( AzureIoTHubClient_SendCommandResponse( xHandle, pxMessage, 200,
                                                         NULL,
@@ -1364,7 +712,6 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage,
                     LogError( ( "Error sending command response" ) );
                 }
 
-                //prvStatusCommandPropertyUpdate();
 
         }
 
@@ -1509,8 +856,7 @@ static AzureIoTResult_t prvSoilMoisture1ConfidenceMetricPropertyProcess( AzureIo
 {
 
     AzureIoTResult_t xResult;
-    //void* component_pointer = verified_telemetry_DB->first_component;
-    //component_pointer = (((FreeRTOS_VT_OBJECT*)component_pointer)->next_component);
+
 
                 xResult = AzureIoTJSONReader_NextToken( xReader );
                 configASSERT( xResult == eAzureIoTSuccess );
@@ -1523,7 +869,6 @@ static AzureIoTResult_t prvSoilMoisture1ConfidenceMetricPropertyProcess( AzureIo
                 xResult = AzureIoTJSONReader_GetTokenInt32( xReader,&ConfidenceMetriclocalone);
                 configASSERT( xResult == eAzureIoTSuccess );
 
-                //((FreeRTOS_VT_OBJECT*)component_pointer)->component.fc.template_confidence_metric=ConfidenceMetriclocal;
 
                 xResult = AzureIoTJSONReader_NextToken( xReader );
                 configASSERT( xResult == eAzureIoTSuccess );
@@ -1534,97 +879,11 @@ static AzureIoTResult_t prvSoilMoisture1ConfidenceMetricPropertyProcess( AzureIo
 
 }
 
-static AzureIoTResult_t prvSoilMoisture2ConfidenceMetricMapPropertyProcess( AzureIoTJSONReader_t *xReader, 
-                                                                AzureIoTJSONTokenType_t *xTokenType)
-{
-
-    AzureIoTResult_t xResult;
-    uint8_t pucBufferLocal[64];
-    uint32_t pusBytesCopied;
-    uint8_t pucBufferLocalone[64];
-    uint32_t pusBytesCopiedone;
-                xResult = AzureIoTJSONReader_NextToken( xReader );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                xResult = AzureIoTJSONReader_NextToken( xReader );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                xResult = AzureIoTJSONReader_NextToken( xReader );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                /* Get desired temperature */
-                xResult = AzureIoTJSONReader_GetTokenString( xReader, pucBufferLocal, 64,&pusBytesCopied);
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                printf(" FingerprintType SoilMoisture2 - %s \n",pucBufferLocal);
-
-                xResult = AzureIoTJSONReader_NextToken( xReader );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                xResult = AzureIoTJSONReader_NextToken( xReader );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                /* Get desired temperature */
-                xResult = AzureIoTJSONReader_GetTokenString( xReader, pucBufferLocalone, 64,&pusBytesCopiedone);
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                printf(" FingerprintType SoilMoisture2 - %s \n",pucBufferLocalone);
-
-                xResult = AzureIoTJSONReader_NextToken( xReader );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-    return xResult;
-}
-
-static AzureIoTResult_t prvSoilMoisture1ConfidenceMetricMapPropertyProcess( AzureIoTJSONReader_t *xReader, 
-                                                                AzureIoTJSONTokenType_t *xTokenType)
-{
-
-    AzureIoTResult_t xResult;
-    uint8_t pucBufferLocal[64];
-    uint32_t pusBytesCopied;
-    uint8_t pucBufferLocalone[64];
-    uint32_t pusBytesCopiedone;
-                xResult = AzureIoTJSONReader_NextToken( xReader );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                xResult = AzureIoTJSONReader_NextToken( xReader );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                xResult = AzureIoTJSONReader_NextToken( xReader );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                /* Get desired temperature */
-                xResult = AzureIoTJSONReader_GetTokenString( xReader, pucBufferLocal, 64,&pusBytesCopied);
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                printf(" FingerprintType SoilMoisture1 - %s \n",pucBufferLocal);
-
-                xResult = AzureIoTJSONReader_NextToken( xReader );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                xResult = AzureIoTJSONReader_NextToken( xReader );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                /* Get desired temperature */
-                xResult = AzureIoTJSONReader_GetTokenString( xReader, pucBufferLocalone, 64,&pusBytesCopiedone);
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                printf(" FingerprintType SoilMoisture1 - %s \n",pucBufferLocalone);
-
-                xResult = AzureIoTJSONReader_NextToken( xReader );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-    return xResult;
-
-}
-
 static AzureIoTResult_t prvSoilMoisture2ConfidenceMetricPropertyProcess( AzureIoTJSONReader_t *xReader, 
                                                                 AzureIoTJSONTokenType_t *xTokenType)
 {
 
     AzureIoTResult_t xResult;
-    int32_t ConfidenceMetriclocal;
                 xResult = AzureIoTJSONReader_NextToken( xReader );
                 configASSERT( xResult == eAzureIoTSuccess );
 
@@ -1721,84 +980,6 @@ static AzureIoTResult_t prvenableVerifiedTelemetryReportedPropertyProcess( Azure
                 printf(" enableVerifiedTelemetry WritableProperty %d \n",enableVerifiedTelemetryWritableProperty);
 
     return xResult;
-
-}
-
-
-static AzureIoTResult_t prvEnableVerifiedTelemetryPropertyProcess(AzureIoTJSONReader_t *xReader, AzureIoTJSONTokenType_t *xTokenType, uint32_t ulVersion)
-{
-
-        AzureIoTResult_t xResult;
-        bool enableVerifiedTelemetryLocal;
-                xResult = AzureIoTJSONReader_NextToken( xReader );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                xResult = AzureIoTJSONReader_TokenType( xReader, xTokenType );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                /* Get desired temperature */
-                xResult = AzureIoTJSONReader_GetTokenBool( xReader, &enableVerifiedTelemetryLocal );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                xResult = AzureIoTJSONReader_NextToken( xReader );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-    printf(" enableVerifiedTelemetryLocal %d \n",enableVerifiedTelemetryLocal);
-
-    AzureIoTJSONWriter_t xWriter;
-    int32_t lBytesWritten;
-
-    xResult = AzureIoTJSONWriter_Init( &xWriter, ucPropertyPayloadBuffer, sizeof( ucPropertyPayloadBuffer ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderBeginComponent(&xAzureIoTHubClient,&xWriter,
-                                                    (const uint8_t *)sampleazureiotvTDeviceCOMPONENT_NAME,
-                                                    strlen(sampleazureiotvTDeviceCOMPONENT_NAME));
-
-    xResult = AzureIoTHubClientProperties_BuilderBeginResponseStatus( &xAzureIoTHubClient,
-                                                                      &xWriter,
-                                                                     (const uint8_t *) sampleazureiotPROPERTY_ENABLE_VERIFIED_TELEMETRY,
-                                                                      strlen( sampleazureiotPROPERTY_ENABLE_VERIFIED_TELEMETRY ),
-                                                                      sampleazureiotPROPERTY_STATUS_SUCCESS,
-                                                                      ulVersion,
-                                                                      (const uint8_t *)sampleazureiotPROPERTY_SUCCESS,
-                                                                      strlen( sampleazureiotPROPERTY_SUCCESS ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendBool( &xWriter, enableVerifiedTelemetryLocal);
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTHubClientProperties_BuilderEndResponseStatus( &xAzureIoTHubClient,
-                                                                    &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    AzureIoTHubClientProperties_BuilderEndComponent(&xAzureIoTHubClient,&xWriter);
-
-    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
-
-    if( lBytesWritten < 0 )
-    {
-        LogError( ( "Error getting the bytes written for the properties confirmation JSON" ) );
-    }
-    else
-    {
-        LogDebug( ( "Sending acknowledged writable property. Payload: %.*s", lBytesWritten, ucPropertyPayloadBuffer ) );
-        xResult = AzureIoTHubClient_SendPropertiesReported( &xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
-
-        if( xResult != eAzureIoTSuccess )
-        {
-            LogError( ( "There was an error sending the reported properties: 0x%08x", xResult ) );
-        }
-    }
-    
-    return xResult;
-
 
 }
 
@@ -1921,55 +1102,6 @@ static AzureIoTResult_t prvProcessProperties( AzureIoTHubClientPropertiesRespons
     return xResult;
 }
 /*-----------------------------------------------------------*/
-
-/*
-AzureIoTResult_t sendTelemetrySampleDevice()
-{
-    AzureIoTResult_t xResult;
-    uint32_t ulScratchBufferLength = 0U;
-    AzureIoTMessageProperties_t telemetrymessageProperties;
-    uint8_t pucBuffer[128];
-
-    AzureIoT_MessagePropertiesInit(&telemetrymessageProperties, pucBuffer, 0, 128);
-    AzureIoT_MessagePropertiesAppend(&telemetrymessageProperties, (const uint8_t *)"$.sub", 
-                                    sizeof("$.sub") - 1, (const uint8_t *)"sampleDevice", 
-                                    sizeof("sampleDevice") - 1);
-    AzureIoT_MessagePropertiesAppend(
-                                    &telemetrymessageProperties, 
-                                    (const uint8_t *)"verifiedTelemetry", 
-                                    sizeof("verifiedTelemetry") - 1, 
-                                    (const uint8_t *)"freertosDemo", sizeof("freertosDemo") - 1);
-
-    deviceTelemetryValue[0] = soilMoistureExternal1;
-    deviceTelemetryValue[1] = soilMoistureExternal2;
-    deviceTelemetryValue[2] = temperature;
-    deviceTelemetryValue[3] = pressure;
-    deviceTelemetryValue[4] = humidityPercentage;
-    deviceTelemetryValue[5] = acceleration;
-    deviceTelemetryValue[6] = magnetic;
- 
-    //just for simulation
-soilMoistureExternal1++;soilMoistureExternal2++;temperature++;pressure++;humidityPercentage++;acceleration++;magnetic++;
-    //just for simulation 
-    for(uint32_t telemetryIter=0;telemetryIter<7;telemetryIter++)
-    {
-    memset((void *)ucScratchBuffer,0,sizeof(ucScratchBuffer));
-    ulScratchBufferLength = prvTelemetryPayloadCreate((char *)ucScratchBuffer, sizeof(ucScratchBuffer),
-                                                            deviceTelemetryName[telemetryIter], deviceTelemetryValue[telemetryIter]);
-    //add a fucntion to toggle reported property deviceStatus
-    printf("  %s \n",ucScratchBuffer);
-
-    xResult = AzureIoTHubClient_SendTelemetry( &xAzureIoTHubClient,
-                                               ucScratchBuffer, ulScratchBufferLength,
-                                               &telemetrymessageProperties, eAzureIoTHubMessageQoS1, NULL );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    }
-
-    return xResult;
-    
-}
-*/
 
 
 
@@ -2312,19 +1444,7 @@ static void prvAzureDemoTask( void * pvParameters )
     uint32_t ulStatus;
     AzureIoTHubClientOptions_t xHubOptions = { 0 };
     bool xSessionPresent;
-    /*
-    FreeRTOS_VT_FALLCURVE_COMPONENT ComponentTag;
-    FreeRTOS_VT_OBJECT FreeRTOS_Object;
-    FreeRTOS_VERIFIED_TELEMETRY_DB verified_telemetry_DB;
-    
-    ComponentTag.associated_telemetry="soilMoistureExternal1";
-    FreeRTOS_Object.component.fc.associated_telemetry="soilMoistureExternal1";
 
-    FreeRTOS_Object.signature_type=VT_SIGNATURE_TYPE_FALLCURVE;
-
-    verified_telemetry_DB.components_num=1;
-    verified_telemetry_DB.first_component=((void *) &FreeRTOS_Object);
-    */
  
 
     verified_telemetry_DB=sample_nx_verified_telemetry_user_init();
@@ -2472,22 +1592,8 @@ static void prvAzureDemoTask( void * pvParameters )
         for( ulPublishCount = 0; ulPublishCount < ulMaxPublishCount; ulPublishCount++ )
         {
 
-            //xResult = sendTelemetrySampleDevice(&xAzureIoTHubClient);
-            //configASSERT( xResult == eAzureIoTSuccess );
-
-            //send reported property
             sample_pnp_device_telemetry_send(&sample_device,&xAzureIoTHubClient);
-            /*
-            FreeRTOS_vt_verified_telemetry_message_create_send(verified_telemetry_DB,
-                                                                &xAzureIoTHubClient,
-                                                                (const UCHAR *)"sampleDevice",
-                                                                strlen("sampleDevice"),
-                                                                0,
-                                                                (const UCHAR *)sampleazuretelemetryMESSAGE,
-                                                                strlen(sampleazuretelemetryMESSAGE));
-            */
-            //xResult = prvReportedPropertiesSend();
-            //configASSERT( xResult == eAzureIoTSuccess );
+
 
             FreeRTOS_vt_compute_evaluate_fingerprint_all_sensors(verified_telemetry_DB);
 
@@ -2682,7 +1788,7 @@ static uint32_t prvConnectToServerWithBackoffRetries( const char * pcHostName,
     return xNetworkStatus == eTLSTransportSuccess ? 0 : 1;
 }
 /*-----------------------------------------------------------*/
-
+ 
 /*
  * @brief Create the task that demonstrates the AzureIoTHub demo
  */
