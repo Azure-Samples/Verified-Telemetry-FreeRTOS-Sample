@@ -12,6 +12,7 @@ extern "C"
 
 //#include "azure_iot_hub_client_properties.h"
 #include "FreeRTOS_verified_telemetry.h"
+
     typedef struct SAMPLE_PNP_DEVICE_COMPONENT_TAG
     {
         /* Name of this component */
@@ -48,24 +49,26 @@ extern "C"
 
     } SAMPLE_PNP_DEVICE_COMPONENT;
 
-UINT sample_pnp_device_init(SAMPLE_PNP_DEVICE_COMPONENT* handle,
-    UCHAR* component_name_ptr,
-    UINT component_name_length,
-    double default_sensor_reading,
-    FreeRTOS_VERIFIED_TELEMETRY_DB* verified_telemetry_DB);
+    UINT sample_pnp_device_init(SAMPLE_PNP_DEVICE_COMPONENT* handle,
+        UCHAR* component_name_ptr,
+        UINT component_name_length,
+        double default_sensor_reading,
+        FreeRTOS_VERIFIED_TELEMETRY_DB* verified_telemetry_DB);
 
-UINT sample_pnp_device_process_command(SAMPLE_PNP_DEVICE_COMPONENT* handle,
-    UCHAR* component_name_ptr,
-    UINT component_name_length,
-    UCHAR* pnp_command_name_ptr,
-    UINT pnp_command_name_length,
-    AzureIoTJSONReader_t* json_reader_ptr,
-    AzureIoTJSONWriter_t* json_response_ptr,
-    UINT* status_code);
+    UINT sample_pnp_device_process_command(SAMPLE_PNP_DEVICE_COMPONENT* handle,
+        UCHAR* component_name_ptr,
+        UINT component_name_length,
+        UCHAR* pnp_command_name_ptr,
+        UINT pnp_command_name_length,
+        AzureIoTJSONReader_t* json_reader_ptr,
+        AzureIoTJSONWriter_t* json_response_ptr,
+        UINT* status_code);
 
-AzureIoTResult_t sample_pnp_device_telemetry_send(SAMPLE_PNP_DEVICE_COMPONENT* handle, AzureIoTHubClient_t * xAzureIoTHubClient);
+    AzureIoTResult_t sample_pnp_device_telemetry_send(
+        SAMPLE_PNP_DEVICE_COMPONENT* handle, AzureIoTHubClient_t* xAzureIoTHubClient);
 
-AzureIoTResult_t sample_pnp_device_led_state_property(SAMPLE_PNP_DEVICE_COMPONENT* handle, AzureIoTHubClient_t * xAzureIoTHubClient);
+    AzureIoTResult_t sample_pnp_device_led_state_property(
+        SAMPLE_PNP_DEVICE_COMPONENT* handle, AzureIoTHubClient_t* xAzureIoTHubClient);
 
 #ifdef __cplusplus
 }

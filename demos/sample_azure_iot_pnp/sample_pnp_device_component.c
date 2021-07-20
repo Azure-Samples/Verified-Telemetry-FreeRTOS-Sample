@@ -2,28 +2,29 @@
    Licensed under the MIT License. */
 
 #include "sample_pnp_device_component.h"
+#include "main.h"
 #include "stm32l475e_iot01.h"
 #include "stm32l475e_iot01_accelero.h"
 #include "stm32l475e_iot01_hsensor.h"
 #include "stm32l475e_iot01_magneto.h"
 #include "stm32l475e_iot01_psensor.h"
 #include "stm32l475e_iot01_tsensor.h"
-#include "main.h"
+
 /* Kernel includes. */
 #include "FreeRTOS.h"
 #include "task.h"
- 
+
 /* Azure Provisioning/IoT Hub library includes */
 #include "azure_iot_hub_client.h"
-#include "azure_iot_provisioning_client.h"
 #include "azure_iot_hub_client_properties.h"
+#include "azure_iot_provisioning_client.h"
+
 
 /* Azure JSON includes */
 #include "azure_iot_json_reader.h"
 #include "azure_iot_json_writer.h"
 
 #include "azure_iot_hub_client_properties.h"
-
 
 #define DOUBLE_DECIMAL_PLACE_DIGITS   (2)
 #define SAMPLE_COMMAND_SUCCESS_STATUS (200)
@@ -45,7 +46,7 @@ static const CHAR set_led_state[] = "setLedState";
 static const CHAR reported_led_state[] = "ledState";
 
 static UCHAR scratch_buffer[512];
-static uint8_t ucPropertyPayloadBuffer[ 256 ];
+static uint8_t ucPropertyPayloadBuffer[256];
 
 static void set_led_state_action(bool level)
 {
@@ -87,17 +88,16 @@ UINT adc_read(ADC_HandleTypeDef* ADC_Controller, UINT ADC_Channel)
 }
 
 /* Implementation of Set LED state command of device component  */
-static UINT sample_pnp_device_set_led_state_command(SAMPLE_PNP_DEVICE_COMPONENT* handle,
-    AzureIoTJSONReader_t* xReader,
-    AzureIoTJSONWriter_t* xWriter)
+static UINT sample_pnp_device_set_led_state_command(
+    SAMPLE_PNP_DEVICE_COMPONENT* handle, AzureIoTJSONReader_t* xReader, AzureIoTJSONWriter_t* xWriter)
 {
     bool state;
     AzureIoTResult_t xResult;
 
-    xResult = AzureIoTJSONReader_NextToken( xReader );
-    configASSERT( xResult == eAzureIoTSuccess );
-    xResult = AzureIoTJSONReader_GetTokenBool( xReader,&state);
-    configASSERT( xResult == eAzureIoTSuccess );
+    xResult = AzureIoTJSONReader_NextToken(xReader);
+    configASSERT(xResult == eAzureIoTSuccess);
+    xResult = AzureIoTJSONReader_GetTokenBool(xReader, &state);
+    configASSERT(xResult == eAzureIoTSuccess);
 
     set_led_state_action((bool)state);
     handle->sensorLEDState = state;
@@ -136,7 +136,7 @@ UINT get_sensor_data(SAMPLE_PNP_DEVICE_COMPONENT* handle)
     {
         return (eAzureIoTErrorFailed);
     }
-    
+
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_SET);
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
     HAL_Delay(10);
@@ -151,7 +151,7 @@ UINT get_sensor_data(SAMPLE_PNP_DEVICE_COMPONENT* handle)
     BSP_MAGNETO_GetXYZ(magnetoXYZ);
     int16_t accXYZ[3];
     BSP_ACCELERO_AccGetXYZ(accXYZ);
-    
+
     handle->soilMoistureExternal1Raw = soilMoisture1ADCData;
     handle->soilMoistureExternal2Raw = soilMoisture2ADCData;
 
@@ -160,7 +160,6 @@ UINT get_sensor_data(SAMPLE_PNP_DEVICE_COMPONENT* handle)
     handle->sensorHumidity     = humidity;
     handle->sensorAcceleration = accXYZ[0];
     handle->sensorMagnetic     = magnetoXYZ[0];
-    
 
     return (eAzureIoTSuccess);
 }
@@ -196,10 +195,10 @@ UINT sample_pnp_device_process_command(SAMPLE_PNP_DEVICE_COMPONENT* handle,
     }
     else
     {
-        dm_status = (sample_pnp_device_set_led_state_command(handle, json_reader_ptr, json_response_ptr) !=
-                        eAzureIoTSuccess)
-                        ? SAMPLE_COMMAND_ERROR_STATUS
-                        : SAMPLE_COMMAND_SUCCESS_STATUS;
+        dm_status =
+            (sample_pnp_device_set_led_state_command(handle, json_reader_ptr, json_response_ptr) != eAzureIoTSuccess)
+                ? SAMPLE_COMMAND_ERROR_STATUS
+                : SAMPLE_COMMAND_SUCCESS_STATUS;
     }
 
     *status_code = dm_status;
@@ -207,7 +206,8 @@ UINT sample_pnp_device_process_command(SAMPLE_PNP_DEVICE_COMPONENT* handle,
     return (eAzureIoTSuccess);
 }
 
-AzureIoTResult_t sample_pnp_device_telemetry_send(SAMPLE_PNP_DEVICE_COMPONENT* handle, AzureIoTHubClient_t * xAzureIoTHubClient)
+AzureIoTResult_t sample_pnp_device_telemetry_send(
+    SAMPLE_PNP_DEVICE_COMPONENT* handle, AzureIoTHubClient_t* xAzureIoTHubClient)
 {
     AzureIoTJSONWriter_t json_writer;
     UINT lBytesWritten;
@@ -226,67 +226,66 @@ AzureIoTResult_t sample_pnp_device_telemetry_send(SAMPLE_PNP_DEVICE_COMPONENT* h
     }
     memset(scratch_buffer, 0, sizeof(scratch_buffer));
 
-    xResult = AzureIoTJSONWriter_Init( &json_writer, scratch_buffer, sizeof( scratch_buffer ) );
-    configASSERT( xResult == eAzureIoTSuccess );
-    //printf("init");
+    xResult = AzureIoTJSONWriter_Init(&json_writer, scratch_buffer, sizeof(scratch_buffer));
+    configASSERT(xResult == eAzureIoTSuccess);
+    // printf("init");
 
-    xResult = AzureIoTJSONWriter_AppendBeginObject( &json_writer );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue(&json_writer,
-                (const uint8_t *)telemetry_name_soilMoistureExternal1Raw,
-                strlen(telemetry_name_soilMoistureExternal1Raw),
-                handle->soilMoistureExternal1Raw,
-                DOUBLE_DECIMAL_PLACE_DIGITS);
-    configASSERT( xResult == eAzureIoTSuccess );
+    xResult = AzureIoTJSONWriter_AppendBeginObject(&json_writer);
+    configASSERT(xResult == eAzureIoTSuccess);
 
     xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue(&json_writer,
-                (const uint8_t *)telemetry_name_soilMoistureExternal2Raw,
-                strlen(telemetry_name_soilMoistureExternal2Raw),
-                handle->soilMoistureExternal2Raw,
-                DOUBLE_DECIMAL_PLACE_DIGITS);
-    configASSERT( xResult == eAzureIoTSuccess );
+        (const uint8_t*)telemetry_name_soilMoistureExternal1Raw,
+        strlen(telemetry_name_soilMoistureExternal1Raw),
+        handle->soilMoistureExternal1Raw,
+        DOUBLE_DECIMAL_PLACE_DIGITS);
+    configASSERT(xResult == eAzureIoTSuccess);
 
     xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue(&json_writer,
-                (const uint8_t *)telemetry_name_sensorTemperature,
-                strlen(telemetry_name_sensorTemperature),
-                handle->sensorTemperature,
-                DOUBLE_DECIMAL_PLACE_DIGITS);
-    configASSERT( xResult == eAzureIoTSuccess );
+        (const uint8_t*)telemetry_name_soilMoistureExternal2Raw,
+        strlen(telemetry_name_soilMoistureExternal2Raw),
+        handle->soilMoistureExternal2Raw,
+        DOUBLE_DECIMAL_PLACE_DIGITS);
+    configASSERT(xResult == eAzureIoTSuccess);
 
     xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue(&json_writer,
-                (const uint8_t *)telemetry_name_sensorPressure,
-                strlen(telemetry_name_sensorPressure),
-                handle->sensorPressure,
-                DOUBLE_DECIMAL_PLACE_DIGITS);
-    configASSERT( xResult == eAzureIoTSuccess );
+        (const uint8_t*)telemetry_name_sensorTemperature,
+        strlen(telemetry_name_sensorTemperature),
+        handle->sensorTemperature,
+        DOUBLE_DECIMAL_PLACE_DIGITS);
+    configASSERT(xResult == eAzureIoTSuccess);
 
     xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue(&json_writer,
-                (const uint8_t *)telemetry_name_sensorHumidity,
-                strlen(telemetry_name_sensorHumidity),
-                handle->sensorHumidity,
-                DOUBLE_DECIMAL_PLACE_DIGITS);
-    configASSERT( xResult == eAzureIoTSuccess );
+        (const uint8_t*)telemetry_name_sensorPressure,
+        strlen(telemetry_name_sensorPressure),
+        handle->sensorPressure,
+        DOUBLE_DECIMAL_PLACE_DIGITS);
+    configASSERT(xResult == eAzureIoTSuccess);
 
     xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue(&json_writer,
-                (const uint8_t *)telemetry_name_sensorAcceleration,
-                strlen(telemetry_name_sensorAcceleration),
-                handle->sensorAcceleration,
-                DOUBLE_DECIMAL_PLACE_DIGITS);
-    configASSERT( xResult == eAzureIoTSuccess );
+        (const uint8_t*)telemetry_name_sensorHumidity,
+        strlen(telemetry_name_sensorHumidity),
+        handle->sensorHumidity,
+        DOUBLE_DECIMAL_PLACE_DIGITS);
+    configASSERT(xResult == eAzureIoTSuccess);
 
     xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue(&json_writer,
-                (const uint8_t *)telemetry_name_sensorMagnetic,
-                strlen(telemetry_name_sensorMagnetic),
-                handle->sensorMagnetic,
-                DOUBLE_DECIMAL_PLACE_DIGITS);
-    configASSERT( xResult == eAzureIoTSuccess );
+        (const uint8_t*)telemetry_name_sensorAcceleration,
+        strlen(telemetry_name_sensorAcceleration),
+        handle->sensorAcceleration,
+        DOUBLE_DECIMAL_PLACE_DIGITS);
+    configASSERT(xResult == eAzureIoTSuccess);
 
-    xResult = AzureIoTJSONWriter_AppendEndObject( &json_writer );
-    configASSERT( xResult == eAzureIoTSuccess );
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue(&json_writer,
+        (const uint8_t*)telemetry_name_sensorMagnetic,
+        strlen(telemetry_name_sensorMagnetic),
+        handle->sensorMagnetic,
+        DOUBLE_DECIMAL_PLACE_DIGITS);
+    configASSERT(xResult == eAzureIoTSuccess);
 
+    xResult = AzureIoTJSONWriter_AppendEndObject(&json_writer);
+    configASSERT(xResult == eAzureIoTSuccess);
 
-    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &json_writer );
+    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed(&json_writer);
 
     /* Create and send the telemetry message packet. */
     if ((xResult = FreeRTOS_vt_verified_telemetry_message_create_send(handle->verified_telemetry_DB,
@@ -310,7 +309,8 @@ AzureIoTResult_t sample_pnp_device_telemetry_send(SAMPLE_PNP_DEVICE_COMPONENT* h
     return (eAzureIoTSuccess);
 }
 
-AzureIoTResult_t sample_pnp_device_led_state_property(SAMPLE_PNP_DEVICE_COMPONENT* handle, AzureIoTHubClient_t * xAzureIoTHubClient)
+AzureIoTResult_t sample_pnp_device_led_state_property(
+    SAMPLE_PNP_DEVICE_COMPONENT* handle, AzureIoTHubClient_t* xAzureIoTHubClient)
 {
     AzureIoTResult_t xResult;
 
@@ -319,47 +319,44 @@ AzureIoTResult_t sample_pnp_device_led_state_property(SAMPLE_PNP_DEVICE_COMPONEN
 
     memset(ucPropertyPayloadBuffer, 0, sizeof(ucPropertyPayloadBuffer));
 
+    xResult = AzureIoTJSONWriter_Init(&xWriter, ucPropertyPayloadBuffer, sizeof(ucPropertyPayloadBuffer));
+    configASSERT(xResult == eAzureIoTSuccess);
 
-    xResult = AzureIoTJSONWriter_Init( &xWriter, ucPropertyPayloadBuffer, sizeof( ucPropertyPayloadBuffer ) );
-    configASSERT( xResult == eAzureIoTSuccess );
+    xResult = AzureIoTJSONWriter_AppendBeginObject(&xWriter);
+    configASSERT(xResult == eAzureIoTSuccess);
 
-    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
+    AzureIoTHubClientProperties_BuilderBeginComponent(
+        xAzureIoTHubClient, &xWriter, (const uint8_t*)handle->component_name_ptr, handle->component_name_length);
 
-    AzureIoTHubClientProperties_BuilderBeginComponent(xAzureIoTHubClient,&xWriter,
-                                                    (const uint8_t *)handle->component_name_ptr,
-                                                    handle->component_name_length);
+    xResult =
+        AzureIoTJSONWriter_AppendPropertyName(&xWriter, (const uint8_t*)reported_led_state, strlen(reported_led_state));
+    configASSERT(xResult == eAzureIoTSuccess);
 
-    xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, (const uint8_t *)reported_led_state,
-                                                     strlen( reported_led_state ) );
-    configASSERT( xResult == eAzureIoTSuccess );
+    xResult = AzureIoTJSONWriter_AppendBool(&xWriter, handle->sensorLEDState);
+    configASSERT(xResult == eAzureIoTSuccess);
 
-    xResult = AzureIoTJSONWriter_AppendBool( &xWriter, handle->sensorLEDState);
-    configASSERT( xResult == eAzureIoTSuccess );
+    AzureIoTHubClientProperties_BuilderEndComponent(xAzureIoTHubClient, &xWriter);
 
-    AzureIoTHubClientProperties_BuilderEndComponent(xAzureIoTHubClient,&xWriter);
+    xResult = AzureIoTJSONWriter_AppendEndObject(&xWriter);
+    configASSERT(xResult == eAzureIoTSuccess);
 
-    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
+    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed(&xWriter);
 
-    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
-
-
-    if( lBytesWritten < 0 )
+    if (lBytesWritten < 0)
     {
-        LogError( ( "Error getting the bytes written for the properties confirmation JSON" ) );
+        LogError(("Error getting the bytes written for the properties confirmation JSON"));
     }
     else
     {
-        xResult = AzureIoTHubClient_SendPropertiesReported( xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL );
+        xResult =
+            AzureIoTHubClient_SendPropertiesReported(xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL);
 
-        if( xResult != eAzureIoTSuccess )
+        if (xResult != eAzureIoTSuccess)
         {
-            LogError( ( "There was an error sending the reported properties: 0x%08x", xResult ) );
+            LogError(("There was an error sending the reported properties: 0x%08x", xResult));
         }
     }
     printf(" next2 ");
 
     return xResult;
-
 }
