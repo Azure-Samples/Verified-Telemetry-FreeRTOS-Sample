@@ -45,6 +45,7 @@ message(INFO "freertos_port=${FREERTOS_PORT_DIRECTORY}")
 message(INFO "freertos_port_path=${BOARD_DEMO_FREERTOS_PORT_PATH}")
 message(INFO "freertos_path=${FREERTOS_PATH}")
 # Add middleware
+set(VT_MIDDLEWARE_RTOS "FREE_RTOS" CACHE STRING "Set VT Middleware to FreeRTOS")
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/azure-iot-middleware-freertos)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/Verified-Telemetry verified_telemetry)
 
