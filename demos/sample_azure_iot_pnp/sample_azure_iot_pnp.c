@@ -1574,14 +1574,17 @@ static void prvAzureDemoTask(void* pvParameters)
         for (ulPublishCount = 0; ulPublishCount < ulMaxPublishCount; ulPublishCount++)
         {
 
-            sample_pnp_device_telemetry_send(&sample_device, &xAzureIoTHubClient);
-
             FreeRTOS_vt_compute_evaluate_fingerprint_all_sensors(verified_telemetry_DB);
+            configASSERT(xResult == eAzureIoTSuccess);
 
             FreeRTOS_vt_properties(verified_telemetry_DB, &xAzureIoTHubClient);
+            configASSERT(xResult == eAzureIoTSuccess);
 
             LogInfo(("Attempt to receive publish message from IoT Hub.\r\n"));
             xResult = AzureIoTHubClient_ProcessLoop(&xAzureIoTHubClient, sampleazureiotPROCESS_LOOP_TIMEOUT_MS);
+            configASSERT(xResult == eAzureIoTSuccess);
+            
+            sample_pnp_device_telemetry_send(&sample_device, &xAzureIoTHubClient);
             configASSERT(xResult == eAzureIoTSuccess);
 
             /* Leave Connection Idle for some time. */

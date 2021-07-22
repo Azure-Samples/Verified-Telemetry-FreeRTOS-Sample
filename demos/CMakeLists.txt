@@ -8,14 +8,6 @@ endif()
 string(TOLOWER ${BOARD} BOARD_L)
 string(TOUPPER ${BOARD} BOARD_U)
 
-# Target for sample task
-if(NOT (TARGET SAMPLE::AZUREIOT))
-    add_library(SAMPLE::AZUREIOT INTERFACE IMPORTED)
-
-    target_sources(SAMPLE::AZUREIOT INTERFACE 
-      ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot/sample_azure_iot.c)
-endif()
-
 # Target for pnp sample task
 if(NOT (TARGET SAMPLE::AZUREIOTPNP))
     add_library(SAMPLE::AZUREIOTPNP INTERFACE IMPORTED)
@@ -23,12 +15,7 @@ if(NOT (TARGET SAMPLE::AZUREIOTPNP))
     target_sources(SAMPLE::AZUREIOTPNP INTERFACE
       ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp/sample_azure_iot_pnp.c
       ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp/sample_freertos_verified_telemetry_init.c
-      ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp/sample_vt_device_driver.c
-      ${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp/sample_pnp_device_component.c
       )
-    #${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp/sample_pnp_device_component.c)
-    #target_include_directories(SAMPLE::AZUREIOTPNP INTERFACE
-    #${CMAKE_CURRENT_SOURCE_DIR}/sample_azure_iot_pnp)
 
 endif()
 
@@ -38,15 +25,6 @@ if(NOT (TARGET SAMPLE::SOCKET::FREERTOSTCPIP))
     target_sources(SAMPLE::SOCKET::FREERTOSTCPIP INTERFACE 
         ${CMAKE_CURRENT_SOURCE_DIR}/common/transport/sockets_wrapper_freertos_tcpip.c)
     target_include_directories(SAMPLE::SOCKET::FREERTOSTCPIP INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}/common/transport)
-endif()
-
-# Target for lwip based socket
-if(NOT (TARGET SAMPLE::SOCKET::LWIP))
-    add_library(SAMPLE::SOCKET::LWIP INTERFACE IMPORTED)
-    target_sources(SAMPLE::SOCKET::LWIP INTERFACE 
-        ${CMAKE_CURRENT_SOURCE_DIR}/common/transport/sockets_wrapper_lwip.c)
-    target_include_directories(SAMPLE::SOCKET::LWIP INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/common/transport)
 endif()
 
