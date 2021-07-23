@@ -292,7 +292,6 @@ AzureIoTResult_t sample_pnp_device_telemetry_send(
              xAzureIoTHubClient,
              handle->component_name_ptr,
              handle->component_name_length,
-             0,
              (UCHAR*)scratch_buffer,
              lBytesWritten)))
     {

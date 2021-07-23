@@ -322,7 +322,7 @@ static int32_t prvReportedPropertiesSend()
     AzureIoTResult_t xResult;
 
     xResult = FreeRTOS_vt_send_desired_property_after_boot(
-        verified_telemetry_DB, &xAzureIoTHubClient, NX_AZURE_IOT_PNP_PROPERTIES);
+        verified_telemetry_DB, &xAzureIoTHubClient, FREERTOS_AZURE_IOT_PNP_PROPERTIES);
 
     return xResult;
 }
@@ -623,8 +623,6 @@ static void prvHandleCommand(AzureIoTHubClientCommandRequest_t* pxMessage, void*
                 pxMessage->usComponentNameLength,
                 (UCHAR*)pxMessage->pucCommandName,
                 pxMessage->usCommandNameLength,
-                NULL,
-                NULL,
                 0);
 
             if (AzureIoTHubClient_SendCommandResponse(xHandle, pxMessage, 200, NULL, 0) != eAzureIoTSuccess)
@@ -644,8 +642,6 @@ static void prvHandleCommand(AzureIoTHubClientCommandRequest_t* pxMessage, void*
                 pxMessage->usComponentNameLength,
                 (UCHAR*)pxMessage->pucCommandName,
                 pxMessage->usCommandNameLength,
-                NULL,
-                NULL,
                 0);
 
             if (AzureIoTHubClient_SendCommandResponse(xHandle, pxMessage, 200, NULL, 0) != eAzureIoTSuccess)
@@ -687,8 +683,6 @@ static void prvHandleCommand(AzureIoTHubClientCommandRequest_t* pxMessage, void*
                 pxMessage->usComponentNameLength,
                 (UCHAR*)pxMessage->pucCommandName,
                 pxMessage->usCommandNameLength,
-                NULL,
-                NULL,
                 0);
 
             if (AzureIoTHubClient_SendCommandResponse(xHandle, pxMessage, 200, NULL, 0) != eAzureIoTSuccess)
@@ -708,8 +702,6 @@ static void prvHandleCommand(AzureIoTHubClientCommandRequest_t* pxMessage, void*
                 pxMessage->usComponentNameLength,
                 (UCHAR*)pxMessage->pucCommandName,
                 pxMessage->usCommandNameLength,
-                NULL,
-                NULL,
                 0);
 
             if (AzureIoTHubClient_SendCommandResponse(xHandle, pxMessage, 200, NULL, 0) != eAzureIoTSuccess)
@@ -1245,11 +1237,9 @@ static AzureIoTResult_t prvProcessReportedProperties(
                     // prvSoilMoisture1ConfidenceMetricMapPropertyProcess(&xReader, &xTokenType);
 
                     FreeRTOS_vt_process_reported_property_sync(verified_telemetry_DB,
-                        &xAzureIoTHubClient,
                         pucComponentName,
                         ulComponentNameLength,
-                        &xReader,
-                        ulVersion);
+                        &xReader);
                 }
                 /*
                 else
@@ -1296,11 +1286,9 @@ static AzureIoTResult_t prvProcessReportedProperties(
                     // prvSoilMoisture2ConfidenceMetricMapPropertyProcess(&xReader, &xTokenType);
 
                     FreeRTOS_vt_process_reported_property_sync(verified_telemetry_DB,
-                        &xAzureIoTHubClient,
                         pucComponentName,
                         ulComponentNameLength,
-                        &xReader,
-                        ulVersion);
+                        &xReader);
                 }
             }
 
