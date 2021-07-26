@@ -1,61 +1,112 @@
-# Azure IoT samples using Azure IoT Middleware for FreeRTOS
+# Getting Started with Verified Telemetry, FreeRTOS and Azure IoT
 
-<!-- markdown-link-check-disable -->
-[![Linux CI Tests](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ci_tests_linux.yml/badge.svg)](https://github.com/Azure-Samples/iot-middleware-freertos-samples/actions/workflows/ci_tests_linux.yml)
-<!-- markdown-link-check-enable-->
+## Table of Contents
 
-## Getting Started
+* [Verified Telemetry Overview](#verified-telemetry-overview)
+* [Links to board specific Device Samples](#links-to-board-specific-device-samples)
+* [Verified Telemetry Concepts](#verified-telemetry-concepts)
+* [Verified Telemetry Device Sample](#verified-telemetry-device-sample)
+* [Steps to setup end-to-end Verified Telemetry demo](#steps-to-setup-end-to-end-verified-telemetry-demo)
 
-The Azure IoT Middleware for FreeRTOS simplifies the connection of devices running FreeRTOS to Azure IoT services. It implements a modular approach that brings flexibility to IoT developers by allowing them to bring their own network stack (MQTT, TLS and Socket).
+## Verified Telemetry Overview
+Verified Telemetry (VT) is a state-of-the-art solution to determine the health of the sensor, i.e., working or faulty, which is consequently used to determine the quality of the sensed data. This is achieved by devising an intelligent “sensor fingerprint”, a set of unique electrical characteristics that differs between working and faulty sensors. The fingerprints can detect faults for a wide variety of off-the-shelf sensors and can be easily implemented with lightweight software code running on the IoT device. VT code is split into three repositories as described below: 
 
-The [Azure IoT Middleware for FreeRTOS repo](https://github.com/Azure/azure-iot-middleware-freertos) has the core functionalities of the middleware and no external dependencies, however to implement working samples, we need to bring a network stack which is the objective of this repo. 
 
-Below you will find samples for development kits and simulators showing how to use the Azure IoT Middleware for FreeRTOS. The following development kits are currently supported:
+| |Description |
+|-|-|
+|[Verified Telemetry Device SDK](https://github.com/Azure/Verified-Telemetry) |The SDK which builds on the FreeRTOS middleware and describes how to integrate VT into existing device code. |
+|[Verified Telemetry Device Sample](https://github.com/Azure-Samples/Verified-Telemetry-FreeRTOS-Sample) |These Getting Started guides shows device developers how to combine Verified Telemetry with [Azure IoT](https://azure.microsoft.com/overview/iot/) and [Azure IoT middleware for FreeRTOS](https://github.com/Azure/azure-iot-middleware-freertos). |
+|[Verified Telemetry Custom Solution Sample](https://github.com/Azure/Verified-Telemetry-Solution-Sample) | Uses InfluxDB, Grafana and the [Azure IoT Node.js SDK](https://github.com/Azure/azure-iot-sdk-node) to communicate with [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/) and showcase how the Verified Telemetry features can be utilized in real world scenarios.|
 
-* NXP:
-  * [MIMXRT1060-EVK](demos/projects/NXP/mimxrt1060/)
+
+## Links to board specific Device Samples
+
+The device samples shows device developers how to include Verified Telemetry with [Azure IoT](https://azure.microsoft.com/overview/iot/) and [Azure IoT middleware for FreeRTOS](https://github.com/Azure/azure-iot-middleware-freertos). Please find the following board specific guides:
+
 
 * STMicroelectronics:
-  * [B-L475E-IOT01A](demos/projects/ST/b-l475e-iot01a/)
-  * [B-L4S5I-IOT01A](demos/projects/ST/b-l4s5i-iot01a/)
-  * [STM32H745I-DISCO](demos/projects/ST/stm32h745i_discovery/)
+  * [B-L475E-IOT01A](/demos/projects/ST/b-l475e-iot01a/)
 
-* PC Simulation:
-  * [Linux](demos/projects/PC/linux/)
-  * [Windows](demos/projects/PC/windows/)
+  > Note: Verified Telemetry status is supported only to analog sensors. We are currently working on extending the SDK to support digital sensors. 
 
-## Plug and Play Sample
 
-The easiest way to interact with the Plug and Play sample from the service side is to use Azure IoT Explorer.  To use the sample:
+## Verified Telemetry Concepts
+A few key concepts of VT are introduced and discussed below:
 
-  - Install [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/#plug-and-play).
-  - Download [the Thermostat model](https://github.com/Azure/opendigitaltwins-dtdl/blob/master/DTDL/v2/samples/Thermostat.json) to a local directory.
-  - Start Azure IoT Explorer and then:
-    - [Configure your hub](https://github.com/Azure/azure-iot-explorer/#configure-an-iot-hub-connection).  Once you've created your thermostat device, you should see it listed in the UX.
-    - Go to `IoT Plug and Play Settings` on the home screen, select `Local Folder` for the location of the model definitions, and point to the folder you downloaded the thermostat model.
-    - Go to the devices list and select your thermostat device.  Now select `IoT Plug and Play components` and then `Default Component`.
-    - You will now be able to interact with the Plug and Play device.
+1. Sensor Fingerprint
 
-    Additional instructions for Azure IoT Explorer, including screenshots, are available [here](https://github.com/Azure/azure-iot-explorer/#plug-and-play).
+    * Sensor Fingerprint is an electrical characteristic that is measured by the IoT device for a particular sensor
+    * The Sensor fingerprint of a working sensor differs from that of a sensor with fault
 
-## Contributing
+1. Sensor Fingerprint Template
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+    * Sensor fingerprint template is a fingerprint of a working sensor
+    * The fingerprint template is collected by the IoT device, ideally when the sensor is provisioned first and stored locally and in the Digital Twin
 
-When you submit a pull request, a CLA bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
+1. Sensor Fingerprint Collection
+    * Sensor Fingerprint Collection is a process where the IoT device measures the fingerprint of a sensor
+    * In the device samples, sensor fingerprint is collected at the same frequency at which telemetry is sent by the IoT device 
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+1. Sensor Fingerprint Evaluation
+    * A sensor fingerprint that is collected is then compared with the stored sensor fingerprint template
+    * If the collected fingerprint matches with the sensor fingerprint template, the sensor is classified as WORKING, otherwise FAULTY
 
-## Trademarks
+1. Telemetry Status
+    * The telemetry status of the telemetry that is generated by the sensor is tagged "true" if the sensor is working and "false" if the sensor has a fault
+    * The telemetry status for each telemetry that supports Verified Telemetry feature exists as a non-writable property in the Digital Twin
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
-[Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
-Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
-Any use of third-party trademarks or logos are subject to those third-party's policies
+1. Fingerprint Template Synchronization at Boot
+    * If the sensor fingerprint template exists in the Digital Twin, it is fetched and updated on the device when the device boots/resets. This ensures fingerprint template is collected only once when device is provisioned. 
+    * If the sensor fingerprint template does not exist in the Digital Twin, the template on device remains empty after boot and subsequent sensor fingerprint evaluation cannot be performed
+
+1. Verified Telemetry Interface
+
+    The PnP interface of Verified Telemetry is defined in [Verified Telemetry Information](./PnPModel/vTInfo.json)
+    | Type | Name | Description |
+    |---|---|---|
+    | **Properties (read-only)** | `telemetryStatus` | Status of the telemetry, i.e. Working/Faulty to which the component of this interface is asscoiated. |
+    | **Properties (read-only)** | `fingerprintType` | Type of the fingerprint (String). e.g., FallCurve or CurrentSense or Custom. |
+    | **Properties (read-only)** | `fingerprintTemplate` | Template Fingerprint information in a Map |
+    | **Properties (read-only)** | `fingerprintTemplateConfidenceMetric` | Stores information on the Fingerprint Template confidence, i.e., high, meidum or low |
+    | **Commands** | `setResetFingerprintTemplate` | This command will set or reset the template fingerprint |
+    | **Commands** | `retrainFingerprintTemplate` | This command will append a new fingerprint to the existing template fingerprint |
+
+
+## Verified Telemetry Device Sample
+* The device samples showcase how to setup a device using the sample code which supports Verified Telemetry
+* The sample implements the [Verified Telemetry Getting Started Guide](./PnPModel/gsg.json) PnP Interface
+* The samples include a device component of the following interface - 
+    | Tab | Type | Name | Description |
+    |---|---|---|---|
+    | **Interface** | Interface | `Sample Device` | Example standard Device Model for getting started with Verified Telemetry/Dependable IoT Guide |
+    | **Properties (read-only)** | Property | `ledState` | The current state of the LED |
+    | **Commands** | Command | `setLedState` | Enable or disable the LED |
+    | **Telemetry** | Telemetry | `soilMoistureExternal1`, `soilMoistureExternal2`, `temperature`, `pressure`, `humidityPercentage`, `acceleration`, `magnetic` | Telemetries originating from various onboard and external sensors |
+* The following telemetries support Verified Telemetry:
+    1. soilMoistureExternal1
+    1. soilMoistureExternal2
+* For each of these telemetries there exists a component which implements the [Verified Telemetry Information](./PnPModel/vTInfo.json) Interface
+    | Telemetry | Component Name | 
+    |---|---|
+    | soilMoistureExternal1 | vTsoilMoistureExternal1 | 
+    | soilMoistureExternal2 | vTsoilMoistureExternal2 | 
+* The 'telemetryStatus' property present inside each of these components represents whether the respective telemetry is verified or has a fault.
+* The 'vTDevice' component implements the [Verified Telemetry Device Information](./PnPModel/vTDevice.json) Interface - 
+    | Type | Name | Description |
+    |---|---|---|
+    | **Properties (writable)** | `enableVerifiedTelemetry` | Controls whether Fingerprint Collection and Evaluation is implemented or not. When this property is set to 'false', Telemetry Verification cannot be performed.  |
+    | **Properties (read-only)** | `deviceStatus` | Device status is set to false if any sensor supported by VT has a fault. |
+
+## Steps to setup end-to-end Verified Telemetry demo
+
+1. Setup one of the board specific device samples: 
+    * STMicroelectronics:
+      * [B-L475E-IOT01A](/demos/projects/ST/b-l475e-iot01a/)
+
+1. To understand how to interact and consume Verified Telemetry information, refer to one of the following guides - 
+    * Interact with Verified Telemetry using [Azure IoT Explorer Sample](docs/vTIoTExplorerSample.md) 
+    * Interact with Verified Telemetry using our [custom Solution Sample Template](https://github.com/Azure/Verified-Telemetry-Solution-Sample) which uses a Grafana Dashboard
+
+
+## License
+The Azure Verified Telemetry Getting Started guides are licensed under the [MIT](./LICENSE.txt) license. 
