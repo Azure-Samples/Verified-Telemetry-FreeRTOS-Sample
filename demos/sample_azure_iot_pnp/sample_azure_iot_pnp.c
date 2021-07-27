@@ -87,84 +87,27 @@
  */
 #define sampleazureiotCONNACK_RECV_TIMEOUT_MS (10 * 1000U)
 
-/**
- * @brief The model id for this device
- *
- * https://github.com/Azure/opendigitaltwins-dtdl/blob/master/DTDL/v2/samples/Thermostat.json
- *
- * The model id is the JSON document (also called the Digital Twins Model Identifier or DTMI) which
- * defines the capability of your device. The functionality of the device should match what is
- * described in the corresponding DTMI. Should you choose to program your own PnP capable device,
- * the functionality would need to match the DTMI and you would need to update the below 'model_id'.
- * Please see the sample README for more information on this DTMI.
- *
- */
+
 #define sampleazureiotMODEL_ID "dtmi:azure:verifiedtelemetry:sample:GSG;1"
-
-/**
- * @brief Date-time to use for the model id
- */
-#define sampleazureiotDATE_TIME_FORMAT "%Y-%m-%dT%H:%M:%S.000Z"
-
-/**
- * @brief Telemetry values
- */
-#define sampleazureiotTELEMETRY_NAME "temperature"
 
 /**
  * @brief Property Values
  */
 #define sampleazureiotCOMPONENT_NAME                        "sampleComponent"
-#define sampleazureiotPROPERTY_STATUS_SUCCESS               200
-#define sampleazureiotPROPERTY_SUCCESS                      "success"
-#define sampleazureiotPROPERTY_TARGET_TEMPERATURE_TEXT      "targetTemperature"
-#define sampleazureiotPROPERTY_TEMPERATURE_THRESHOLD_TEXT   "temperatureThreshold"
-#define sampleazureiotPROPERTY_MAX_TEMPERATURE_TEXT         "maxTempSinceLastReboot"
 #define sampleazureiotPROPERTY_REPORTED_STATUS              "Status"
 #define sampleazureiotsampleDeviceCOMPONENT_NAME            "sampleDevice"
 #define sampleazureiotvTDeviceCOMPONENT_NAME                "vTDevice"
-#define sampleazureiotvTsoilMoistureExternal1COMPONENT_NAME "vTsoilMoistureExternal1"
-#define sampleazureiotvTsoilMoistureExternal2COMPONENT_NAME "vTsoilMoistureExternal2"
-#define sampleazureiotREPORTED                              "\"reported\":"
-static uint8_t ucPropertyPayloadBuffer[256];
 
 /**
  * @brief Command values
  */
-#define sampleazureiotCOMMAND_MAX_MIN_REPORTWITHCOM    "componentSample*getMaxMinReport"
-#define sampleazureiotCOMMAND_MAX_MIN_REPORT           "getMaxMinReport"
-#define sampleazureiotCOMMAND_STATUS_COMMAND           "statusCommand"
-#define sampleazureiotCOMMAND_STATUS_COMMAND_REQUESTED "getStatus"
-#define sampleazureiotCOMMAND_SINCE                    "since"
-#define sampleazureiotCOMMAND_MAX_TEMP                 "maxTemp"
-#define sampleazureiotCOMMAND_MIN_TEMP                 "minTemp"
-#define sampleazureiotCOMMAND_AV_TEMP                  "avgTemp"
-#define sampleazureiotCOMMAND_START_TIME               "startTime"
-#define sampleazureiotCOMMAND_END_TIME                 "endTime"
+
 #define sampleazureiotCOMMAND_EMPTY_PAYLOAD            "{}"
-static uint8_t ucCommandPayloadBuffer[256];
-static uint8_t ucCommandStartTimeValueBuffer[32];
-static uint8_t ucCommandEndTimeValueBuffer[32];
 
-/**
- *@brief The Telemetry message published in this example.
- */
-#define sampleazureiotMESSAGE "{\"" sampleazureiotTELEMETRY_NAME "\":%0.2f}"
 
-#define sampleazuretelemetryMESSAGE "{\"" sampleazureiotTELEMETRY_NAME "\": 5}"
 
-/**
- * @brief Device values
- */
-#define sampleazureiotDEFAULT_START_TEMP_COUNT    1
-#define sampleazureiotDEFAULT_START_TEMP_CELSIUS  22.0
-#define sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS 2
-static double xDeviceMaximumTemperature = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
-static double xDeviceMinimumTemperature = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
-static double xDeviceAverageTemperature = sampleazureiotDEFAULT_START_TEMP_CELSIUS;
-static bool statusBool                  = true;
-int32_t ConfidenceMetriclocalone;
-int32_t ConfidenceMetriclocaltwo;
+static int32_t ConfidenceMetriclocalone;
+static int32_t ConfidenceMetriclocaltwo;
 
 // vt variables
 
@@ -179,15 +122,7 @@ static bool telemetryStatusSoilMoisture2;
 #define sampleazureiotSOIL_MOISTURE_ONE_COMPONENT_NAME   "vTsoilMoistureExternal1"
 #define sampleazureiotSOIL_MOISTURE_TWO_COMPONENT_NAME   "vTsoilMoistureExternal2"
 #define sampleazureiotSET_LED_STATUS_COMMAND             "setLedState"
-#define sampleazureiotPROPERTY_REPORTED_LED_STATE        "ledState"
 
-char* deviceTelemetryName[7] = {"soilMoistureExternal1",
-    "soilMoistureExternal2",
-    "temperature",
-    "pressure",
-    "humidityPercentage",
-    "acceleration",
-    "magnetic"};
 
 FreeRTOS_VERIFIED_TELEMETRY_DB* verified_telemetry_DB;
 #define SAMPLE_DEFAULT_DEVICE_SENSOR_READING (22)
@@ -327,163 +262,14 @@ static int32_t prvReportedPropertiesSend()
     return xResult;
 }
 
-static int32_t prvProcessStatusCommand(const uint8_t* pucPayload, uint32_t ulPayloadLength)
-{
-
-    AzureIoTResult_t xResult;
-    AzureIoTJSONReader_t xReader;
-
-    xResult = AzureIoTJSONReader_Init(&xReader, pucPayload, ulPayloadLength);
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    xResult = AzureIoTJSONReader_NextToken(&xReader);
-    configASSERT(xResult == eAzureIoTSuccess);
-    xResult = AzureIoTJSONReader_GetTokenBool(&xReader, &statusBool);
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    printf(" statusBool %d \n", statusBool);
-
-    // need to make this comonent reorted roerty send
-
-    AzureIoTJSONWriter_t xWriter;
-    int32_t lBytesWritten;
-
-    xResult = AzureIoTJSONWriter_Init(&xWriter, ucPropertyPayloadBuffer, sizeof(ucPropertyPayloadBuffer));
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    xResult = AzureIoTJSONWriter_AppendBeginObject(&xWriter);
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    AzureIoTHubClientProperties_BuilderBeginComponent(&xAzureIoTHubClient,
-        &xWriter,
-        (const uint8_t*)sampleazureiotCOMPONENT_NAME,
-        strlen(sampleazureiotCOMPONENT_NAME));
-
-    xResult = AzureIoTJSONWriter_AppendPropertyName(&xWriter,
-        (const uint8_t*)sampleazureiotPROPERTY_REPORTED_STATUS,
-        strlen(sampleazureiotPROPERTY_REPORTED_STATUS));
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    xResult = AzureIoTJSONWriter_AppendBool(&xWriter, statusBool);
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    AzureIoTHubClientProperties_BuilderEndComponent(&xAzureIoTHubClient, &xWriter);
-
-    xResult = AzureIoTJSONWriter_AppendEndObject(&xWriter);
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed(&xWriter);
-
-    if (lBytesWritten < 0)
-    {
-        LogError(("Error getting the bytes written for the properties confirmation JSON"));
-    }
-    else
-    {
-        xResult =
-            AzureIoTHubClient_SendPropertiesReported(&xAzureIoTHubClient, ucPropertyPayloadBuffer, lBytesWritten, NULL);
-
-        if (xResult != eAzureIoTSuccess)
-        {
-            LogError(("There was an error sending the reported properties: 0x%08x", xResult));
-        }
-    }
-    printf(" next2 ");
-
-    return xResult;
-}
-
-/**
- * @brief Generate max min payload.
- */
-static int32_t prvInvokeMaxMinCommand(const uint8_t* pucPayload, uint32_t ulPayloadLength)
-{
-    AzureIoTResult_t xResult;
-    AzureIoTJSONReader_t xReader;
-    AzureIoTJSONWriter_t xWriter;
-    uint32_t ulSinceTimeLength;
-    time_t xRawTime;
-    struct tm* pxTimeInfo;
-    size_t xEndTimeLength;
-
-    /* Get the start time */
-    xResult = AzureIoTJSONReader_Init(&xReader, pucPayload, ulPayloadLength);
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    xResult = AzureIoTJSONReader_NextToken(&xReader);
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    xResult = AzureIoTJSONReader_GetTokenString(
-        &xReader, ucCommandStartTimeValueBuffer, sizeof(ucCommandStartTimeValueBuffer), &ulSinceTimeLength);
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    /* Get the current time as a string. */
-    time(&xRawTime);
-    pxTimeInfo     = localtime(&xRawTime);
-    xEndTimeLength = strftime((char*)ucCommandEndTimeValueBuffer,
-        sizeof(ucCommandEndTimeValueBuffer),
-        sampleazureiotDATE_TIME_FORMAT,
-        pxTimeInfo);
-
-    xResult = AzureIoTJSONWriter_Init(&xWriter, ucCommandPayloadBuffer, sizeof(ucCommandPayloadBuffer));
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    xResult = AzureIoTJSONWriter_AppendBeginObject(&xWriter);
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue(&xWriter,
-        (const uint8_t*)sampleazureiotCOMMAND_MAX_TEMP,
-        strlen(sampleazureiotCOMMAND_MAX_TEMP),
-        xDeviceMaximumTemperature,
-        sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS);
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue(&xWriter,
-        (const uint8_t*)sampleazureiotCOMMAND_MIN_TEMP,
-        strlen(sampleazureiotCOMMAND_MIN_TEMP),
-        xDeviceMinimumTemperature,
-        sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS);
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue(&xWriter,
-        (const uint8_t*)sampleazureiotCOMMAND_AV_TEMP,
-        strlen(sampleazureiotCOMMAND_AV_TEMP),
-        xDeviceAverageTemperature,
-        sampleazureiotDOUBLE_DECIMAL_PLACE_DIGITS);
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue(&xWriter,
-        (const uint8_t*)sampleazureiotCOMMAND_START_TIME,
-        strlen(sampleazureiotCOMMAND_START_TIME),
-        ucCommandStartTimeValueBuffer,
-        ulSinceTimeLength);
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue(&xWriter,
-        (const uint8_t*)sampleazureiotCOMMAND_END_TIME,
-        strlen(sampleazureiotCOMMAND_END_TIME),
-        ucCommandEndTimeValueBuffer,
-        xEndTimeLength);
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    xResult = AzureIoTJSONWriter_AppendEndObject(&xWriter);
-    configASSERT(xResult == eAzureIoTSuccess);
-
-    return AzureIoTJSONWriter_GetBytesUsed(&xWriter);
-}
-/*-----------------------------------------------------------*/
 
 /**
  * @brief Command message callback handler
  */
 static void prvHandleCommand(AzureIoTHubClientCommandRequest_t* pxMessage, void* pvContext)
 {
-    int32_t lCommandNameLength;
-    int32_t lCommandNameLengthStatus;
     int32_t setLedStateCommandNameLength;
-    int32_t ulCommandPayloadLength;
     AzureIoTHubClient_t* xHandle = (AzureIoTHubClient_t*)pvContext;
-    int32_t lcomponontNameLength;
     int32_t sampleDeviceComponontNameLength;
     int32_t soilMoistureOneComponontNameLength;
     int32_t soilMoistureTwoComponontNameLength;
@@ -500,67 +286,9 @@ static void prvHandleCommand(AzureIoTHubClientCommandRequest_t* pxMessage, void*
     sampleDeviceComponontNameLength    = strlen(sampleazureiotSAMPLE_DEVICE_COMPONENT_NAME);
     soilMoistureOneComponontNameLength = strlen(sampleazureiotSOIL_MOISTURE_ONE_COMPONENT_NAME);
     soilMoistureTwoComponontNameLength = strlen(sampleazureiotSOIL_MOISTURE_TWO_COMPONENT_NAME);
-    lcomponontNameLength               = strlen(sampleazureiotCOMPONENT_NAME);
-    lCommandNameLength                 = strlen(sampleazureiotCOMMAND_MAX_MIN_REPORT);
-    lCommandNameLengthStatus           = strlen(sampleazureiotCOMMAND_STATUS_COMMAND);
     setLedStateCommandNameLength       = strlen(sampleazureiotSET_LED_STATUS_COMMAND);
 
-    if ((lcomponontNameLength == pxMessage->usComponentNameLength) &&
-        (strncmp(sampleazureiotCOMPONENT_NAME, (const char*)pxMessage->pucComponentName, lcomponontNameLength) == 0))
-    {
-
-        if ((lCommandNameLength == pxMessage->usCommandNameLength) && (strncmp(sampleazureiotCOMMAND_MAX_MIN_REPORT,
-                                                                           (const char*)pxMessage->pucCommandName,
-                                                                           lCommandNameLength) == 0))
-        {
-            /* Is for max min report */
-            ulCommandPayloadLength = prvInvokeMaxMinCommand(pxMessage->pvMessagePayload, pxMessage->ulPayloadLength);
-
-            if (ulCommandPayloadLength > 0)
-            {
-                if (AzureIoTHubClient_SendCommandResponse(
-                        xHandle, pxMessage, 200, ucCommandPayloadBuffer, ulCommandPayloadLength) != eAzureIoTSuccess)
-                {
-                    LogError(("Error sending command response"));
-                }
-            }
-            else
-            {
-                LogError(("Error generating command payload"));
-            }
-        }
-
-        else if ((lCommandNameLengthStatus == pxMessage->usCommandNameLength) &&
-                 (strncmp(sampleazureiotCOMMAND_STATUS_COMMAND,
-                      (const char*)pxMessage->pucCommandName,
-                      lCommandNameLengthStatus) == 0))
-        {
-
-            prvProcessStatusCommand(pxMessage->pvMessagePayload, pxMessage->ulPayloadLength);
-
-            if (AzureIoTHubClient_SendCommandResponse(xHandle, pxMessage, 200, NULL, 0) != eAzureIoTSuccess)
-            {
-                LogError(("Error sending command response"));
-            }
-        }
-
-        else
-        {
-            /* Not for max min report (not for this device) */
-            LogInfo(("Received command is not for this device"));
-
-            if (AzureIoTHubClient_SendCommandResponse(xHandle,
-                    pxMessage,
-                    404,
-                    (const uint8_t*)sampleazureiotCOMMAND_EMPTY_PAYLOAD,
-                    strlen(sampleazureiotCOMMAND_EMPTY_PAYLOAD)) != eAzureIoTSuccess)
-            {
-                LogError(("Error sending command response"));
-            }
-        }
-    }
-
-    else if ((sampleDeviceComponontNameLength == pxMessage->usComponentNameLength) &&
+    if ((sampleDeviceComponontNameLength == pxMessage->usComponentNameLength) &&
              (strncmp(sampleazureiotSAMPLE_DEVICE_COMPONENT_NAME,
                   (const char*)pxMessage->pucComponentName,
                   sampleDeviceComponontNameLength) == 0))
@@ -1400,8 +1128,6 @@ static uint32_t prvSetupNetworkCredentials(NetworkCredentials_t* pxNetworkCreden
  */
 static void prvAzureDemoTask(void* pvParameters)
 {
-    uint32_t ulPublishCount                  = 0U;
-    const uint32_t ulMaxPublishCount         = 200UL;
     NetworkCredentials_t xNetworkCredentials = {0};
     AzureIoTTransportInterface_t xTransport;
     NetworkContext_t xNetworkContext         = {0};
@@ -1559,7 +1285,7 @@ static void prvAzureDemoTask(void* pvParameters)
         configASSERT(xResult == eAzureIoTSuccess);
 
         /* Publish messages with QoS1, send and process Keep alive messages. */
-        for (ulPublishCount = 0; ulPublishCount < ulMaxPublishCount; ulPublishCount++)
+        for ( ; ; )
         {
 
             FreeRTOS_vt_compute_evaluate_fingerprint_all_sensors(verified_telemetry_DB);
