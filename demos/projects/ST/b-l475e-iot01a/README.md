@@ -163,6 +163,39 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 1. Press the **Reset** button on the device. The button is black and is labeled on the device.
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT. This now completes flashing VT code to the device. Please follow the next steps below to interact with the device.
 
+
+```output
+WiFi module initialized.
+STM32L4XX Lib:
+> CMSIS Device Version: 1.7.0.0.
+> HAL Driver Version: 1.12.0.0.
+> BSP Driver Version: 1.1.6.0.
+ES-WIFI MAC Address: C4:7F:51:7:D1:59
+ES-WIFI Connected.
+> ES-WIFI IP Address: 192.168.1.29
+---------STARTING DEMO---------
+[INFO] [AZ IOT] [prvConnectToServerWithBackoffRetries:1457] Creating a TLS connection to AzureRtosPnP.azure-devices.net:8883.
+
+[INFO] [AZ IOT] [prvAzureDemoTask:1259] Creating an MQTT connection to AzureRtosPnP.azure-devices.net.
+
+[INFO] [MQTT] [receivePacket:885] Packet received. ReceivedBytes=2.
+[INFO] [MQTT] [deserializeConnack:970] CONNACK session present bit not set.
+[INFO] [MQTT] [logConnackResponse:912] Connection accepted.
+[INFO] [MQTT] [receiveConnack:1563] Received MQTT CONNACK successfully from broker.
+[INFO] [MQTT] [MQTT_Connect:1829] MQTT connection established with the broker.
+[INFO] [MQTT] [receivePacket:885] Packet received. ReceivedBytes=3.
+[INFO] [MQTT] [receivePacket:885] Packet received. ReceivedBytes=4.
+[INFO] [MQTT] [receivePacket:885] Packet received. ReceivedBytes=82.
+[INFO] [MQTT] [handleIncomingPublish:1044] De-serialized incoming PUBLISH packet: DeserializerResult=MQTTSuccess.
+[INFO] [MQTT] [handleIncomingPublish:1057] State record updated. New state=MQTTPublishDone.
+[INFO] [AZ IOT] [prvHandleProperties:1069] Property document payload : {"desired":{"$version":1},"reported":{"$version":1}} 
+
+[INFO] [AZ IOT] [prvHandleProperties:1074] Device property document GET received
+[INFO] [AZ IOT] [prvProcessReportedProperties:1043] Successfully parsed properties
+enable Verified Telemetry property 1 
+[INFO] [AZ IOT] [prvAzureDemoTask:1283] Attempt to receive publish message from IoT Hub.
+```
+
 ## Next Steps ***Verified Telemetry***
 * With this sample, you have now setup Verified Telemetry device sample on STM Devkit
 * To understand how to interact and consume Verified Telemetry components, refer to the following guide - 
