@@ -25,6 +25,25 @@ list(APPEND COMPONENT_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/backoff_algorithm.c
     ${CMAKE_CURRENT_LIST_DIR}/transport_tls_esp32.c
     ${CMAKE_CURRENT_LIST_DIR}/crypto_esp32.c
+
+    ${VERIFIED_TELEMETRY}/src/core/fallcurve/vt_fc_object_database_fetch.c
+    ${VERIFIED_TELEMETRY}/src/core/fallcurve/vt_fc_object_database_sync.c
+    ${VERIFIED_TELEMETRY}/src/core/fallcurve/vt_fc_object_initialize.c
+    ${VERIFIED_TELEMETRY}/src/core/fallcurve/vt_fc_object_sensor_calibrate.c
+    ${VERIFIED_TELEMETRY}/src/core/fallcurve/vt_fc_object_sensor_status.c
+    ${VERIFIED_TELEMETRY}/src/core/fallcurve/internal/vt_fc_database_fetch.c
+    ${VERIFIED_TELEMETRY}/src/core/fallcurve/internal/vt_fc_database_reset.c
+    ${VERIFIED_TELEMETRY}/src/core/fallcurve/internal/vt_fc_database_store.c
+    ${VERIFIED_TELEMETRY}/src/core/fallcurve/internal/vt_fc_read.c
+    ${VERIFIED_TELEMETRY}/src/core/fallcurve/internal/vt_fc_signature_collection_settings.c
+    ${VERIFIED_TELEMETRY}/src/core/fallcurve/internal/vt_fc_signature_compute.c
+    ${VERIFIED_TELEMETRY}/src/core/fallcurve/internal/vt_fc_signature_evaluate.c
+    ${VERIFIED_TELEMETRY}/src/middleware/freertos_middleware/FreeRTOS_verified_telemetry.c
+    ${VERIFIED_TELEMETRY}/src/middleware/freertos_middleware/FreeRTOS_vt_fallcurve_component.c
+
+    ../../verified-telemetry/sample_pnp_device_component.c
+    ../../verified-telemetry/sample_vt_device_driver.c    
+
 )
 
 set(COMPONENT_INCLUDE_DIRS

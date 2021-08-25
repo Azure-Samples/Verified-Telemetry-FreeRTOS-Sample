@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "driver/gpio.h"
 #include "driver/adc.h"
-#include "esp_adc_cal.h"
+//#include "esp_adc_cal.h"//cant seem to find #include "esp_adc_cal.h"
 #include "driver/timer.h"
 
 #define TIMER_DIVIDER         (16)  //  Hardware timer clock divider
@@ -15,7 +15,7 @@
 #define SAMPLE_INTERNAL_ADC_TYPE_ID  0x01
 #define SAMPLE_INTERNAL_GPIO_TYPE_ID 0x01
 
-static esp_adc_cal_characteristics_t adc_chars;
+//static esp_adc_cal_characteristics_t adc_chars;
 
 typedef struct {
     int timer_group;
@@ -41,15 +41,15 @@ uint32_t vt_adc_channel_sensor_1 = ADC_CHANNEL_0;
 uint32_t vt_adc_channel_sensor_2 = ADC_CHANNEL_1;
 
 /* GPIO Definitions */
-uint16_t vt_gpio_id_sensor_1 = SAMPLE_INTERNAL_GPIO_TYPE_ID;
-uint16_t vt_gpio_id_sensor_2 = SAMPLE_INTERNAL_GPIO_TYPE_ID;
+//uint16_t vt_gpio_id_sensor_1 = SAMPLE_INTERNAL_GPIO_TYPE_ID;
+//uint16_t vt_gpio_id_sensor_2 = SAMPLE_INTERNAL_GPIO_TYPE_ID;
 
 uint16_t* vt_gpio_port_sensor_1;
 uint16_t* vt_gpio_port_sensor_2;
 
 uint16_t vt_gpio_pin_sensor_1 = GPIO_NUM_18;
 uint16_t vt_gpio_pin_sensor_2 = GPIO_NUM_19;
-
+/*
 static void check_efuse(void)
 {
     //Check if TP is burned into eFuse
@@ -76,7 +76,7 @@ static void print_char_val_type(esp_adc_cal_value_t val_type)
         printf("Characterized using Default Vref\n");
     }
 }
-
+*/
 uint16_t vt_adc_single_read_init(
     uint16_t adc_id, void* adc_controller, void* adc_channel, uint16_t* adc_resolution, float* adc_ref_volt)
 {
@@ -85,7 +85,7 @@ uint16_t vt_adc_single_read_init(
     adc_channel_t channel = *((adc_channel_t*)adc_channel);
 
     //Check if Two Point or Vref are burned into eFuse
-    check_efuse();
+    //check_efuse();
 
     //Configure ADC
     if (unit == ADC_UNIT_1) {
@@ -96,8 +96,8 @@ uint16_t vt_adc_single_read_init(
     }
 
     //Characterize ADC
-    esp_adc_cal_value_t val_type = esp_adc_cal_characterize(unit, atten, width, DEFAULT_VREF, &adc_chars);
-    print_char_val_type(val_type);
+    //esp_adc_cal_value_t val_type = esp_adc_cal_characterize(unit, atten, width, DEFAULT_VREF, &adc_chars);
+    //print_char_val_type(val_type);
 
         *adc_resolution = 12;
         *adc_ref_volt   = 3.6f;
@@ -108,7 +108,7 @@ uint16_t vt_adc_single_read_init(
 
 uint16_t vt_adc_single_read(uint16_t adc_id, void* adc_controller, void* adc_channel)
 {
-    uint16_t adc_raw = 0;
+    int adc_raw = 0;
 
     adc_unit_t unit = *((adc_unit_t*)adc_controller);
     adc_channel_t channel = *((adc_channel_t*)adc_channel);
@@ -122,7 +122,7 @@ uint16_t vt_adc_single_read(uint16_t adc_id, void* adc_controller, void* adc_cha
         adc2_get_raw(channel, width, &adc_raw);
     }
 
-    return adc_raw;
+    return (uint16_t)adc_raw;
 }
 
 uint16_t vt_gpio_on(uint16_t gpio_id, void* gpio_port, void* gpio_pin)
@@ -131,12 +131,13 @@ uint16_t vt_gpio_on(uint16_t gpio_id, void* gpio_port, void* gpio_pin)
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_OUTPUT;
-    io_conf.pin_bit_mask = *((uint16_t*)gpio_pin);
+    io_conf.pin_bit_mask = (1ULL<<(*((uint16_t*)gpio_pin)));
     io_conf.pull_down_en = 0;
     io_conf.pull_up_en = 0;
     gpio_config(&io_conf);
 
     gpio_set_level(*((uint16_t*)gpio_pin), 1);
+    return 0;
 
 }
 
@@ -146,12 +147,13 @@ uint16_t vt_gpio_off(uint16_t gpio_id, void* gpio_port, void* gpio_pin)
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_OUTPUT;
-    io_conf.pin_bit_mask = *((uint16_t*)gpio_pin);
+    io_conf.pin_bit_mask = (1ULL<<(*((uint16_t*)gpio_pin)));
     io_conf.pull_down_en = 0;
     io_conf.pull_up_en = 0;
     gpio_config(&io_conf);
 
     gpio_set_level(*((uint16_t*)gpio_pin), 0);
+    return 0;
 
 }
 
@@ -181,7 +183,7 @@ uint16_t vt_tick_init(uint16_t* max_value, uint16_t* resolution_usec)
         .counter_dir = TIMER_COUNT_UP,
         .counter_en = TIMER_PAUSE,
         .alarm_en = TIMER_ALARM_EN,
-        .auto_reload = auto_reload,
+        .auto_reload = TIMER_AUTORELOAD_EN,
     }; // default clock source is APB
     timer_init(TIMERG0, HW_TIMER_1, &config);
 

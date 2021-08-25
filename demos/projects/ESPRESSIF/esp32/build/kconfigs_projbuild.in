@@ -1,6 +1,0 @@
-source "C:/Users/handa/Desktop/esp-idf/components/app_update/Kconfig.projbuild"
-source "C:/Users/handa/Desktop/esp-idf/components/bootloader/Kconfig.projbuild"
-source "C:/Users/handa/Desktop/esp-idf/components/esptool_py/Kconfig.projbuild"
-source "C:/Users/handa/Desktop/esp-idf/components/partition_table/Kconfig.projbuild"
-source "D:/ms_esp/Verified-Telemetry-FreeRTOS-Sample-2/demos/projects/ESPRESSIF/esp32/components/sample-azure-iot/Kconfig.projbuild"
-source "D:/ms_esp/Verified-Telemetry-FreeRTOS-Sample-2/demos/projects/ESPRESSIF/esp32/main/Kconfig.projbuild"
