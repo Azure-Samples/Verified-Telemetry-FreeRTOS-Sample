@@ -37,8 +37,8 @@ uint16_t vt_adc_id_sensor_2 = SAMPLE_INTERNAL_ADC_TYPE_ID;
 adc_unit_t vt_adc_controller_sensor_1 = ADC_UNIT_1;
 adc_unit_t vt_adc_controller_sensor_2 = ADC_UNIT_1;
 
-uint32_t vt_adc_channel_sensor_1 = ADC_CHANNEL_0;
-uint32_t vt_adc_channel_sensor_2 = ADC_CHANNEL_1;
+uint32_t vt_adc_channel_sensor_1 = ADC_CHANNEL_6;
+uint32_t vt_adc_channel_sensor_2 = ADC_CHANNEL_7;
 
 /* GPIO Definitions */
 //uint16_t vt_gpio_id_sensor_1 = SAMPLE_INTERNAL_GPIO_TYPE_ID;
@@ -109,6 +109,7 @@ uint16_t vt_adc_single_read_init(
 uint16_t vt_adc_single_read(uint16_t adc_id, void* adc_controller, void* adc_channel)
 {
     int adc_raw = 0;
+    int adc_raw_abs = 0;
 
     adc_unit_t unit = *((adc_unit_t*)adc_controller);
     adc_channel_t channel = *((adc_channel_t*)adc_channel);
@@ -121,8 +122,8 @@ uint16_t vt_adc_single_read(uint16_t adc_id, void* adc_controller, void* adc_cha
     {
         adc2_get_raw(channel, width, &adc_raw);
     }
-
-    return (uint16_t)adc_raw;
+    adc_raw_abs=abs(adc_raw-4095);
+    return (uint16_t)adc_raw_abs;
 }
 
 uint16_t vt_gpio_on(uint16_t gpio_id, void* gpio_port, void* gpio_pin)
