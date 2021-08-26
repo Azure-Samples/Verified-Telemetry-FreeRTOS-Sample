@@ -274,7 +274,9 @@ static void prvHandleCommand(AzureIoTHubClientCommandRequest_t* pxMessage, void*
     int32_t soilMoistureOneComponontNameLength;
     int32_t soilMoistureTwoComponontNameLength;
 
-    //LogInfo(("Command payload : %.*s \r\n", pxMessage->ulPayloadLength, pxMessage->pvMessagePayload));
+    LogInfo( ( "Command payload : %.*s \r\n",
+               pxMessage->ulPayloadLength,
+               ( const char * ) pxMessage->pvMessagePayload ) );
 
     AzureIoTJSONReader_t xReader;
     AzureIoTJSONWriter_t xWriter;
@@ -313,13 +315,13 @@ static void prvHandleCommand(AzureIoTHubClientCommandRequest_t* pxMessage, void*
 
             if (AzureIoTHubClient_SendCommandResponse(xHandle, pxMessage, status_code, NULL, 0) != eAzureIoTSuccess)
             {
-                //LogError(("Error sending command response"));
+                LogError(("Error sending command response"));
             }
         }
 
         else
         {
-            //LogInfo(("Received command is not for this device"));
+            LogInfo(("Received command is not for this device"));
 
             if (AzureIoTHubClient_SendCommandResponse(xHandle,
                     pxMessage,
@@ -327,7 +329,7 @@ static void prvHandleCommand(AzureIoTHubClientCommandRequest_t* pxMessage, void*
                     (const uint8_t*)sampleazureiotCOMMAND_EMPTY_PAYLOAD,
                     strlen(sampleazureiotCOMMAND_EMPTY_PAYLOAD)) != eAzureIoTSuccess)
             {
-                //LogError(("Error sending command response"));
+                LogError(("Error sending command response"));
             }
         }
     }
@@ -355,7 +357,7 @@ static void prvHandleCommand(AzureIoTHubClientCommandRequest_t* pxMessage, void*
 
             if (AzureIoTHubClient_SendCommandResponse(xHandle, pxMessage, 200, NULL, 0) != eAzureIoTSuccess)
             {
-                //LogError(("Error sending command response"));
+                LogError(("Error sending command response"));
             }
         }
 
@@ -374,14 +376,14 @@ static void prvHandleCommand(AzureIoTHubClientCommandRequest_t* pxMessage, void*
 
             if (AzureIoTHubClient_SendCommandResponse(xHandle, pxMessage, 200, NULL, 0) != eAzureIoTSuccess)
             {
-                //LogError(("Error sending command response"));
+                LogError(("Error sending command response"));
             }
         }
 
         else
         {
             /* Not for max min report (not for this device) */
-            //LogInfo(("Received command is not for this device"));
+            LogInfo(("Received command is not for this device"));
 
             if (AzureIoTHubClient_SendCommandResponse(xHandle,
                     pxMessage,
@@ -389,7 +391,7 @@ static void prvHandleCommand(AzureIoTHubClientCommandRequest_t* pxMessage, void*
                     (const uint8_t*)sampleazureiotCOMMAND_EMPTY_PAYLOAD,
                     strlen(sampleazureiotCOMMAND_EMPTY_PAYLOAD)) != eAzureIoTSuccess)
             {
-                //LogError(("Error sending command response"));
+                LogError(("Error sending command response"));
             }
         }
     }
@@ -415,7 +417,7 @@ static void prvHandleCommand(AzureIoTHubClientCommandRequest_t* pxMessage, void*
 
             if (AzureIoTHubClient_SendCommandResponse(xHandle, pxMessage, 200, NULL, 0) != eAzureIoTSuccess)
             {
-                //LogError(("Error sending command response"));
+                LogError(("Error sending command response"));
             }
         }
 
@@ -434,14 +436,14 @@ static void prvHandleCommand(AzureIoTHubClientCommandRequest_t* pxMessage, void*
 
             if (AzureIoTHubClient_SendCommandResponse(xHandle, pxMessage, 200, NULL, 0) != eAzureIoTSuccess)
             {
-                //LogError(("Error sending command response"));
+                LogError(("Error sending command response"));
             }
         }
 
         else
         {
             /* Not for max min report (not for this device) */
-            //LogInfo(("Received command is not for this device"));
+            LogInfo(("Received command is not for this device"));
 
             if (AzureIoTHubClient_SendCommandResponse(xHandle,
                     pxMessage,
@@ -449,7 +451,7 @@ static void prvHandleCommand(AzureIoTHubClientCommandRequest_t* pxMessage, void*
                     (const uint8_t*)sampleazureiotCOMMAND_EMPTY_PAYLOAD,
                     strlen(sampleazureiotCOMMAND_EMPTY_PAYLOAD)) != eAzureIoTSuccess)
             {
-                //LogError(("Error sending command response"));
+                LogError(("Error sending command response"));
             }
         }
     }
@@ -457,7 +459,7 @@ static void prvHandleCommand(AzureIoTHubClientCommandRequest_t* pxMessage, void*
     else
     {
         /* Not for max min report (not for this device) */
-        //LogInfo(("Received component is not for this device"));
+        LogInfo(("Received component is not for this device"));
 
         if (AzureIoTHubClient_SendCommandResponse(xHandle,
                 pxMessage,
@@ -465,7 +467,7 @@ static void prvHandleCommand(AzureIoTHubClientCommandRequest_t* pxMessage, void*
                 (const uint8_t*)sampleazureiotCOMMAND_EMPTY_PAYLOAD,
                 strlen(sampleazureiotCOMMAND_EMPTY_PAYLOAD)) != eAzureIoTSuccess)
         {
-            //LogError(("Error sending command response"));
+            LogError(("Error sending command response"));
         }
     }
 }
@@ -713,7 +715,7 @@ static AzureIoTResult_t prvProcessProperties(
 
     if (xResult != eAzureIoTSuccess)
     {
-        //LogError(("Error getting the property version"));
+        LogError(("Error getting the property version"));
     }
     else
     { // printf(" iteration start \n");
@@ -804,11 +806,11 @@ static AzureIoTResult_t prvProcessProperties(
 
         if (xResult != eAzureIoTErrorEndOfProperties)
         {
-            //LogError(("There was an error parsing the properties: 0x%08x", xResult));
+            LogError( ( "There was an error parsing the properties: result 0x%08x", xResult ) );
         }
         else
         {
-            //LogInfo(("Successfully parsed properties"));
+            LogInfo(("Successfully parsed properties"));
             xResult = eAzureIoTSuccess;
         }
     }
@@ -838,7 +840,7 @@ static AzureIoTResult_t prvProcessReportedProperties(
 
     if (xResult != eAzureIoTSuccess)
     {
-        //LogError(("Error getting the property version"));
+        LogError(("Error getting the property version"));
     }
     else
     {
@@ -862,6 +864,10 @@ static AzureIoTResult_t prvProcessReportedProperties(
             configASSERT(xResult == eAzureIoTSuccess);
 
             //LogInfo(("component name : %.*s \r\n", ulComponentNameLength, pucComponentName));
+
+    LogInfo( ( "component name : %.*s \r\n",
+               ulComponentNameLength,
+               ( const char * ) pucComponentName ) );
 
             // printf(" %s \n",pucComponentName);
 
@@ -1036,11 +1042,11 @@ static AzureIoTResult_t prvProcessReportedProperties(
 
         if (xResult != eAzureIoTErrorEndOfProperties)
         {
-            //LogError(("There was an error parsing the properties: 0x%08x", xResult));
+            LogError( ( "There was an error parsing the properties: result 0x%08x", xResult ) );
         }
         else
         {
-            //LogInfo(("Successfully parsed properties"));
+            LogInfo(("Successfully parsed properties"));
             xResult = eAzureIoTSuccess;
         }
     }
@@ -1068,37 +1074,41 @@ static void prvHandleProperties(AzureIoTHubClientPropertiesResponse_t* pxMessage
 
     //LogInfo(("Property document payload : %.*s \r\n", pxMessage->ulPayloadLength, pxMessage->pvMessagePayload));
 
+    LogInfo( ( "Property document payload : %.*s \r\n",
+               pxMessage->ulPayloadLength,
+               ( const char * ) pxMessage->pvMessagePayload ) );
+
     switch (pxMessage->xMessageType)
     {
         case eAzureIoTHubPropertiesRequestedMessage:
-            //LogInfo(("Device property document GET received"));
+            LogInfo(("Device property document GET received"));
             // printf("first");
             xResult = prvProcessReportedProperties(pxMessage, eAzureIoTHubClientReportedFromDevice);
             if (xResult != eAzureIoTSuccess)
             {
-                //LogError(("There was an error processing incoming properties"));
+                LogError(("There was an error processing incoming properties"));
             }
 
             break;
 
         case eAzureIoTHubPropertiesWritablePropertyMessage:
-            //LogInfo(("Device writeable property received"));
+            LogInfo(("Device writeable property received"));
             xResult = prvProcessProperties(pxMessage, eAzureIoTHubClientPropertyWritable);
 
             if (xResult != eAzureIoTSuccess)
             {
-                //LogError(("There was an error processing incoming properties"));
+                LogError(("There was an error processing incoming properties"));
             }
 
             break;
 
         case eAzureIoTHubPropertiesReportedResponseMessage:
-            //LogInfo(("Device reported property response received"));
+            LogInfo(("Device reported property response received"));
             break;
 
         default:
             printf("default");
-            //LogError(("Unknown property message"));
+            LogError(("Unknown property message"));
     }
 }
 /*-----------------------------------------------------------*/
@@ -1257,7 +1267,8 @@ static void prvAzureDemoTask(void* pvParameters)
 
         /* Sends an MQTT Connect packet over the already established TLS connection,
          * and waits for connection acknowledgment (CONNACK) packet. */
-        //LogInfo(("Creating an MQTT connection to %s.\r\n", pucIotHubHostname));
+
+        LogInfo( ( "Creating an MQTT connection to %s.\r\n", pucIotHubHostname ) );
 
         xResult = AzureIoTHubClient_Connect(
             &xAzureIoTHubClient, false, &xSessionPresent, sampleazureiotCONNACK_RECV_TIMEOUT_MS);
@@ -1281,7 +1292,8 @@ static void prvAzureDemoTask(void* pvParameters)
         xResult = prvReportedPropertiesSend();
         configASSERT(xResult == eAzureIoTSuccess);
 
-        //LogInfo(("Attempt to receive publish message from IoT Hub.\r\n"));
+        LogInfo( ( "Attempt to receive publish message from IoT Hub.\r\n" ) );
+
         xResult = AzureIoTHubClient_ProcessLoop(&xAzureIoTHubClient, sampleazureiotPROCESS_LOOP_TIMEOUT_MS);
         configASSERT(xResult == eAzureIoTSuccess);
 
@@ -1295,7 +1307,7 @@ static void prvAzureDemoTask(void* pvParameters)
             FreeRTOS_vt_properties(verified_telemetry_DB, &xAzureIoTHubClient);
             configASSERT(xResult == eAzureIoTSuccess);
 
-            //LogInfo(("Attempt to receive publish message from IoT Hub.\r\n"));
+            LogInfo(("Attempt to receive publish message from IoT Hub.\r\n"));
             xResult = AzureIoTHubClient_ProcessLoop(&xAzureIoTHubClient, sampleazureiotPROCESS_LOOP_TIMEOUT_MS);
             configASSERT(xResult == eAzureIoTSuccess);
             
@@ -1303,7 +1315,7 @@ static void prvAzureDemoTask(void* pvParameters)
             configASSERT(xResult == eAzureIoTSuccess);
 
             /* Leave Connection Idle for some time. */
-            //LogInfo(("Keeping Connection Idle...\r\n\r\n"));
+            LogInfo(("Keeping Connection Idle...\r\n\r\n"));
             vTaskDelay(sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS);
         }
 
@@ -1325,8 +1337,8 @@ static void prvAzureDemoTask(void* pvParameters)
 
         /* Wait for some time between two iterations to ensure that we do not
          * bombard the IoT Hub. */
-        //LogInfo(("Demo completed successfully.\r\n"));
-        //LogInfo(("Short delay before starting the next iteration.... \r\n\r\n"));
+        LogInfo(("Demo completed successfully.\r\n"));
+        LogInfo(("Short delay before starting the next iteration.... \r\n\r\n"));
         vTaskDelay(sampleazureiotDELAY_BETWEEN_DEMO_ITERATIONS_TICKS);
     }
 }
@@ -1455,7 +1467,7 @@ static uint32_t prvConnectToServerWithBackoffRetries(const char* pcHostName,
      */
     do
     {
-        //LogInfo(("Creating a TLS connection to %s:%u.\r\n", pcHostName, port));
+        LogInfo( ( "Creating a TLS connection to %s:%u.\r\n", pcHostName, port ) );
         /* Attempt to create a mutually authenticated TLS connection. */
         xNetworkStatus = TLS_Socket_Connect(pxNetworkContext,
             pcHostName,
@@ -1475,7 +1487,7 @@ static uint32_t prvConnectToServerWithBackoffRetries(const char* pcHostName,
 
             if (xBackoffAlgStatus == BackoffAlgorithmRetriesExhausted)
             {
-                //LogError(("Connection to the IoT Hub failed, all attempts exhausted."));
+                LogError(("Connection to the IoT Hub failed, all attempts exhausted."));
             }
             else if (xBackoffAlgStatus == BackoffAlgorithmSuccess)
             {
