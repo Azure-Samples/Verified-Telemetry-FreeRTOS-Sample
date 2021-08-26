@@ -5,11 +5,11 @@
 //#include "esp_adc_cal.h"//cant seem to find #include "esp_adc_cal.h"
 #include "driver/timer.h"
 
-#define TIMER_DIVIDER         (16)  //  Hardware timer clock divider
+#define TIMER_DIVIDER         (80)  //  Hardware timer clock divider
 #define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
 #define DEFAULT_VREF    1100        
 
-#define TIMERG0    1
+#define TIMERG1    1
 #define HW_TIMER_1    1
         
 #define SAMPLE_INTERNAL_ADC_TYPE_ID  0x01
@@ -109,7 +109,7 @@ uint16_t vt_adc_single_read_init(
 uint16_t vt_adc_single_read(uint16_t adc_id, void* adc_controller, void* adc_channel)
 {
     int adc_raw = 0;
-    int adc_raw_abs = 0;
+    //int adc_raw_abs = 0;
 
     adc_unit_t unit = *((adc_unit_t*)adc_controller);
     adc_channel_t channel = *((adc_channel_t*)adc_channel);
@@ -122,8 +122,8 @@ uint16_t vt_adc_single_read(uint16_t adc_id, void* adc_controller, void* adc_cha
     {
         adc2_get_raw(channel, width, &adc_raw);
     }
-    adc_raw_abs=abs(adc_raw-4095);
-    return (uint16_t)adc_raw_abs;
+    //adc_raw_abs=abs(adc_raw-4095);
+    return (uint16_t)adc_raw;
 }
 
 uint16_t vt_gpio_on(uint16_t gpio_id, void* gpio_port, void* gpio_pin)
@@ -180,30 +180,30 @@ uint16_t vt_tick_init(uint16_t* max_value, uint16_t* resolution_usec)
     }
 
     timer_config_t config = {
-        .divider = ((80 * default_tick_resolution) - 1),
+        .divider = TIMER_DIVIDER,
         .counter_dir = TIMER_COUNT_UP,
         .counter_en = TIMER_PAUSE,
         .alarm_en = TIMER_ALARM_EN,
         .auto_reload = TIMER_AUTORELOAD_EN,
     }; // default clock source is APB
-    timer_init(TIMERG0, HW_TIMER_1, &config);
+    timer_init(TIMERG1, HW_TIMER_1, &config);
 
     /* Timer's counter will initially start from value below.
        Also, if auto_reload is set, this value will be automatically reload on alarm */
-    timer_set_counter_value(TIMERG0, HW_TIMER_1, 0);
+    timer_set_counter_value(TIMERG1, HW_TIMER_1, 0);
 
     /* Configure the alarm value and the interrupt on alarm. */
-    timer_set_alarm_value(TIMERG0, HW_TIMER_1, 65535);
+    timer_set_alarm_value(TIMERG1, HW_TIMER_1, 65535);
 
-    timer_start(TIMERG0, HW_TIMER_1);
+    timer_start(TIMERG1, HW_TIMER_1);
 
     return 0;
 }
 
 unsigned long vt_tick_deinit()
 {
-    timer_pause(TIMERG0, HW_TIMER_1);
-    timer_deinit(TIMERG0, HW_TIMER_1);
+    timer_pause(TIMERG1, HW_TIMER_1);
+    timer_deinit(TIMERG1, HW_TIMER_1);
 
     return 0;
 }
@@ -211,7 +211,7 @@ unsigned long vt_tick_deinit()
 unsigned long vt_tick()
 {
     uint64_t task_counter_value;
-    timer_get_counter_value(TIMERG0, HW_TIMER_1, &task_counter_value);
+    timer_get_counter_value(TIMERG1, HW_TIMER_1, &task_counter_value);
 
     return task_counter_value;
 }
