@@ -65,5 +65,5 @@ set(COMPONENT_INCLUDE_DIRS
 idf_component_register(
     SRCS ${COMPONENT_SOURCES}
     INCLUDE_DIRS ${COMPONENT_INCLUDE_DIRS}
-    REQUIRES mbedtls tcp_transport coreMQTT azure-sdk-for-c azure-iot-middleware-freertos)
+    REQUIRES esp_adc_cal mbedtls tcp_transport coreMQTT azure-sdk-for-c azure-iot-middleware-freertos)
 

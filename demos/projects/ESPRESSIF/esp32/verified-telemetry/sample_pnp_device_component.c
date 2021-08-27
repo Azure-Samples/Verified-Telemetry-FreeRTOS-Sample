@@ -10,7 +10,7 @@
 
 #include "driver/gpio.h"
 #include "driver/adc.h"
-//#include "esp_adc_cal.h"
+#include "esp_adc_cal.h"
 /* Azure Provisioning/IoT Hub library includes */
 #include "azure_iot_hub_client.h"
 #include "azure_iot_hub_client_properties.h"
@@ -91,7 +91,7 @@ static void set_led_state_action(bool level)
 UINT adc_read(adc_unit_t* ADC_Controller, UINT ADC_Channel)
 {
     int adc_raw = 0;
-    int adc_raw_abs = 0;
+    //int adc_raw_abs = 0;
 
     adc_unit_t unit = *ADC_Controller;
     adc_channel_t channel = (adc_channel_t)ADC_Channel;
@@ -105,8 +105,8 @@ UINT adc_read(adc_unit_t* ADC_Controller, UINT ADC_Channel)
         adc2_get_raw(channel, width, &adc_raw);
     }
     printf("adc_raw - %d \n",adc_raw);
-    adc_raw_abs=abs(adc_raw-4095);
-    return (UINT)adc_raw_abs;
+    //adc_raw_abs=abs(adc_raw-4095);
+    return (UINT)adc_raw;
 }
 
 /* Implementation of Set LED state command of device component  */

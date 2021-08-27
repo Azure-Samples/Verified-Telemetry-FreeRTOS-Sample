@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "driver/gpio.h"
 #include "driver/adc.h"
-//#include "esp_adc_cal.h"//cant seem to find #include "esp_adc_cal.h"
+#include "esp_adc_cal.h"//cant seem to find #include "esp_adc_cal.h"
 #include "driver/timer.h"
 
 #define TIMER_DIVIDER         (80)  //  Hardware timer clock divider
@@ -15,7 +15,7 @@
 #define SAMPLE_INTERNAL_ADC_TYPE_ID  0x01
 #define SAMPLE_INTERNAL_GPIO_TYPE_ID 0x01
 
-//static esp_adc_cal_characteristics_t adc_chars;
+static esp_adc_cal_characteristics_t adc_chars;
 
 typedef struct {
     int timer_group;
@@ -37,8 +37,8 @@ uint16_t vt_adc_id_sensor_2 = SAMPLE_INTERNAL_ADC_TYPE_ID;
 adc_unit_t vt_adc_controller_sensor_1 = ADC_UNIT_1;
 adc_unit_t vt_adc_controller_sensor_2 = ADC_UNIT_1;
 
-uint32_t vt_adc_channel_sensor_1 = ADC_CHANNEL_6;
-uint32_t vt_adc_channel_sensor_2 = ADC_CHANNEL_7;
+uint32_t vt_adc_channel_sensor_1 = ADC1_CHANNEL_6;
+uint32_t vt_adc_channel_sensor_2 = ADC1_CHANNEL_7;
 
 /* GPIO Definitions */
 //uint16_t vt_gpio_id_sensor_1 = SAMPLE_INTERNAL_GPIO_TYPE_ID;
@@ -49,7 +49,7 @@ uint16_t* vt_gpio_port_sensor_2;
 
 uint16_t vt_gpio_pin_sensor_1 = GPIO_NUM_18;
 uint16_t vt_gpio_pin_sensor_2 = GPIO_NUM_19;
-/*
+
 static void check_efuse(void)
 {
     //Check if TP is burned into eFuse
@@ -76,16 +76,16 @@ static void print_char_val_type(esp_adc_cal_value_t val_type)
         printf("Characterized using Default Vref\n");
     }
 }
-*/
+
 uint16_t vt_adc_single_read_init(
     uint16_t adc_id, void* adc_controller, void* adc_channel, uint16_t* adc_resolution, float* adc_ref_volt)
 {
-
+    printf("TIMER_BASE_CLK - %d",TIMER_BASE_CLK);
     adc_unit_t unit = *((adc_unit_t*)adc_controller);
     adc_channel_t channel = *((adc_channel_t*)adc_channel);
 
     //Check if Two Point or Vref are burned into eFuse
-    //check_efuse();
+    check_efuse();
 
     //Configure ADC
     if (unit == ADC_UNIT_1) {
@@ -96,8 +96,8 @@ uint16_t vt_adc_single_read_init(
     }
 
     //Characterize ADC
-    //esp_adc_cal_value_t val_type = esp_adc_cal_characterize(unit, atten, width, DEFAULT_VREF, &adc_chars);
-    //print_char_val_type(val_type);
+    esp_adc_cal_value_t val_type = esp_adc_cal_characterize(unit, atten, width, DEFAULT_VREF, &adc_chars);
+    print_char_val_type(val_type);
 
         *adc_resolution = 12;
         *adc_ref_volt   = 3.6f;
