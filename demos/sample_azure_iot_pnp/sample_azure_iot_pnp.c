@@ -114,7 +114,7 @@ static int32_t ConfidenceMetriclocaltwo;
 #define NUM_COMPONENTS 4
 static bool deviceStatusReportedProperty;
 static bool enableVerifiedTelemetryWritableProperty;
-static bool setLedState;
+//static bool setLedState;
 static bool telemetryStatusSoilMoisture1;
 static bool telemetryStatusSoilMoisture2;
 #define sampleazureiotPROPERTY_ENABLE_VERIFIED_TELEMETRY "enableVerifiedTelemetry"
@@ -496,7 +496,7 @@ static AzureIoTResult_t prvdeviceStatusReportedPropertyProcess(
 
     return xResult;
 }
-
+/*
 static AzureIoTResult_t prvledStateReportedPropertyProcess(
     AzureIoTJSONReader_t* xReader, AzureIoTJSONTokenType_t* xTokenType)
 {
@@ -509,7 +509,6 @@ static AzureIoTResult_t prvledStateReportedPropertyProcess(
     xResult = AzureIoTJSONReader_TokenType(xReader, xTokenType);
     configASSERT(xResult == eAzureIoTSuccess);
 
-    /* Get desired temperature */
     xResult = AzureIoTJSONReader_GetTokenBool(xReader, &setLedState);
     configASSERT(xResult == eAzureIoTSuccess);
 
@@ -520,7 +519,7 @@ static AzureIoTResult_t prvledStateReportedPropertyProcess(
 
     return xResult;
 }
-
+*/
 static AzureIoTResult_t prvSoilMoisture1TelemetryStatusPropertyProcess(
     AzureIoTJSONReader_t* xReader, AzureIoTJSONTokenType_t* xTokenType)
 {
@@ -830,7 +829,7 @@ static AzureIoTResult_t prvProcessReportedProperties(
     uint32_t ulVersion;
 
     uint32_t vTDevicecomponontNameLength     = strlen(sampleazureiotvTDeviceCOMPONENT_NAME);
-    uint32_t sampleDevicecomponontNameLength = strlen(sampleazureiotsampleDeviceCOMPONENT_NAME);
+    //uint32_t sampleDevicecomponontNameLength = strlen(sampleazureiotsampleDeviceCOMPONENT_NAME);
 
     xResult = AzureIoTJSONReader_Init(&xReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength);
     configASSERT(xResult == eAzureIoTSuccess);
@@ -915,6 +914,7 @@ static AzureIoTResult_t prvProcessReportedProperties(
                     configASSERT(xResult == eAzureIoTSuccess);
                 }
             }
+            /*
             else if ((sampleDevicecomponontNameLength == ulComponentNameLength) &&
                      (strncmp(sampleazureiotsampleDeviceCOMPONENT_NAME,
                           (const char*)pucComponentName,
@@ -939,6 +939,7 @@ static AzureIoTResult_t prvProcessReportedProperties(
                     configASSERT(xResult == eAzureIoTSuccess);
                 }
             }
+            */
             else if ((strlen("vTsoilMoistureExternal1") == ulComponentNameLength) &&
                      (strncmp("vTsoilMoistureExternal1", (const char*)pucComponentName, ulComponentNameLength) == 0))
             {
