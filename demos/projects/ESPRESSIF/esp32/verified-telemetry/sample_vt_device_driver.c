@@ -37,8 +37,8 @@ uint16_t vt_adc_id_sensor_2 = SAMPLE_INTERNAL_ADC_TYPE_ID;
 adc_unit_t vt_adc_controller_sensor_1 = ADC_UNIT_1;
 adc_unit_t vt_adc_controller_sensor_2 = ADC_UNIT_1;
 
-uint32_t vt_adc_channel_sensor_1 = ADC1_CHANNEL_6;
-uint32_t vt_adc_channel_sensor_2 = ADC1_CHANNEL_7;
+uint32_t vt_adc_channel_sensor_1 = ADC1_CHANNEL_4;
+uint32_t vt_adc_channel_sensor_2 = ADC1_CHANNEL_5;
 
 /* GPIO Definitions */
 //uint16_t vt_gpio_id_sensor_1 = SAMPLE_INTERNAL_GPIO_TYPE_ID;
@@ -86,9 +86,10 @@ uint16_t vt_adc_single_read_init(
 
     //Check if Two Point or Vref are burned into eFuse
     check_efuse();
-
+    
     //Configure ADC
     if (unit == ADC_UNIT_1) {
+        adc_gpio_init(ADC_UNIT_1,channel);
         adc1_config_width(width);
         adc1_config_channel_atten(channel, atten);
     } else {
@@ -102,6 +103,10 @@ uint16_t vt_adc_single_read_init(
         *adc_resolution = 12;
         *adc_ref_volt   = 3.6f;
         
+
+    gpio_set_pull_mode(GPIO_NUM_32,GPIO_FLOATING);
+    gpio_set_pull_mode(GPIO_NUM_33,GPIO_FLOATING);
+
     return 0;
 
 }
