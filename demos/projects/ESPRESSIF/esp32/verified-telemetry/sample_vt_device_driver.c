@@ -104,9 +104,6 @@ uint16_t vt_adc_single_read_init(
         *adc_ref_volt   = 3.6f;
         
 
-    gpio_set_pull_mode(GPIO_NUM_32,GPIO_FLOATING);
-    gpio_set_pull_mode(GPIO_NUM_33,GPIO_FLOATING);
-
     return 0;
 
 }
@@ -118,7 +115,7 @@ uint16_t vt_adc_single_read(uint16_t adc_id, void* adc_controller, void* adc_cha
 
     adc_unit_t unit = *((adc_unit_t*)adc_controller);
     adc_channel_t channel = *((adc_channel_t*)adc_channel);
-
+    
     if (unit == ADC_UNIT_1)
     {
         adc_raw=adc1_get_raw(channel);
@@ -133,6 +130,9 @@ uint16_t vt_adc_single_read(uint16_t adc_id, void* adc_controller, void* adc_cha
 
 uint16_t vt_gpio_on(uint16_t gpio_id, void* gpio_port, void* gpio_pin)
 {
+
+    gpio_set_pull_mode(GPIO_NUM_32,GPIO_FLOATING);
+    gpio_set_pull_mode(GPIO_NUM_33,GPIO_FLOATING);
 
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_INTR_DISABLE;
@@ -149,6 +149,9 @@ uint16_t vt_gpio_on(uint16_t gpio_id, void* gpio_port, void* gpio_pin)
 
 uint16_t vt_gpio_off(uint16_t gpio_id, void* gpio_port, void* gpio_pin)
 {
+
+    gpio_set_pull_mode(GPIO_NUM_32,GPIO_PULLDOWN_ONLY);
+    gpio_set_pull_mode(GPIO_NUM_33,GPIO_PULLDOWN_ONLY);
 
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_INTR_DISABLE;
