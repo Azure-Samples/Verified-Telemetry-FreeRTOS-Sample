@@ -27,7 +27,10 @@ The device samples shows device developers how to include Verified Telemetry wit
 * STMicroelectronics:
   * [B-L475E-IOT01A](/demos/projects/ST/b-l475e-iot01a/)
 
-  > Note: Verified Telemetry status is supported only to analog sensors. We are currently working on extending the SDK to support digital sensors. 
+* ESPRESSIF:
+  * [ESP32](demos/projects/ESPRESSIF/esp32/)
+
+> Note: Verified Telemetry status is supported only to analog sensors. We are currently working on extending the SDK to support digital sensors. 
 
 
 ## Verified Telemetry Concepts
@@ -102,6 +105,7 @@ A few key concepts of VT are introduced and discussed below:
 1. Setup one of the board specific device samples: 
     * STMicroelectronics:
       * [B-L475E-IOT01A](/demos/projects/ST/b-l475e-iot01a/)
+      * [ESP32](demos/projects/ESPRESSIF/esp32/)
 
 1. To understand how to interact and consume Verified Telemetry information, refer to one of the following guides - 
     * Interact with Verified Telemetry using [Azure IoT Explorer Sample](docs/vTIoTExplorerSample.md) 
