@@ -685,6 +685,9 @@ static AzureIoTResult_t prvenableVerifiedTelemetryReportedPropertyProcess(
     xResult = AzureIoTJSONReader_NextToken(xReader);
     configASSERT(xResult == eAzureIoTSuccess);
 
+    verified_telemetry_DB->enable_verified_telemetry=enableVerifiedTelemetryWritableProperty;
+
+
     printf(" enableVerifiedTelemetry WritableProperty %d \n", enableVerifiedTelemetryWritableProperty);
 
     return xResult;
