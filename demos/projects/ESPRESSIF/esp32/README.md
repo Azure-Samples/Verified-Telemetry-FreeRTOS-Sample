@@ -1,4 +1,4 @@
-# Connect an ESPRESSIF ESP32 using Azure IoT Middleware for FreeRTOS
+# Getting started with the ESPRESSIF ESP32 for Verified Telemetry
 
 ## What you need
 
@@ -10,16 +10,24 @@
 
 * [ESP-IDF](https://idf.espressif.com/) (Version 4.3 for Microsoft Windows or 4.4 for Linux)
 
-* To run this sample you can use a device previously created in your IoT Hub or have the Azure IoT Middleware for FreeRTOS provision your device automatically using DPS.
+In this tutorial you use Verified Telemetry and FreeRTOS to connect the ESPRESSIF ESP32 Board (hereafter, ESP32 Kit) to Azure IoT and provide the feature of Telemetry Verification to two telemetries. 
 
-  IoT Hub | DPS
-  ---------|----------
-  Have an [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal) created | Have an instance of [IoT Hub Device Provisioning Service](https://docs.microsoft.com/en-us/azure/iot-dps/quick-setup-auto-provision#create-a-new-iot-hub-device-provisioning-service)
-  Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub using your preferred authentication method* | Have an [individual enrollment](https://docs.microsoft.com/en-us/azure/iot-dps/how-to-manage-enrollments#create-a-device-enrollment) created in your instance of DPS using your preferred authentication method*
+You will complete the following tasks:
 
-  *While this sample supports SAS keys and Certificates, this guide will refer only to SAS keys.
+* Install a set of embedded development tools for programming ESP32 Kit in C
+* Connect two external sensors whose telemetry would be supported by Verified Telemetry feature
+* Build an image and flash it onto ESP32 Kit
 
-## Install prerequisites
+## Table of Contents
+
+* [Prerequisites](#prerequisites)
+* [Prepare the development environment](#prepare-the-development-environment)
+* [Prepare Azure resources](#prepare-azure-resources)
+* [Connect Sensors for Verified Telemetry](#connect-sensors-for-verified-telemetry)
+* [Prepare and Flash Firmware](#prepare-and-flash-firmware)
+* [Next Steps](#next-steps-verified-telemetry)
+
+## Prerequisites
 
 1. GIT
 
@@ -29,32 +37,68 @@
 
     Install the [Espressif ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#get-started) following Espressif official documentation (steps 1 to 4).
 
-3. Azure IoT Embedded middleware for FreeRTOS
+3. Verified Telemetry for FreeRTOS
 
 
     Clone the following repo to download all sample device code, setup scripts, and offline versions of the documentation.
 
     **If you previously cloned this repo in another sample, you don't need to do it again.**
 
-    ```bash
-    git clone https://github.com/Azure-Samples/iot-middleware-freertos-samples.git
+    ```shell
+    git clone --recursive https://github.com/Azure-Samples/Verified-Telemetry-FreeRTOS-Sample.git
     ```
 
-    To initialize the repo, run the following commands:
+    You may also need to enable long path support for both Microsoft Windows and git:
+    * Windows: <https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>
+    * Git: as Administrator run `git config --system core.longpaths true`
 
-    ```bash
-    cd iot-middleware-freertos-samples
-    git submodule update --init --recursive --depth 1
-    ```
+4. Hardware
 
-  You may also need to enable long path support for both Microsoft Windows and git:
-  * Windows: <https://docs.microsoft.com/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd#enable-long-paths-in-windows-10-version-1607-and-later>
-  * Git: as Administrator run `git config --system core.longpaths true`
+    > * ESP32 Board. 
+    > * Wi-Fi 2.4 GHz
+    > * USB 2.0 A male to Micro USB male cable
+    > * 2 * [Soil Moisture Sensor](https://www.dfrobot.com/product-1385.html)
 
 
-## Prepare the sample
+## Prepare the development environment
 
-To connect the ESPRESSIF ESP32 to Azure, you will update the sample configuration, build the image, and flash the image to the device.
+To set up your development environment, first you clone a GitHub repo that contains all the assets you need for the tutorial. Then you install a set of programming tools.
+
+## Prepare Azure resources
+
+To run this sample you can create a device on your Azure IoT Hub.
+
+IoT Hub |
+---------|
+Have an [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal) created |
+Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub. |
+
+Confirm that you have Copied the the following values from your Iot Hub and the device created
+
+> * `hostName`
+> * `deviceId`
+> * `primaryKey`
+
+## Connect Sensors for Verified Telemetry
+This sample showcases Verified Telemetry feature for telemetry generated from two external sensors that are connected to STM DevKit
+* Connect Sensors        
+
+
+    Refer to the table and image below to connect the two [Soil Moisture](https://www.dfrobot.com/product-1385.html) sensors.
+
+    | Sensor Name   | Sensor Pin           | MCU Pin | Devkit Pin |
+    |---------------|----------------------|-----------------------------|------------|
+    | Soil Moisture 1 | Analog Out           | ADC Unit 1 Channel 4                           | D32        |
+    | Soil Moisture 1 | VCC                  | GPIO18                          | D18        |
+    | Soil Moisture 1 | GND                  | GND                          | GND        |
+    | Soil Moisture 2       | Analog Out  | ADC Unit 1 Channel 5                          | D33        |
+    | Soil Moisture 2       | VCC                  | GPIO19                           | D19     |
+    | Soil Moisture 2       | GND                  | GND                           | GND       |
+
+
+    ![B-L475E-IOT01A Sensor Connections](media/ESP32_Board_Connections.png)
+
+
 
 ### Update sample configuration
 
@@ -79,21 +123,9 @@ Under menu item `Azure IoT middleware for FreeRTOS Main Task Configuration`, upd
 
 Parameter | Value
 ---------|----------
- `Use PnP in Azure Sample` | Enabled by default. Disable this option to build a simpler sample without Azure Plug-and-Play.
  `Azure IoT Hub FQDN` | _{Your Azure IoT Hub Host FQDN}_
  `Azure IoT Device ID` | _{Your Azure IoT Hub device ID}_
  `Azure IoT Device Symmetric Key` | _{Your Azure IoT Hub device symmetric key}_
- `Azure IoT Module ID` | _{Your Azure IoT Hub Module ID}_ (IF USING A MODULE; leave blank if not)
-
-> Some parameters contain default values that do not need to be updated.
-
-If you're using **DPS** with an individual enrollment with SAS authentication, set the following parameters:
-
-Parameter | Value
----------|----------
- `Enable Device Provisioning Sample` | _{Check this option to enable DPS in the sample}_
- `Azure Device Provisioning Service ID Scope` | _{Your ID scope value}_
- `Azure Device Provisioning Service Registration ID` | _{Your Device Registration ID value}_
 
 > Some parameters contain default values that do not need to be updated.
 
@@ -106,11 +138,11 @@ After that, close the configuration utility (`Shift + Q`).
 
 To build the device image, run the following command:
 
-  ```bash
-  idf.py build
-  ```
+```shell
+idf.py build
+```
 
-## Flash the image
+## Prepare and Flash Firmware
 
 1. Connect the Micro USB cable to the Micro USB port on the ESPRESSIF ESP32 board, and then connect it to your computer.
 
@@ -188,11 +220,13 @@ The output should show traces similar to:
 <summary>See more...</summary>
 
 ```shell
-$ idf.py -p /dev/ttyUSB0 monitor
+idf.py -p COM6 monitor
 Executing action: monitor
-Running idf_monitor in directory /iot-middleware-freertos-samples-ew/demos/projects/ESPRESSIF/esp32
-Executing "/home/user/.espressif/python_env/idf4.4_py3.8_env/bin/python /esp/esp-idf/tools/idf_monitor.py -p /dev/ttyUSB0 -b 115200 --toolchain-prefix xtensa-esp32-elf- --target esp32 --revision 0 /iot-middleware-freertos-samples-ew/demos/projects/ESPRESSIF/esp32/build/azure_iot_freertos_esp32.elf -m '/home/user/.espressif/python_env/idf4.4_py3.8_env/bin/python' '/esp/esp-idf/tools/idf.py' '-p' '/dev/ttyUSB0'"...
---- idf_monitor on /dev/ttyUSB0 115200 ---
+Running idf_monitor in directory d:\ms_esp\verified-telemetry-freertos-sample-22\demos\projects\espressif\esp32
+Executing "C:\Users\handa\.espressif\python_env\idf4.3_py3.8_env\Scripts\python.exe C:\Users\handa\Desktop\esp-idf\tools/idf_monitor.py -p COM6 -b 115200 --toolchain-prefix xtensa-esp32-elf- d:\ms_esp\verified-telemetry-freertos-sample-22\demos\projects\espressif\esp32\build\azure_iot_freertos_esp32.elf -m 'C:\Users\handa\.espressif\python_env\idf4.3_py3.8_env\Scripts\python.exe' 'C:\Users\handa\Desktop\esp-idf\tools\idf.py' '-p' 'COM6'"...
+←[0;33m--- WARNING: GDB cannot open serial ports accessed as COMx←[0m
+←[0;33m--- Using \\.\COM6 instead...←[0m
+--- idf_monitor on \\.\COM6 115200 ---
 --- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H ---
 ets Jun  8 2016 00:22:57
 
@@ -200,106 +234,114 @@ rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
 configsip: 0, SPIWP:0xee
 clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
 mode:DIO, clock div:2
-load:0x3fff0030,len:6744
-load:0x40078000,len:14268
+load:0x3fff0030,len:7008
+load:0x40078000,len:14292
 ho 0 tail 12 room 4
-load:0x40080400,len:3716
+load:0x40080400,len:3688
 0x40080400: _init at ??:?
 
-entry 0x40080680
-I (28) boot: ESP-IDF v4.4-dev-1853-g06c08a9d9 2nd stage bootloader
-I (28) boot: compile time 18:49:13
-I (28) boot: chip revision: 1
-I (33) boot_comm: chip revision: 1, min. bootloader chip revision: 0
-I (49) boot.esp32: SPI Speed      : 40MHz
-I (49) boot.esp32: SPI Mode       : DIO
-I (49) boot.esp32: SPI Flash Size : 2MB
-I (53) boot: Enabling RNG early entropy source...
-I (59) boot: Partition Table:
-I (62) boot: ## Label            Usage          Type ST Offset   Length
-I (70) boot:  0 nvs              WiFi data        01 02 00009000 00006000
-I (77) boot:  1 phy_init         RF data          01 01 0000f000 00001000
-I (85) boot:  2 factory          factory app      00 00 00010000 00100000
-I (92) boot: End of partition table
-I (96) boot_comm: chip revision: 1, min. application chip revision: 0
-I (103) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=1d2c8h (119496) map
-I (155) esp_image: segment 1: paddr=0002d2f0 vaddr=3ffb0000 size=02d28h ( 11560) load
-I (160) esp_image: segment 2: paddr=00030020 vaddr=400d0020 size=89ce0h (564448) map
-I (365) esp_image: segment 3: paddr=000b9d08 vaddr=3ffb2d28 size=00a5ch (  2652) load
-I (367) esp_image: segment 4: paddr=000ba76c vaddr=40080000 size=1437ch ( 82812) load
-I (405) esp_image: segment 5: paddr=000ceaf0 vaddr=50000000 size=00010h (    16) load
-I (415) boot: Loaded app from partition at offset 0x10000
-I (415) boot: Disabling RNG early entropy source...
-I (427) cpu_start: Pro cpu up.
-I (428) cpu_start: Starting app cpu, entry point is 0x4008113c
-0x4008113c: call_start_cpu1 at /esp/esp-idf/components/esp_system/port/cpu_start.c:150
+entry 0x40080678
+I (28) boot: ESP-IDF v4.3 2nd stage bootloader
+I (28) boot: compile time 13:30:49
+I (29) boot: chip revision: 1
+I (31) boot_comm: chip revision: 1, min. bootloader chip revision: 0
+I (38) boot.esp32: SPI Speed      : 40MHz
+I (43) boot.esp32: SPI Mode       : DIO
+I (47) boot.esp32: SPI Flash Size : 2MB
+I (52) boot: Enabling RNG early entropy source...
+I (57) boot: Partition Table:
+I (61) boot: ## Label            Usage          Type ST Offset   Length
+I (68) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+I (76) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+I (83) boot:  2 factory          factory app      00 00 00010000 00100000
+I (91) boot: End of partition table
+I (95) boot_comm: chip revision: 1, min. application chip revision: 0
+I (102) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=24358h (148312) map
+I (166) esp_image: segment 1: paddr=00034380 vaddr=3ffb0000 size=043e4h ( 17380) load
+I (174) esp_image: segment 2: paddr=0003876c vaddr=40080000 size=078ach ( 30892) load
+I (187) esp_image: segment 3: paddr=00040020 vaddr=400d0020 size=9cfe8h (643048) map
+I (430) esp_image: segment 4: paddr=000dd010 vaddr=400878ac size=0ddfch ( 56828) load
+I (454) esp_image: segment 5: paddr=000eae14 vaddr=50000000 size=00010h (    16) load
+I (466) boot: Loaded app from partition at offset 0x10000
+I (467) boot: Disabling RNG early entropy source...
+I (478) cpu_start: Pro cpu up.
+I (478) cpu_start: Starting app cpu, entry point is 0x400812f8
+0x400812f8: call_start_cpu1 at C:/Users/handa/Desktop/esp-idf/components/esp_system/port/cpu_start.c:141
 
 I (0) cpu_start: App cpu up.
-I (442) cpu_start: Pro cpu start user code
-I (442) cpu_start: cpu freq: 160000000
-I (442) cpu_start: Application information:
-I (446) cpu_start: Project name:     azure_iot_freertos_esp32
-I (453) cpu_start: App version:      7ac616e-dirty
-I (458) cpu_start: Compile time:     Jul 15 2021 22:32:07
-I (464) cpu_start: ELF file SHA256:  965ee48390cd1e56...
-I (470) cpu_start: ESP-IDF:          v4.4-dev-1853-g06c08a9d9
-I (477) heap_init: Initializing. RAM available for dynamic allocation:
-I (484) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
-I (490) heap_init: At 3FFB8C48 len 000273B8 (156 KiB): DRAM
-I (496) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
-I (503) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
-I (509) heap_init: At 4009437C len 0000BC84 (47 KiB): IRAM
-I (516) spi_flash: detected chip: winbond
-I (520) spi_flash: flash io: dio
-W (524) spi_flash: Detected size(8192k) larger than the size in the binary image header(2048k). Using the size in the binary image header.
-I (538) cpu_start: Starting scheduler on PRO CPU.
+I (495) cpu_start: Pro cpu start user code
+I (495) cpu_start: cpu freq: 160000000
+I (495) cpu_start: Application information:
+I (499) cpu_start: Project name:     azure_iot_freertos_esp32
+I (506) cpu_start: App version:      1532448-dirty
+I (511) cpu_start: Compile time:     Sep  1 2021 13:30:14
+I (517) cpu_start: ELF file SHA256:  1eae0ea8bdf5c42a...
+I (523) cpu_start: ESP-IDF:          v4.3
+I (528) heap_init: Initializing. RAM available for dynamic allocation:
+I (535) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
+I (541) heap_init: At 3FFBA050 len 00025FB0 (151 KiB): DRAM
+I (547) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
+I (554) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
+I (560) heap_init: At 400956A8 len 0000A958 (42 KiB): IRAM
+I (567) spi_flash: detected chip: generic
+I (571) spi_flash: flash io: dio
+W (575) spi_flash: Detected size(4096k) larger than the size in the binary image header(2048k). Using the size in the binary image header.
+I (589) cpu_start: Starting scheduler on PRO CPU.
 I (0) cpu_start: Starting scheduler on APP CPU.
-I (732) wifi:wifi driver task: 3ffba728, prio:23, stack:6656, core=0
-I (732) system_api: Base MAC address is not set
-I (732) system_api: read default base MAC address from EFUSE
-I (752) wifi:wifi firmware version: ff5f4ea
-I (752) wifi:wifi certification version: v7.0
-I (752) wifi:config NVS flash: enabled
-I (752) wifi:config nano formating: disabled
-I (762) wifi:Init data frame dynamic rx buffer num: 32
-I (762) wifi:Init management frame dynamic rx buffer num: 32
-I (772) wifi:Init management short buffer num: 32
-I (772) wifi:Init dynamic tx buffer num: 32
-I (782) wifi:Init static rx buffer size: 1600
-I (782) wifi:Init static rx buffer num: 10
-I (782) wifi:Init dynamic rx buffer num: 32
-I (792) wifi_init: rx ba win: 6
-I (792) wifi_init: tcpip mbox: 32
-I (792) wifi_init: udp mbox: 6
-I (802) wifi_init: tcp mbox: 6
-I (802) wifi_init: tcp tx win: 5744
-I (812) wifi_init: tcp rx win: 5744
-I (812) wifi_init: tcp mss: 1440
-I (812) wifi_init: WiFi IRAM OP enabled
-I (822) wifi_init: WiFi RX IRAM OP enabled
-I (822) example_connect: Connecting to ContosoWiFi...
-I (832) phy_init: phy_version 4670,719f9f6,Feb 18 2021,17:07:07
-I (932) wifi:mode : sta (84:cc:a8:4c:7e:fc)
-I (932) wifi:enable tsf
-I (942) example_connect: Waiting for IP(s)
-I (2992) wifi:new:<11,0>, old:<1,0>, ap:<255,255>, sta:<11,0>, prof:1
-I (2992) wifi:state: init -> auth (b0)
-I (3002) wifi:state: auth -> assoc (0)
-I (3012) wifi:state: assoc -> run (10)
-I (3022) wifi:connected with ContosoWiFi, aid = 1, channel 11, BW20, bssid = 74:ac:b9:c1:39:76
-I (3022) wifi:security: WPA2-PSK, phy: bgn, rssi: -61
-I (3022) wifi:pm start, type: 1
+I (730) wifi:wifi driver task: 3ffbbb30, prio:23, stack:6656, core=0
+I (730) system_api: Base MAC address is not set
+I (730) system_api: read default base MAC address from EFUSE
+I (740) wifi:wifi firmware version: c7d0450
+I (740) wifi:wifi certification version: v7.0
+I (740) wifi:config NVS flash: enabled
+I (740) wifi:config nano formating: disabled
+I (750) wifi:Init data frame dynamic rx buffer num: 32
+I (750) wifi:Init management frame dynamic rx buffer num: 32
+I (760) wifi:Init management short buffer num: 32
+I (760) wifi:Init dynamic tx buffer num: 32
+I (770) wifi:Init static rx buffer size: 1600
+I (770) wifi:Init static rx buffer num: 10
+I (770) wifi:Init dynamic rx buffer num: 32
+I (780) wifi_init: rx ba win: 6
+I (780) wifi_init: tcpip mbox: 32
+I (790) wifi_init: udp mbox: 6
+I (790) wifi_init: tcp mbox: 6
+I (790) wifi_init: tcp tx win: 5744
+I (800) wifi_init: tcp rx win: 5744
+I (800) wifi_init: tcp mss: 1440
+I (810) wifi_init: WiFi IRAM OP enabled
+I (810) wifi_init: WiFi RX IRAM OP enabled
+I (820) sample_azureiot: Connecting to E051...
+I (820) phy_init: phy_version 4670,719f9f6,Feb 18 2021,17:07:07
+I (930) wifi:mode : sta (9c:9c:1f:c6:0c:fc)
+I (930) wifi:enable tsf
+I (930) sample_azureiot: Waiting for IP(s)
+I (2980) wifi:new:<3,0>, old:<1,0>, ap:<255,255>, sta:<3,0>, prof:1
+I (3710) wifi:state: init -> auth (b0)
+I (3720) wifi:state: auth -> assoc (0)
+I (3730) wifi:state: assoc -> run (10)
+I (3830) wifi:connected with E051, aid = 5, channel 3, BW20, bssid = 5c:f9:fd:71:d0:49
+I (3830) wifi:security: WPA2-PSK, phy: bgn, rssi: -57
+I (3830) wifi:pm start, type: 1
 
-I (3042) wifi:AP's beacon interval = 102400 us, DTIM period = 3
-W (3042) wifi:<ba-add>idx:0 (ifx:0, 74:ac:b9:c1:39:76), tid:0, ssn:0, winSize:64
-I (3612) esp_netif_handlers: example_connect: sta ip: 192.168.1.220, mask: 255.255.255.0, gw: 192.168.1.1
-I (3612) example_connect: Got IPv4 event: Interface "example_connect: sta" address: 192.168.1.220
-I (3622) example_connect: Connected to example_connect: sta
-I (3622) example_connect: - IPv4 address: 192.168.1.220
-[INFO] [AzureIoTDemo] [sample_azure_iot.c:580] Creating a TLS connection to contoso-iot-hub.azure-devices.net:8883.
+I (3880) wifi:AP's beacon interval = 102400 us, DTIM period = 1
+W (3990) wifi:<ba-add>idx:0 (ifx:0, 5c:f9:fd:71:d0:49), tid:0, ssn:2, winSize:64
+I (5120) esp_netif_handlers: sample_azureiot: sta ip: 192.168.1.33, mask: 255.255.255.0, gw: 192.168.1.1
+I (5120) sample_azureiot: Got IPv4 event: Interface "sample_azureiot: sta" address: 192.168.1.33
+I (5130) sample_azureiot: Connected to sample_azureiot: sta
+I (5130) sample_azureiot: - IPv4 address: 192.168.1.33
+I (5140) sample_azureiot: Waiting for time synchronization with SNTP server
+I (7060) sample_azureiot: Notification of a time synchronization event
+I (7150) AZ IOT: Creating a TLS connection to AzureRtosPnP.azure-devices.net:8883.
 
-I (6322) tls_freertos: (Network connection 0x3ffc8c4c) Connection to contoso-iot-hub.azure-devices.net established.
-[INFO] [AzureIoTDemo] [sample_azure_iot.c:384] Creating an MQTT connection to contoso-iot-hub.azure-devices.net.
-...
+I (9770) tls_freertos: (Network connection 0x3ffca06c) Connection to AzureRtosPnP.azure-devices.net established.
+I (9770) AZ IOT: Creating an MQTT connection to AzureRtosPnP.azure-devices.net.
+
 ```
 </details>
+
+
+## Next Steps ***Verified Telemetry***
+* With this sample, you have now setup Verified Telemetry device sample on STM Devkit
+* To understand how to interact and consume Verified Telemetry components, refer to the following guide - 
+    * Interact with Verified Telemetry using our [custom Solution Sample Template](https://github.com/Azure/Verified-Telemetry-Solution-Sample) which uses a Grafana Dashboard
