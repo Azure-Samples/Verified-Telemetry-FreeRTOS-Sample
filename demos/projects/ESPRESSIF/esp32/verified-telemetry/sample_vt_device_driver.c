@@ -50,6 +50,8 @@ uint16_t* vt_gpio_port_sensor_2;
 uint16_t vt_gpio_pin_sensor_1 = GPIO_NUM_18;
 uint16_t vt_gpio_pin_sensor_2 = GPIO_NUM_19;
 
+gpio_num_t ADC_GPIO_NUM ;
+
 static void check_efuse(void)
 {
     //Check if TP is burned into eFuse
@@ -92,6 +94,7 @@ uint16_t vt_adc_single_read_init(
         adc_gpio_init(ADC_UNIT_1,channel);
         adc1_config_width(width);
         adc1_config_channel_atten(channel, atten);
+        adc1_pad_get_io_num(channel,&ADC_GPIO_NUM);
     } else {
         adc2_config_channel_atten((adc2_channel_t)channel, atten);
     }
@@ -131,9 +134,6 @@ uint16_t vt_adc_single_read(uint16_t adc_id, void* adc_controller, void* adc_cha
 uint16_t vt_gpio_on(uint16_t gpio_id, void* gpio_port, void* gpio_pin)
 {
 
-    gpio_set_pull_mode(GPIO_NUM_32,GPIO_FLOATING);
-    gpio_set_pull_mode(GPIO_NUM_33,GPIO_FLOATING);
-
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_OUTPUT;
@@ -141,6 +141,8 @@ uint16_t vt_gpio_on(uint16_t gpio_id, void* gpio_port, void* gpio_pin)
     io_conf.pull_down_en = 0;
     io_conf.pull_up_en = 0;
     gpio_config(&io_conf);
+
+    gpio_set_pull_mode(ADC_GPIO_NUM,GPIO_FLOATING);
 
     gpio_set_level(*((uint16_t*)gpio_pin), 1);
     return 0;
@@ -150,9 +152,6 @@ uint16_t vt_gpio_on(uint16_t gpio_id, void* gpio_port, void* gpio_pin)
 uint16_t vt_gpio_off(uint16_t gpio_id, void* gpio_port, void* gpio_pin)
 {
 
-    gpio_set_pull_mode(GPIO_NUM_32,GPIO_PULLDOWN_ONLY);
-    gpio_set_pull_mode(GPIO_NUM_33,GPIO_PULLDOWN_ONLY);
-
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_OUTPUT;
@@ -160,6 +159,8 @@ uint16_t vt_gpio_off(uint16_t gpio_id, void* gpio_port, void* gpio_pin)
     io_conf.pull_down_en = 0;
     io_conf.pull_up_en = 0;
     gpio_config(&io_conf);
+
+    gpio_set_pull_mode(ADC_GPIO_NUM,GPIO_PULLDOWN_ONLY);
 
     gpio_set_level(*((uint16_t*)gpio_pin), 0);
     return 0;
