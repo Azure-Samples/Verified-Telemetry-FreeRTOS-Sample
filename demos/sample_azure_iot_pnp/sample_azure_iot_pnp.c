@@ -154,7 +154,7 @@ static const CHAR sample_device_component[] = "sampleDevice";
  * Note that the process loop also has a timeout, so the total time between
  * publishes is the sum of the two delays.
  */
-#define sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS (pdMS_TO_TICKS(10000U))
+#define sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS (pdMS_TO_TICKS(5000U))
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
