@@ -10,7 +10,7 @@
 
 * [ESP-IDF](https://idf.espressif.com/) (Version 4.3 for Microsoft Windows or 4.4 for Linux)
 
-In this tutorial you use Verified Telemetry and FreeRTOS to connect the ESPRESSIF ESP32 Board (hereafter, ESP32 Kit) to Azure IoT and provide the feature of Telemetry Verification to two telemetries. 
+In this tutorial you use Verified Telemetry and FreeRTOS to connect the ESPRESSIF ESP32 Board - DOIT Esp32 DevKit v1 (hereafter, ESP32 Kit) to Azure IoT and provide the feature of Telemetry Verification to two telemetries. 
 
 You will complete the following tasks:
 
@@ -84,7 +84,7 @@ This sample showcases Verified Telemetry feature for telemetry generated from tw
 * Connect Sensors        
 
 
-    Refer to the table and image below to connect the two [Soil Moisture](https://www.dfrobot.com/product-1385.html) sensors.
+    Refer to the table and image below to connect the two [Soil Moisture](https://www.dfrobot.com/product-1385.html) sensors With DOIT Esp32 DevKit v1.
 
     | Sensor Name   | Sensor Pin           | MCU Pin | Devkit Pin |
     |---------------|----------------------|-----------------------------|------------|
