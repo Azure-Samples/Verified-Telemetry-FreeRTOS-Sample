@@ -83,7 +83,8 @@ Confirm that you have Copied the the following values from your Iot Hub and the 
 This sample showcases Verified Telemetry feature for telemetry generated from two external sensors that are connected to STM DevKit
 * Connect Sensors        
 
-
+    **NOTE - Connections given in "Devkit Pin" are DevKit specific, to find connections for your Devkit refer to the DevKit's datasheet & "MCU Pin" which remains same for ESP32.**
+    
     Refer to the table and image below to connect the two [Soil Moisture](https://www.dfrobot.com/product-1385.html) sensors With DOIT Esp32 DevKit v1.
 
     | Sensor Name   | Sensor Pin           | MCU Pin | Devkit Pin |
