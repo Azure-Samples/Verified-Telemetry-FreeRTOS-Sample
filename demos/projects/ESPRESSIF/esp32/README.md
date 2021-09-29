@@ -54,7 +54,7 @@ You will complete the following tasks:
 
 4. Hardware
 
-    > * ESP32 Board. 
+    > * ESP32 Board.
     > * Wi-Fi 2.4 GHz
     > * USB 2.0 A male to Micro USB male cable
     > * 2 * [Soil Moisture Sensor](https://www.dfrobot.com/product-1385.html)
@@ -68,38 +68,37 @@ To set up your development environment, first you clone a GitHub repo that conta
 
 To run this sample you can create a device on your Azure IoT Hub.
 
-IoT Hub |
----------|
-Have an [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal) created |
-Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub. |
+IoT Hub:
+* Have an [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal) created |
+* Have a [logical device](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) created in your Azure IoT Hub. |
 
-Confirm that you have Copied the the following values from your Iot Hub and the device created
+Confirm that you have copied the the following values from your Iot Hub and the device created:
 
 > * `hostName`
 > * `deviceId`
 > * `primaryKey`
 
 ## Connect Sensors for Verified Telemetry
-This sample showcases Verified Telemetry feature for telemetry generated from two external sensors that are connected to STM DevKit
+
+This sample showcases Verified Telemetry feature for telemetry generated from two external sensors that are connected to ESP32 DevKit
+
 * Connect Sensors        
 
     **NOTE - Connections given in "Devkit Pin" are DevKit specific, to find connections for your Devkit refer to the DevKit's datasheet & "MCU Pin" which remains same for ESP32.**
     
-    Refer to the table and image below to connect the two [Soil Moisture](https://www.dfrobot.com/product-1385.html) sensors With DOIT Esp32 DevKit v1.
+    Refer to the table and image below to connect the two [Soil Moisture](https://www.dfrobot.com/product-1385.html) sensors.
 
-    | Sensor Name   | Sensor Pin           | MCU Pin | Devkit Pin |
-    |---------------|----------------------|-----------------------------|------------|
-    | Soil Moisture 1 | Analog Out           | ADC Unit 1 Channel 4                           | D32        |
-    | Soil Moisture 1 | VCC                  | GPIO18                          | D18        |
-    | Soil Moisture 1 | GND                  | GND                          | GND        |
-    | Soil Moisture 2       | Analog Out  | ADC Unit 1 Channel 5                          | D33        |
-    | Soil Moisture 2       | VCC                  | GPIO19                           | D19     |
-    | Soil Moisture 2       | GND                  | GND                           | GND       |
+    | Sensor Name     | Sensor Pin | MCU Pin  | DOIT ESP32 Devkit | ESP32-Azure IoT Kit |
+    |-----------------|------------|----------|-------------------|---------------------|
+    | Soil Moisture 1 | Analog Out | ADC1 CH0 | TODO              | IO36 (ADC1 CH0)     |
+    | Soil Moisture 1 | VCC        | GPIO18   | D18               | IO18                |
+    | Soil Moisture 1 | GND        | GND      | GND               | GND                 |
+    | Soil Moisture 2 | Analog Out | ADC1 CH3 | TODO              | IO39 (ADC1 CH3)     |
+    | Soil Moisture 2 | VCC        | GPIO19   | D19               | IO19                |
+    | Soil Moisture 2 | GND        | GND      | GND               | GND                 |
 
 
     ![B-L475E-IOT01A Sensor Connections](media/ESP32_Board_Connections.png)
-
-
 
 ### Update sample configuration
 
