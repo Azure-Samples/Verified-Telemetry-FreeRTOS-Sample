@@ -114,7 +114,7 @@ static int32_t ConfidenceMetriclocaltwo;
 #define NUM_COMPONENTS 4
 static bool deviceStatusReportedProperty;
 static bool enableVerifiedTelemetryWritableProperty;
-static bool setLedState;
+//static bool setLedState;
 static bool telemetryStatusSoilMoisture1;
 static bool telemetryStatusSoilMoisture2;
 #define sampleazureiotPROPERTY_ENABLE_VERIFIED_TELEMETRY "enableVerifiedTelemetry"
@@ -154,7 +154,7 @@ static const CHAR sample_device_component[] = "sampleDevice";
  * Note that the process loop also has a timeout, so the total time between
  * publishes is the sum of the two delays.
  */
-#define sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS (pdMS_TO_TICKS(3000U))
+#define sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS (pdMS_TO_TICKS(5000U))
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
@@ -274,7 +274,9 @@ static void prvHandleCommand(AzureIoTHubClientCommandRequest_t* pxMessage, void*
     int32_t soilMoistureOneComponontNameLength;
     int32_t soilMoistureTwoComponontNameLength;
 
-    LogInfo(("Command payload : %.*s \r\n", pxMessage->ulPayloadLength, pxMessage->pvMessagePayload));
+    LogInfo( ( "Command payload : %.*s \r\n",
+               pxMessage->ulPayloadLength,
+               ( const char * ) pxMessage->pvMessagePayload ) );
 
     AzureIoTJSONReader_t xReader;
     AzureIoTJSONWriter_t xWriter;
@@ -494,7 +496,7 @@ static AzureIoTResult_t prvdeviceStatusReportedPropertyProcess(
 
     return xResult;
 }
-
+/*
 static AzureIoTResult_t prvledStateReportedPropertyProcess(
     AzureIoTJSONReader_t* xReader, AzureIoTJSONTokenType_t* xTokenType)
 {
@@ -507,7 +509,6 @@ static AzureIoTResult_t prvledStateReportedPropertyProcess(
     xResult = AzureIoTJSONReader_TokenType(xReader, xTokenType);
     configASSERT(xResult == eAzureIoTSuccess);
 
-    /* Get desired temperature */
     xResult = AzureIoTJSONReader_GetTokenBool(xReader, &setLedState);
     configASSERT(xResult == eAzureIoTSuccess);
 
@@ -518,7 +519,7 @@ static AzureIoTResult_t prvledStateReportedPropertyProcess(
 
     return xResult;
 }
-
+*/
 static AzureIoTResult_t prvSoilMoisture1TelemetryStatusPropertyProcess(
     AzureIoTJSONReader_t* xReader, AzureIoTJSONTokenType_t* xTokenType)
 {
@@ -587,7 +588,7 @@ static AzureIoTResult_t prvSoilMoisture1ConfidenceMetricPropertyProcess(
     xResult = AzureIoTJSONReader_NextToken(xReader);
     configASSERT(xResult == eAzureIoTSuccess);
 
-    printf(" ConfidenceMetriclocal SoilMoisture1 - %ld \n", ConfidenceMetriclocalone);
+    printf(" ConfidenceMetriclocal SoilMoisture1 - %ld \n", (long int)ConfidenceMetriclocalone);
 
     return xResult;
 }
@@ -610,7 +611,7 @@ static AzureIoTResult_t prvSoilMoisture2ConfidenceMetricPropertyProcess(
     xResult = AzureIoTJSONReader_NextToken(xReader);
     configASSERT(xResult == eAzureIoTSuccess);
 
-    printf(" ConfidenceMetriclocal SoilMoisture2 - %ld \n", ConfidenceMetriclocaltwo);
+    printf(" ConfidenceMetriclocal SoilMoisture2 - %ld \n", (long int)ConfidenceMetriclocaltwo);
 
     return xResult;
 }
@@ -683,6 +684,9 @@ static AzureIoTResult_t prvenableVerifiedTelemetryReportedPropertyProcess(
 
     xResult = AzureIoTJSONReader_NextToken(xReader);
     configASSERT(xResult == eAzureIoTSuccess);
+
+    verified_telemetry_DB->enable_verified_telemetry=enableVerifiedTelemetryWritableProperty;
+
 
     printf(" enableVerifiedTelemetry WritableProperty %d \n", enableVerifiedTelemetryWritableProperty);
 
@@ -804,7 +808,7 @@ static AzureIoTResult_t prvProcessProperties(
 
         if (xResult != eAzureIoTErrorEndOfProperties)
         {
-            LogError(("There was an error parsing the properties: 0x%08x", xResult));
+            LogError( ( "There was an error parsing the properties: result 0x%08x", xResult ) );
         }
         else
         {
@@ -828,7 +832,7 @@ static AzureIoTResult_t prvProcessReportedProperties(
     uint32_t ulVersion;
 
     uint32_t vTDevicecomponontNameLength     = strlen(sampleazureiotvTDeviceCOMPONENT_NAME);
-    uint32_t sampleDevicecomponontNameLength = strlen(sampleazureiotsampleDeviceCOMPONENT_NAME);
+    //uint32_t sampleDevicecomponontNameLength = strlen(sampleazureiotsampleDeviceCOMPONENT_NAME);
 
     xResult = AzureIoTJSONReader_Init(&xReader, pxMessage->pvMessagePayload, pxMessage->ulPayloadLength);
     configASSERT(xResult == eAzureIoTSuccess);
@@ -861,7 +865,11 @@ static AzureIoTResult_t prvProcessReportedProperties(
             xResult = AzureIoTJSONReader_TokenType(&xReader, &xTokenType);
             configASSERT(xResult == eAzureIoTSuccess);
 
-            LogInfo(("component name : %.*s \r\n", ulComponentNameLength, pucComponentName));
+            //LogInfo(("component name : %.*s \r\n", ulComponentNameLength, pucComponentName));
+
+    LogInfo( ( "component name : %.*s \r\n",
+               ulComponentNameLength,
+               ( const char * ) pucComponentName ) );
 
             // printf(" %s \n",pucComponentName);
 
@@ -909,6 +917,7 @@ static AzureIoTResult_t prvProcessReportedProperties(
                     configASSERT(xResult == eAzureIoTSuccess);
                 }
             }
+            /*
             else if ((sampleDevicecomponontNameLength == ulComponentNameLength) &&
                      (strncmp(sampleazureiotsampleDeviceCOMPONENT_NAME,
                           (const char*)pucComponentName,
@@ -933,6 +942,7 @@ static AzureIoTResult_t prvProcessReportedProperties(
                     configASSERT(xResult == eAzureIoTSuccess);
                 }
             }
+            */
             else if ((strlen("vTsoilMoistureExternal1") == ulComponentNameLength) &&
                      (strncmp("vTsoilMoistureExternal1", (const char*)pucComponentName, ulComponentNameLength) == 0))
             {
@@ -1036,7 +1046,7 @@ static AzureIoTResult_t prvProcessReportedProperties(
 
         if (xResult != eAzureIoTErrorEndOfProperties)
         {
-            LogError(("There was an error parsing the properties: 0x%08x", xResult));
+            LogError( ( "There was an error parsing the properties: result 0x%08x", xResult ) );
         }
         else
         {
@@ -1066,11 +1076,15 @@ static void prvHandleProperties(AzureIoTHubClientPropertiesResponse_t* pxMessage
 
     AzureIoTResult_t xResult;
 
-    LogInfo(("Property document payload : %.*s \r\n", pxMessage->ulPayloadLength, pxMessage->pvMessagePayload));
+    //LogInfo(("Property document payload : %.*s \r\n", pxMessage->ulPayloadLength, pxMessage->pvMessagePayload));
+
+    LogInfo( ( "Property document payload : %.*s \r\n",
+               pxMessage->ulPayloadLength,
+               ( const char * ) pxMessage->pvMessagePayload ) );
 
     switch (pxMessage->xMessageType)
     {
-        case eAzureIoTHubPropertiesGetMessage:
+        case eAzureIoTHubPropertiesRequestedMessage:
             LogInfo(("Device property document GET received"));
             // printf("first");
             xResult = prvProcessReportedProperties(pxMessage, eAzureIoTHubClientReportedFromDevice);
@@ -1097,6 +1111,7 @@ static void prvHandleProperties(AzureIoTHubClientPropertiesResponse_t* pxMessage
             break;
 
         default:
+            printf("default");
             LogError(("Unknown property message"));
     }
 }
@@ -1179,7 +1194,7 @@ static void prvAzureDemoTask(void* pvParameters)
              &pucIotHubDeviceId,
              &pulIothubDeviceIdLength)) != 0)
     {
-        LogError(("Failed on sample_dps_entry!: error code = 0x%08x\r\n", ulStatus));
+        //LogError(("Failed on sample_dps_entry!: error code = 0x%08x\r\n", ulStatus));
         return;
     }
 #endif /* democonfigENABLE_DPS_SAMPLE */
@@ -1190,13 +1205,13 @@ static void prvAzureDemoTask(void* pvParameters)
     AzureIoTMessageProperties_t telemetrymessageProperties;
     uint8_t pucBuffer[128];
 
-    AzureIoT_MessagePropertiesInit(&telemetrymessageProperties, pucBuffer, 0, 128);
-    AzureIoT_MessagePropertiesAppend(&telemetrymessageProperties,
+    AzureIoTMessage_PropertiesInit(&telemetrymessageProperties, pucBuffer, 0, 128);
+    AzureIoTMessage_PropertiesAppend(&telemetrymessageProperties,
         (const uint8_t*)"$.sub",
         sizeof("$.sub") - 1,
         (const uint8_t*)"sampleDevice",
         sizeof("sampleDevice") - 1);
-    AzureIoT_MessagePropertiesAppend(&telemetrymessageProperties,
+    AzureIoTMessage_PropertiesAppend(&telemetrymessageProperties,
         (const uint8_t*)"verifiedTelemetry",
         sizeof("verifiedTelemetry") - 1,
         (const uint8_t*)"Demo",
@@ -1256,7 +1271,8 @@ static void prvAzureDemoTask(void* pvParameters)
 
         /* Sends an MQTT Connect packet over the already established TLS connection,
          * and waits for connection acknowledgment (CONNACK) packet. */
-        LogInfo(("Creating an MQTT connection to %s.\r\n", pucIotHubHostname));
+
+        LogInfo( ( "Creating an MQTT connection to %s.\r\n", pucIotHubHostname ) );
 
         xResult = AzureIoTHubClient_Connect(
             &xAzureIoTHubClient, false, &xSessionPresent, sampleazureiotCONNACK_RECV_TIMEOUT_MS);
@@ -1271,7 +1287,7 @@ static void prvAzureDemoTask(void* pvParameters)
         configASSERT(xResult == eAzureIoTSuccess);
 
         /* Get property document after initial connection */
-        xResult = AzureIoTHubClient_GetProperties(&xAzureIoTHubClient);
+        xResult = AzureIoTHubClient_RequestPropertiesAsync(&xAzureIoTHubClient);
         configASSERT(xResult == eAzureIoTSuccess);
 
         xResult = AzureIoTHubClient_ProcessLoop(&xAzureIoTHubClient, sampleazureiotPROCESS_LOOP_TIMEOUT_MS);
@@ -1280,7 +1296,8 @@ static void prvAzureDemoTask(void* pvParameters)
         xResult = prvReportedPropertiesSend();
         configASSERT(xResult == eAzureIoTSuccess);
 
-        LogInfo(("Attempt to receive publish message from IoT Hub.\r\n"));
+        LogInfo( ( "Attempt to receive publish message from IoT Hub.\r\n" ) );
+
         xResult = AzureIoTHubClient_ProcessLoop(&xAzureIoTHubClient, sampleazureiotPROCESS_LOOP_TIMEOUT_MS);
         configASSERT(xResult == eAzureIoTSuccess);
 
@@ -1397,11 +1414,11 @@ static uint32_t prvIoTHubInfoGet(NetworkCredentials_t* pXNetworkCredentials,
 
     if (xResult == eAzureIoTSuccess)
     {
-        LogInfo(("Successfully acquired IoT Hub name and Device ID"));
+        //LogInfo(("Successfully acquired IoT Hub name and Device ID"));
     }
     else
     {
-        LogInfo(("Error geting IoT Hub name and Device ID: 0x%08", xResult));
+        //LogInfo(("Error geting IoT Hub name and Device ID: 0x%08", xResult));
     }
 
     configASSERT(xResult == eAzureIoTSuccess);
@@ -1454,7 +1471,7 @@ static uint32_t prvConnectToServerWithBackoffRetries(const char* pcHostName,
      */
     do
     {
-        LogInfo(("Creating a TLS connection to %s:%u.\r\n", pcHostName, port));
+        LogInfo( ( "Creating a TLS connection to %s:%u.\r\n", pcHostName, port ) );
         /* Attempt to create a mutually authenticated TLS connection. */
         xNetworkStatus = TLS_Socket_Connect(pxNetworkContext,
             pcHostName,
@@ -1502,7 +1519,7 @@ void vStartDemoTask(void)
         "AzureDemoTask",          /* Text name for the task - only used for debugging. */
         democonfigDEMO_STACKSIZE, /* Size of stack (in words, not bytes) to allocate for the task. */
         NULL,                     /* Task parameter - not used in this case. */
-        tskIDLE_PRIORITY,         /* Task priority, must be between 0 and configMAX_PRIORITIES - 1. */
+        configMAX_PRIORITIES - 1,         /* Task priority, must be between 0 and configMAX_PRIORITIES - 1. */
         NULL);                    /* Used to pass out a handle to the created task - not used in this case. */
 }
 /*-----------------------------------------------------------*/

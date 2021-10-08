@@ -354,3 +354,4 @@ MigrationBackup/
 /mimxrt1060
 /build_linux
 /b-l475e-iot01a
+/demos/projects/ESPRESSIF/esp32/build/
