@@ -1205,13 +1205,13 @@ static void prvAzureDemoTask(void* pvParameters)
     AzureIoTMessageProperties_t telemetrymessageProperties;
     uint8_t pucBuffer[128];
 
-    AzureIoT_MessagePropertiesInit(&telemetrymessageProperties, pucBuffer, 0, 128);
-    AzureIoT_MessagePropertiesAppend(&telemetrymessageProperties,
+    AzureIoTMessage_PropertiesInit(&telemetrymessageProperties, pucBuffer, 0, 128);
+    AzureIoTMessage_PropertiesAppend(&telemetrymessageProperties,
         (const uint8_t*)"$.sub",
         sizeof("$.sub") - 1,
         (const uint8_t*)"sampleDevice",
         sizeof("sampleDevice") - 1);
-    AzureIoT_MessagePropertiesAppend(&telemetrymessageProperties,
+    AzureIoTMessage_PropertiesAppend(&telemetrymessageProperties,
         (const uint8_t*)"verifiedTelemetry",
         sizeof("verifiedTelemetry") - 1,
         (const uint8_t*)"Demo",

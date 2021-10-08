@@ -82,20 +82,20 @@ Confirm that you have copied the the following values from your Iot Hub and the 
 
 This sample showcases Verified Telemetry feature for telemetry generated from two external sensors that are connected to ESP32 DevKit
 
-* Connect Sensors        
+### Connect Sensors
 
     **NOTE - Connections given in "Devkit Pin" are DevKit specific, to find connections for your Devkit refer to the DevKit's datasheet & "MCU Pin" which remains same for ESP32.**
     
     Refer to the table and image below to connect the two [Soil Moisture](https://www.dfrobot.com/product-1385.html) sensors.
 
-    | Sensor Name     | Sensor Pin | MCU Pin  | DOIT ESP32 Devkit | ESP32-Azure IoT Kit |
-    |-----------------|------------|----------|-------------------|---------------------|
-    | Soil Moisture 1 | Analog Out | ADC1 CH0 | TODO              | IO36 (ADC1 CH0)     |
-    | Soil Moisture 1 | VCC        | GPIO18   | D18               | IO18                |
-    | Soil Moisture 1 | GND        | GND      | GND               | GND                 |
-    | Soil Moisture 2 | Analog Out | ADC1 CH3 | TODO              | IO39 (ADC1 CH3)     |
-    | Soil Moisture 2 | VCC        | GPIO19   | D19               | IO19                |
-    | Soil Moisture 2 | GND        | GND      | GND               | GND                 |
+    | Sensor Name     | Sensor Pin | MCU Pin  | DOIT ESP32 Devkit |
+    |-----------------|------------|----------|-------------------|
+    | Soil Moisture 1 | Analog Out | ADC1 CH0 | TODO              |
+    | Soil Moisture 1 | VCC        | GPIO18   | D18               |
+    | Soil Moisture 1 | GND        | GND      | GND               |
+    | Soil Moisture 2 | Analog Out | ADC1 CH3 | TODO              |
+    | Soil Moisture 2 | VCC        | GPIO19   | D19               |
+    | Soil Moisture 2 | GND        | GND      | GND               |
 
 
     ![B-L475E-IOT01A Sensor Connections](media/ESP32_Board_Connections.png)
