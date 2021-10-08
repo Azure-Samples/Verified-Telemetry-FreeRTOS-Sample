@@ -90,10 +90,10 @@ This sample showcases Verified Telemetry feature for telemetry generated from tw
 
     | Sensor Name     | Sensor Pin | MCU Pin  | DOIT ESP32 Devkit |
     |-----------------|------------|----------|-------------------|
-    | Soil Moisture 1 | Analog Out | ADC1 CH0 | TODO              |
+    | Soil Moisture 1 | Analog Out | ADC1 CH4 | D32               |
     | Soil Moisture 1 | VCC        | GPIO18   | D18               |
     | Soil Moisture 1 | GND        | GND      | GND               |
-    | Soil Moisture 2 | Analog Out | ADC1 CH3 | TODO              |
+    | Soil Moisture 2 | Analog Out | ADC1 CH5 | D33               |
     | Soil Moisture 2 | VCC        | GPIO19   | D19               |
     | Soil Moisture 2 | GND        | GND      | GND               |
 
