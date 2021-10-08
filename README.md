@@ -9,31 +9,35 @@
 * [Steps to setup end-to-end Verified Telemetry demo](#steps-to-setup-end-to-end-verified-telemetry-demo)
 
 ## Verified Telemetry Overview
-Verified Telemetry (VT) is a state-of-the-art solution to determine the health of the sensor, i.e., working or faulty, which is consequently used to determine the quality of the sensed data. This is achieved by devising an intelligent “sensor fingerprint”, a set of unique electrical characteristics that differs between working and faulty sensors. The fingerprints can detect faults for a wide variety of off-the-shelf sensors and can be easily implemented with lightweight software code running on the IoT device. VT code is split into three repositories as described below: 
+
+Verified Telemetry (VT) is a state-of-the-art solution to determine the health of the sensor, i.e., working or faulty, which is consequently used to determine the quality of the sensed data. This is achieved by devising an intelligent “sensor fingerprint”, a set of unique electrical characteristics that differs between working and faulty sensors. The fingerprints can detect faults for a wide variety of off-the-shelf sensors and can be easily implemented with lightweight software code running on the IoT device. VT code is split into three repositories as described below:
 
 
 | |Description |
 |-|-|
-|[Verified Telemetry Device SDK](https://github.com/Azure/Verified-Telemetry) |The SDK which builds on the FreeRTOS middleware and describes how to integrate VT into existing device code. |
+|[Verified Telemetry SDK](https://github.com/Azure/Verified-Telemetry) |The SDK which builds on the FreeRTOS middleware and describes how to integrate VT into existing device code. |
 |[Verified Telemetry Device Sample](https://github.com/Azure-Samples/Verified-Telemetry-FreeRTOS-Sample) |These Getting Started guides shows device developers how to combine Verified Telemetry with [Azure IoT](https://azure.microsoft.com/overview/iot/) and [Azure IoT middleware for FreeRTOS](https://github.com/Azure/azure-iot-middleware-freertos). |
 |[Verified Telemetry Custom Solution Sample](https://github.com/Azure/Verified-Telemetry-Solution-Sample) | Uses InfluxDB, Grafana and the [Azure IoT Node.js SDK](https://github.com/Azure/azure-iot-sdk-node) to communicate with [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub/) and showcase how the Verified Telemetry features can be utilized in real world scenarios.|
-
 
 ## Links to board specific Device Samples
 
 The device samples shows device developers how to include Verified Telemetry with [Azure IoT](https://azure.microsoft.com/overview/iot/) and [Azure IoT middleware for FreeRTOS](https://github.com/Azure/azure-iot-middleware-freertos). Please find the following board specific guides:
 
+**STMicroelectronics:**
+* [B-L475E-IOT01A](/demos/projects/ST/b-l475e-iot01a/)
 
-* STMicroelectronics:
-  * [B-L475E-IOT01A](/demos/projects/ST/b-l475e-iot01a/)
+**ESPRESSIF**
+* [ESP32](demos/projects/ESPRESSIF/esp32/)
 
-* ESPRESSIF:
-  * [ESP32](demos/projects/ESPRESSIF/esp32/)
+To understand how to interact and consume Verified Telemetry information, refer to one of the following guides:
+* Interact with Verified Telemetry using [Azure IoT Explorer Sample](docs/vTIoTExplorerSample.md) 
+* Interact with Verified Telemetry using the [custom Solution Sample Template](https://github.com/Azure/Verified-Telemetry-Solution-Sample)
 
-> Note: Verified Telemetry status is supported only to analog sensors. We are currently working on extending the SDK to support digital sensors. 
-
+> **Note**    
+> Verified Telemetry status is supported only to analog sensors. We are currently working on extending the SDK to support digital sensors.
 
 ## Verified Telemetry Concepts
+
 A few key concepts of VT are introduced and discussed below:
 
 1. Sensor Fingerprint
@@ -100,17 +104,6 @@ A few key concepts of VT are introduced and discussed below:
     | **Properties (writable)** | `enableVerifiedTelemetry` | Controls whether Fingerprint Collection and Evaluation is implemented or not. When this property is set to 'false', Telemetry Verification cannot be performed.  |
     | **Properties (read-only)** | `deviceStatus` | Device status is set to false if any sensor supported by VT has a fault. |
 
-## Steps to setup end-to-end Verified Telemetry demo
-
-1. Setup one of the board specific device samples: 
-    * STMicroelectronics:
-      * [B-L475E-IOT01A](/demos/projects/ST/b-l475e-iot01a/)
-      * [ESP32](demos/projects/ESPRESSIF/esp32/)
-
-1. To understand how to interact and consume Verified Telemetry information, refer to one of the following guides - 
-    * Interact with Verified Telemetry using [Azure IoT Explorer Sample](docs/vTIoTExplorerSample.md) 
-    * Interact with Verified Telemetry using our [custom Solution Sample Template](https://github.com/Azure/Verified-Telemetry-Solution-Sample) which uses a Grafana Dashboard
-
-
 ## License
-The Azure Verified Telemetry Getting Started guides are licensed under the [MIT](./LICENSE.txt) license. 
+
+The Azure Verified Telemetry Getting Started guides are licensed under the [MIT](./LICENSE.txt) license.
