@@ -1,0 +1,30 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Download FreeRTOS",
+            "type": "shell",
+            "isBackground": false,
+            "windows" : {
+                "command": ".github/scripts/fetch_freertos.ps1 libs/FreeRTOS"
+            },
+            "linux" : {
+                "command": ".github/scripts/fetch_freertos.sh libs/FreeRTOS"
+            }
+        },
+        {
+            "label": "Build b-l475e-iot01a",
+            "type": "shell",
+            "command": "cmake -G Ninja -DFREERTOS_PATH=${workspaceRoot}/libs/FreeRTOS -DVENDOR=ST -DBOARD=b-l475e-iot01a -DCMAKE_BUILD_TYPE=Debug -Bb-l475e-iot01a ${workspaceRoot}; cmake --build b-l475e-iot01a",
+            "dependsOn": [ "Download FreeRTOS" ],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "Build b-l4s5i-iot01a",
+            "type": "shell",
+            "command": "cmake -G Ninja -DFREERTOS_PATH=${workspaceRoot}/libs/FreeRTOS -DVENDOR=ST -DBOARD=b-l4s5i-iot01a -DCMAKE_BUILD_TYPE=Debug -Bb-l4s5i-iot01a ${workspaceRoot}; cmake --build b-l4s5i-iot01a",
+            "dependsOn": [ "Download FreeRTOS" ],
+            "dependsOrder": "sequence"
+        }
+    ]
+}
