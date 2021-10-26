@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "STM L475E: Local OpenOCD",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "device": "STM32L475VG",
+            "runToMain": true,
+            "executable": "${workspaceFolder}/b-l475e-iot01a/demos/projects/ST/b-l475e-iot01a/iot-middleware-sample-pnp.elf",
+            "svdFile": "${workspaceFolder}/.vscode/STM32L4x5.svd",
+            "cwd": "${workspaceRoot}",
+            "configFiles": [
+                "board/stm32l4discovery.cfg"
+            ],
+            "preLaunchTask": "Build b-l475e-iot01a"
+        },        
+        {
+            "name": "STM L4S5I: Local OpenOCD",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "device": "STM32L4S5VI",
+            "runToMain": true,
+            "executable": "${workspaceFolder}/b-l4s5i-iot01a/demos/projects/ST/b-l4s5i-iot01a/iot-middleware-sample-pnp.elf",
+            "svdFile": "${workspaceFolder}/.vscode/STM32L4x5.svd",
+            "cwd": "${workspaceRoot}",
+            "configFiles": [
+                "board/stm32l4discovery.cfg"
+            ],
+            "preLaunchTask": "Build b-l4s5i-iot01a"            
+        }
+    ]
+}
