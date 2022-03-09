@@ -45,7 +45,10 @@ You will complete the following tasks:
     **If you previously cloned this repo in another sample, you don't need to do it again.**
 
     ```shell
-    git clone --recursive https://github.com/Azure-Samples/Verified-Telemetry-FreeRTOS-Sample.git
+    git clone https://github.com/Azure-Samples/Verified-Telemetry-FreeRTOS-Sample.git
+    cd Verified-Telemetry-FreeRTOS-Sample
+    git checkout features/currentsense_updated_esp
+    git submodule update --init --recursive 
     ```
 
     You may also need to enable long path support for both Microsoft Windows and git:
