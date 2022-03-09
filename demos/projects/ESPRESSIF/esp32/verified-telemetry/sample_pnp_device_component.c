@@ -11,6 +11,8 @@
 #include "driver/gpio.h"
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
+#include "driver/uart.h"
+#include "sdkconfig.h"
 /* Azure Provisioning/IoT Hub library includes */
 #include "azure_iot_hub_client.h"
 #include "azure_iot_hub_client_properties.h"
@@ -27,9 +29,13 @@
 #define SAMPLE_COMMAND_SUCCESS_STATUS (200)
 #define SAMPLE_COMMAND_ERROR_STATUS   (500)
 
+#define UART_BUFFER_LENGTH 100
+
 /* Telemetry key */
 static const CHAR telemetry_name_soilMoistureExternal1Raw[] = "soilMoistureExternal1";
 static const CHAR telemetry_name_soilMoistureExternal2Raw[] = "soilMoistureExternal2";
+static const CHAR telemetry_name_pmsExternal1Raw[]  = "PMSExternal1";
+static const CHAR telemetry_name_temperatureExternal2Raw[]  = "temperatureExternal2";
 static const CHAR telemetry_name_sensorTemperature[]        = "temperature";
 static const CHAR telemetry_name_sensorPressure[]           = "pressure";
 static const CHAR telemetry_name_sensorHumidity[]           = "humidityPercentage";
@@ -45,10 +51,12 @@ static const adc_bits_width_t width = ADC_WIDTH_BIT_12;
 
 static UCHAR scratch_buffer[512];
 static uint8_t ucPropertyPayloadBuffer[256];
+uint8_t UART4_rxBuffer[UART_BUFFER_LENGTH];
 
 adc_unit_t vt_adc_controller = ADC_UNIT_1;
 extern uint32_t vt_adc_channel_sensor_1 ;
 extern uint32_t vt_adc_channel_sensor_2 ;
+char ptrTaskList[250];
 
 #define GPIO_LED_PIN    2
 #define GPIO_LED_PIN_SEL  (1ULL<<GPIO_LED_PIN)
@@ -152,6 +160,89 @@ UINT sample_pnp_device_init(SAMPLE_PNP_DEVICE_COMPONENT* handle,
     return (eAzureIoTSuccess);
 }
 
+// void uart_init(){
+
+//     const uart_port_t uart_num = UART_NUM_1;
+// uart_config_t uart_config = {
+//     .baud_rate = 9600,
+//     .data_bits = UART_DATA_8_BITS,
+//     .parity = UART_PARITY_DISABLE,
+//     .stop_bits = UART_STOP_BITS_1,
+//     .flow_ctrl = UART_HW_FLOWCTRL_DISABLE ,
+//     .source_clk = UART_SCLK_APB,
+// };
+// // Configure UART parameters
+// ESP_ERROR_CHECK(uart_driver_install(uart_num, 1024 * 2, 0, 0, NULL, 0));
+// ESP_ERROR_CHECK(uart_param_config(uart_num, &uart_config));
+// ESP_ERROR_CHECK(uart_set_pin(uart_num, 1, 3, -1, -1));
+
+
+
+// }
+
+void uart_deinit(){
+    uart_driver_delete(UART_NUM_0);
+}
+
+VT_UINT getpmdata()
+{
+    uint16_t _checksum;
+    uint16_t _calculatedChecksum;
+    int flag=0;
+    VT_UINT val1=0;
+
+    for (int i =0;i <UART_BUFFER_LENGTH;i++){
+        UART4_rxBuffer[i]=0;
+    }
+
+   // HAL_UART4_Receive (&UartHandle4, UART4_rxBuffer, 1, 5000);
+        //printf(" UART4_rxBuffer: %x\n", *UART4_rxBuffer);
+    //if((*UART4_rxBuffer == 0x42) || (*UART4_rxBuffer == 0x52))
+    //{
+        uart_read_bytes (UART_NUM_2, UART4_rxBuffer, UART_BUFFER_LENGTH, 2000);
+        //HAL_UART_Transmit(&UartHandle4, UART4_rxBuffer, sizeof(UART4_rxBuffer), 1000);
+        for (int j=0;j<UART_BUFFER_LENGTH;j++){
+            printf("%x-", UART4_rxBuffer[j]);
+        }
+       printf("\n");
+        for (VT_UINT iter=0;iter<UART_BUFFER_LENGTH-31;iter++){
+            if (UART4_rxBuffer[iter]==0x42){
+                if (UART4_rxBuffer[iter+1]==0x4d){
+                    for (VT_UINT iter2=0;iter2<30;iter2++){
+                        
+                        _calculatedChecksum += UART4_rxBuffer[iter+iter2];
+
+                    }
+                    _checksum = UART4_rxBuffer[iter+30] << 8;
+                    _checksum |= UART4_rxBuffer[iter+31];
+
+                    #if VT_LOG_LEVEL > 2
+                    VTLogDebug("_checksum: %x\n", _checksum);
+                    VTLogDebug("_calculatedChecksum: %x\n", _calculatedChecksum);
+                    #endif
+
+                    if (_checksum==_calculatedChecksum){
+                         val1=  ((UART4_rxBuffer[iter+12]) << 8 | (UART4_rxBuffer[iter+13]));
+                        printf("\nPMS Sensor Val: %d\n", val1);
+                        flag=1;
+                        break;
+                    }
+                    else{
+                        _calculatedChecksum=0;
+                    }
+
+                }
+
+            }
+
+
+
+        }
+    if (flag==0){printf("Error in getting PM2.5 value");}
+
+    return val1;
+}
+
 UINT get_sensor_data(SAMPLE_PNP_DEVICE_COMPONENT* handle)
 {
     if (handle == NULL)
@@ -184,6 +275,34 @@ UINT get_sensor_data(SAMPLE_PNP_DEVICE_COMPONENT* handle)
     */
     handle->soilMoistureExternal1Raw = soilMoisture1ADCData;
     handle->soilMoistureExternal2Raw = soilMoisture2ADCData;
+
+    //uart_init();
+
+     printf("******* CS PART *******\n");
+
+         FreeRTOS_vt_signature_read(handle->verified_telemetry_DB,
+        (UCHAR*)telemetry_name_pmsExternal1Raw,
+        sizeof(telemetry_name_pmsExternal1Raw) - 1);
+
+    //         int i=0;
+    // while(i<100000){
+    //     i++;
+    // }
+
+    getpmdata();
+
+
+    
+
+
+            FreeRTOS_vt_signature_process(handle->verified_telemetry_DB,
+        (UCHAR*)telemetry_name_pmsExternal1Raw,
+        sizeof(telemetry_name_pmsExternal1Raw) - 1);
+
+        
+    printf("\n******* CS PART END*******\n");
+
+    //uart_deinit();
 
     handle->sensorTemperature  = 0;
     handle->sensorPressure     = 0;
@@ -276,6 +395,21 @@ AzureIoTResult_t sample_pnp_device_telemetry_send(
         handle->soilMoistureExternal2Raw,
         DOUBLE_DECIMAL_PLACE_DIGITS);
     configASSERT(xResult == eAzureIoTSuccess);
+
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue(&json_writer,
+        (const uint8_t*)telemetry_name_pmsExternal1Raw,
+        strlen(telemetry_name_pmsExternal1Raw),
+        handle->pmsExternal1Raw,
+        DOUBLE_DECIMAL_PLACE_DIGITS);
+    configASSERT(xResult == eAzureIoTSuccess);
+
+    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue(&json_writer,
+        (const uint8_t*)telemetry_name_temperatureExternal2Raw,
+        strlen(telemetry_name_temperatureExternal2Raw),
+        handle->temperatureExternal2Raw,
+        DOUBLE_DECIMAL_PLACE_DIGITS);
+    configASSERT(xResult == eAzureIoTSuccess);
+
 
     xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue(&json_writer,
         (const uint8_t*)telemetry_name_sensorTemperature,
