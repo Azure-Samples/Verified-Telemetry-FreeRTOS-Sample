@@ -60,7 +60,7 @@ You will complete the following tasks:
     > * ESP32 Board.
     > * Wi-Fi 2.4 GHz
     > * USB 2.0 A male to Micro USB male cable
-    > * 2 * [Soil Moisture Sensor](https://www.dfrobot.com/product-1385.html)
+    > * 1 * PM2012 Sensor
 
 
 ## Prepare the development environment
@@ -90,16 +90,14 @@ This sample showcases Verified Telemetry feature for telemetry generated from tw
 **NOTE - Connections given in "Devkit Pin" are DevKit specific, to find connections for your Devkit refer to the DevKit's datasheet & "MCU Pin" which remains samefor ESP32.**
 
 Refer to the table and image below to connect the two [Soil Moisture](https://www.dfrobot.com/product-1385.html) sensors.
-| Sensor Name     | Sensor Pin | MCU Pin  | DOIT ESP32 Devkit |
-|-----------------|------------|----------|-------------------|
-| Soil Moisture 1 | Analog Out | ADC1 CH4 | D32               |
-| Soil Moisture 1 | VCC        | GPIO18   | D18               |
-| Soil Moisture 1 | GND        | GND      | GND               |
-| Soil Moisture 2 | Analog Out | ADC1 CH5 | D33               |
-| Soil Moisture 2 | VCC        | GPIO19   | D19               |
-| Soil Moisture 2 | GND        | GND      | GND               |
 
-![B-L475E-IOT01A Sensor Connections](media/ESP32_Board_Connections.png)
+| Sensor Name   | Sensor Pin           | MCU Pin | ESP32 Devkit Baseboard PCB Pin |
+|---------------|----------------------|-----------------------------|------------|
+| Cubic PM2012 | Sensor’s TX (PIN 9)   | RX                          | RX                    |
+| Cubic PM2012 | VCC (PIN 1)           | -                           | JP5                   |
+| Cubic PM2012 | GND (PIN 3)           | -                           | SENS1GND (JP4)        |
+
+![B-L475E-IOT01A Sensor Connections](media/esp32_baseboard_schematic.png)
 
 ### Update sample configuration
 
