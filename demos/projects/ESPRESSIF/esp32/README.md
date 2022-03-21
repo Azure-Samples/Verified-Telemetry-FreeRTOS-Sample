@@ -97,7 +97,12 @@ Refer to the table and image below to connect the two [Soil Moisture](https://ww
 | Cubic PM2012 | VCC (PIN 1)           | -                           | JP5                   |
 | Cubic PM2012 | GND (PIN 3)           | -                           | SENS1GND (JP4)        |
 
+* Connection Schematic
 ![B-L475E-IOT01A Sensor Connections](media/esp32_baseboard_schematic.png)
+* CS PCB Connections
+![B-L475E-IOT01A-labeled](media/side_baseboard_esp.jpeg)
+* Sample Setup
+![B-L475E-IOT01A Sensor Connections_photo](media/top_baseboard_esp.jpeg)
 
 ### Update sample configuration
 
