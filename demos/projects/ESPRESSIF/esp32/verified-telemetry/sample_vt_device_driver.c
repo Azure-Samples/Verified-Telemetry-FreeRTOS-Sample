@@ -511,7 +511,7 @@ static void callback_task(){
         //vTaskDelay(100);
         
         vTaskSuspend(TaskHandle_1);
-        vTaskDelay(100);
+        vTaskDelay(200);
         
         // vTaskGetInfo(  TaskHandle_1, &xTaskDetails, pdTRUE, eInvalid );
         // printf("\nstatusb=%d\n",xTaskDetails.eCurrentState);
