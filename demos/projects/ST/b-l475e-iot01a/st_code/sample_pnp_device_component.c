@@ -636,7 +636,7 @@ UINT get_sensor_data(SAMPLE_PNP_DEVICE_COMPONENT* handle)
     
     FreeRTOS_vt_signature_read(handle->verified_telemetry_DB,
         (UCHAR*)telemetry_name_pmsExternal1Raw,
-        sizeof(telemetry_name_pmsExternal1Raw) - 1);
+        sizeof(telemetry_name_pmsExternal1Raw) - 1,1);
     
 
     // int i=0;

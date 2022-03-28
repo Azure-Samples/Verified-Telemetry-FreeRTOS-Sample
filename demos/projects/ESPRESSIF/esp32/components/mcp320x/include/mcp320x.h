@@ -103,7 +103,7 @@ extern "C"
      * @param handle Pointer to where a MCP320X handle will be stored.
      * @return MCP320X_OK when success, otherwise any MCP320X_ERR* code.
      */
-    mcp320x_err_t mcp320x_initialize(mcp320x_config_t *config, mcp320x_handle_t *handle, void (*transmit_callback)(spi_transaction_t *trans));
+    mcp320x_err_t mcp320x_initialize(mcp320x_config_t *config, mcp320x_handle_t *handle);
 
     /**
      * @brief Removes a MCP320X device from a SPI bus.

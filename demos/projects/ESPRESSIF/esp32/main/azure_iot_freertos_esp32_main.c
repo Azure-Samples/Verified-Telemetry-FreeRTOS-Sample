@@ -55,6 +55,8 @@
 #endif
 
 #define SNTP_SERVER_FQDN "pool.ntp.org"
+
+
 /*-----------------------------------------------------------*/
 
 static const char *TAG = "sample_azureiot";

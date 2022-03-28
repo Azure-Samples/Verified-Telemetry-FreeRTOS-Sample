@@ -27,6 +27,8 @@
 #define SAMPLE_INTERNAL_GPIO_TYPE_ID 0x01
 #define SAMPLE_EXTERNAL_ADC_TYPE_ID  0x02
 
+#define USINGESP 
+
 static esp_adc_cal_characteristics_t adc_chars;
 
 typedef struct {
@@ -89,7 +91,7 @@ spi_transaction_t transaction = {
 char ptrTaskList[250];
 TaskStatus_t xTaskDetails;
 
-static bool init_called=false;
+//static bool init_called=false;
 static bool once_called=false;
 
 //uint8_t adc_mcp3204_TxData[3];
@@ -100,7 +102,7 @@ float* adc_mcp3204_read_buffer_local;
 uint16_t adc_mcp3204_read_buffer_length_local;
 uint16_t adc_mcp3204_read_buffer_datapoints_stored = 0;
 typedef void (*VT_ADC_BUFFER_READ_CALLBACK_FUNC)(void);
-typedef uint16_t (*VT_ADC_BUFFER_READ_FULL_CALLBACK_FUNC)(void);
+typedef uint16_t (*VT_ADC_BUFFER_READ_FULL_CALLBACK_FUNC)(uint16_t mode);
 VT_ADC_BUFFER_READ_CALLBACK_FUNC adc_mcp3204_read_buffer_half_complete_callback;
 VT_ADC_BUFFER_READ_FULL_CALLBACK_FUNC adc_mcp3204_read_buffer_full_complete_callback;
 
@@ -303,96 +305,6 @@ void vt_interrupt_disable()
 }
 
 
-// static void read_task(){
-//     //   uint16_t decimal;
-//     // float frac_float;
-//     //  uint16_t frac;
-//     //  long stop;
-
-//     while(1){
-//          //long start = xTaskGetTickCount();
-//          //printf("\nstart read task\n");
-//         if(stop_spi){
-//             continue;
-//         }
-        
-//          adc_mcp3204_read_buffer_datapoints_stored=0;
-
-  
-   
-//     while (adc_mcp3204_read_buffer_datapoints_stored<128){
-//         //printf("reading");
-//            gpio_set_level(GPIO_CS, 0);
-       
-//         ESP_ERROR_CHECK(mcp320x_read_raw(mcp320x_handle, MCP320X_CHANNEL_0, MCP320X_READ_MODE_SINGLE, &value,&transaction));
-
-//         gpio_set_level(GPIO_CS, 1);
-
-//     adc_mcp3204_read_buffer_local[adc_mcp3204_read_buffer_datapoints_stored] =value;
-//         //(uint16_t)(adc_mcp3204_RxData[1] & 0x0F) << 8 | (uint16_t)adc_mcp3204_RxData[2];
-//     adc_mcp3204_read_buffer_datapoints_stored++;
-
-//     if (adc_mcp3204_read_buffer_datapoints_stored == adc_mcp3204_read_buffer_length_local / 2)
-//     {   
-//         full=0;
-//      //stop = xTaskGetTickCount() - start;
-
-//    printf("\ntime= %lu\n",stop);
-//         printf("half");
-        
-//     //  printf("\nprinting rwa sig\n");
-      
-
-//     //     for (uint16_t iter = 0; iter < adc_mcp3204_read_buffer_datapoints_stored; iter++)
-//     // {
-//     //     decimal    = adc_mcp3204_read_buffer_local[iter];
-//     //     frac_float = adc_mcp3204_read_buffer_local[iter] - (float)decimal;
-//     //     frac       = fabsf(frac_float) * 10000;
-//     //     printf("%d.%04d, ", decimal, frac);
-//     // }
-//     // printf("\n");
-//          xSemaphoreGive(sema_v);
-//     }
-//     else if (adc_mcp3204_read_buffer_datapoints_stored == adc_mcp3204_read_buffer_length_local)
-//     {
-//         full=1;
-//              stop = xTaskGetTickCount() - start;
-
-//    printf("\ntime= %lu\n",stop);
-        
-//         printf("full");
-        
-//     //  printf("\nprinting rwa sig\n");
-      
-
-//     //     for (uint16_t iter = 0; iter < adc_mcp3204_read_buffer_datapoints_stored; iter++)
-//     // {
-//     //     decimal    = adc_mcp3204_read_buffer_local[iter];
-//     //     frac_float = adc_mcp3204_read_buffer_local[iter] - (float)decimal;
-//     //     frac       = fabsf(frac_float) * 10000;
-//     //     printf("%d.%04d, ", decimal, frac);
-//     // }
-//     // printf("\n");
-//          xSemaphoreGive(sema_v);
-//     //     adc_mcp3204_read_buffer_datapoints_stored=0;
-//      }
-//     }
-//         stop = xTaskGetTickCount() - start;
-
-//    printf("\ntime= %lu\n",stop);
-//     //             for (uint16_t iter = 0; iter < 128; iter++)
-//     // {
-//     //     decimal    = adc_mcp3204_read_buffer_local[iter];
-//     //     frac_float = adc_mcp3204_read_buffer_local[iter] - (float)decimal;
-//     //     frac       = fabsf(frac_float) * 10000;
-//     //     printf("%d.%04d , ", decimal, frac);
-        
-//     // }
-//     // printf("\n\n");
-
-//     }
-
-// }
 
 static void read_task(){
     //   uint16_t decimal;
@@ -498,7 +410,7 @@ static void callback_task(){
 
     }
     else if (full==1){
-       stop= adc_mcp3204_read_buffer_full_complete_callback();
+       stop= adc_mcp3204_read_buffer_full_complete_callback(0);
        //printf("stop =%d",stop);
     }
     if (stop==true){
@@ -546,72 +458,6 @@ static void callback_task(){
 
 
 
-void transmit_callback(spi_transaction_t *trans)
-{
-    //printf("\n in callback");
-    //sample_mcp3204_read_stop();
-
-    adc_mcp3204_read_buffer_local[adc_mcp3204_read_buffer_datapoints_stored] =value;
-        //(uint16_t)(adc_mcp3204_RxData[1] & 0x0F) << 8 | (uint16_t)adc_mcp3204_RxData[2];
-    adc_mcp3204_read_buffer_datapoints_stored++;
-
-    if (adc_mcp3204_read_buffer_datapoints_stored == adc_mcp3204_read_buffer_length_local / 2)
-    {
-        
-    }
-    else if (adc_mcp3204_read_buffer_datapoints_stored == adc_mcp3204_read_buffer_length_local)
-    {
-        adc_mcp3204_read_buffer_full_complete_callback();
-    }
-    if (adc_mcp3204_read_buffer_datapoints_stored < adc_mcp3204_read_buffer_length_local)
-    {
-        //sample_mcp3204_read_start();
-    }
-}
-// void sample_mcp3204_read_start()
-// {
-// //printf("\n in read start\n");
-
-// gpio_config_t io_conf;
-//     io_conf.intr_type = GPIO_INTR_DISABLE;
-//     io_conf.mode = GPIO_MODE_OUTPUT;
-//     io_conf.pin_bit_mask = (1ULL<<GPIO_CS);
-//     io_conf.pull_down_en = 0;
-//     io_conf.pull_up_en = 0;
-//     gpio_config(&io_conf);
-
-//       gpio_set_level(GPIO_CS, 0);
-
-
-//     if (init_called==false){
-//     ESP_ERROR_CHECK(mcp320x_initialize(&mcp320x_cfg, &mcp320x_handle,transmit_callback));
-    
-//     init_called=true;}
-
-//     ESP_ERROR_CHECK(mcp320x_read_raw(mcp320x_handle, MCP320X_CHANNEL_0, MCP320X_READ_MODE_SINGLE, &value,&transaction));
-
-//     printf("%f",value);
-    
-
-// }
-// void sample_mcp3204_read_stop()
-// {//printf("\n in read stop\n");
-
-// gpio_config_t io_conf;
-//     io_conf.intr_type = GPIO_INTR_DISABLE;
-//     io_conf.mode = GPIO_MODE_OUTPUT;
-//     io_conf.pin_bit_mask = (1ULL<<GPIO_CS);
-//     io_conf.pull_down_en = 0;
-//     io_conf.pull_up_en = 0;
-//     gpio_config(&io_conf);
-
-//       gpio_set_level(GPIO_CS, 1);
-//     if (init_called==true){
-//     ESP_ERROR_CHECK(mcp320x_free(mcp320x_handle));
-//     init_called=false;}
-
-    
-// }
 
 
 
@@ -623,10 +469,10 @@ void vt_adc_buffer_read(uint16_t adc_id,
     float desired_sampling_frequency,
     float* set_sampling_frequency,
     void (*vt_adc_buffer_read_conv_half_cplt_callback)(),
-    uint16_t (*vt_adc_buffer_read_conv_cplt_callback)())
+    uint16_t (*vt_adc_buffer_read_conv_cplt_callback)(uint16_t mode))
 {
     
-    uint16_t stop_reading=false;
+    //uint16_t stop_reading=false;
     // azuretask=xTaskGetHandle("AzureDemoTask");
     // if(azuretask==NULL){
     //     printf("no aure task foud");
@@ -742,7 +588,7 @@ mcp320x_cfg.clock_speed_hz = 312500 ;
     gpio_config(&io_conf);
 
 
-        ESP_ERROR_CHECK(mcp320x_initialize(&mcp320x_cfg, &mcp320x_handle,transmit_callback));
+        ESP_ERROR_CHECK(mcp320x_initialize(&mcp320x_cfg, &mcp320x_handle));
 sema_v = xSemaphoreCreateBinary();
 
 if(once_called==false){

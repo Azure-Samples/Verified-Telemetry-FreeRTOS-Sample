@@ -10,9 +10,7 @@
 /* Kernel includes. */
 #include "FreeRTOS.h"
 #include "task.h"
-#include "semphr.h"
-#include "driver/uart.h"
-#include "sdkconfig.h"
+
 /* Azure Provisioning/IoT Hub library includes */
 #include "azure_iot_hub_client.h"
 #include "azure_iot_hub_client_properties.h"
@@ -41,24 +39,8 @@
 #include "FreeRTOS_vt_fallcurve_component.h"
 #include "FreeRTOS_vt_currentsense_component.h"
 #include "sample_freertos_verified_telemetry_init.h"
-#include "sample_vt_device_driver.h"      
+#include "sample_vt_device_driver.h"            
 
-
-#ifdef USINGESP
-#include "driver/uart.h"
-#include "driver/spi_master.h"
-#include "sdkconfig.h"
-    spi_bus_config_t bus_cfg = {
-        .mosi_io_num = GPIO_MOSI,
-        .miso_io_num = GPIO_MISO,
-        .sclk_io_num = GPIO_SCLK,
-        .quadwp_io_num = -1,
-        .quadhd_io_num = -1,
-        .max_transfer_sz = 0,
-        .flags = SPICOMMON_BUSFLAG_MASTER, 
-        .intr_flags= ESP_INTR_FLAG_IRAM
-        };
-#endif
 
 /*-----------------------------------------------------------*/
 
@@ -221,18 +203,20 @@ struct NetworkContext
 static AzureIoTHubClient_t xAzureIoTHubClient;
 /*-----------------------------------------------------------*/
 
+// #define GPIO_CS GPIO_NUM_15
+// #define GPIO_SCLK GPIO_NUM_14
+// #define GPIO_MISO GPIO_NUM_12
+// #define GPIO_MOSI GPIO_NUM_13
 
-
-    spi_bus_config_t bus_cfg = {
-        .mosi_io_num = GPIO_MOSI,
-        .miso_io_num = GPIO_MISO,
-        .sclk_io_num = GPIO_SCLK,
-        .quadwp_io_num = -1,
-        .quadhd_io_num = -1,
-        .max_transfer_sz = 0,
-        .flags = SPICOMMON_BUSFLAG_MASTER, 
-        .intr_flags= ESP_INTR_FLAG_IRAM
-        };
+//     spi_bus_config_t bus_cfg = {
+//         .mosi_io_num = GPIO_MOSI,
+//         .miso_io_num = GPIO_MISO,
+//         .sclk_io_num = GPIO_SCLK,
+//         .quadwp_io_num = -1,
+//         .quadhd_io_num = -1,
+//         .max_transfer_sz = 0,
+//         //.flags = SPICOMMON_BUSFLAG_MASTER
+//         };
 
 //     mcp320x_config_t mcp320x_cfg = {
 //         .host = SPI2_HOST,
@@ -1968,53 +1952,17 @@ static uint32_t prvConnectToServerWithBackoffRetries(const char* pcHostName,
 
     return xNetworkStatus == eTLSTransportSuccess ? 0 : 1;
 }
-
-
 /*-----------------------------------------------------------*/
 
 /*
  * @brief Create the task that demonstrates the AzureIoTHub demo
  */
-
-#ifdef USINGESP
-void uart_init(){
-
-    const uart_port_t uart_num = UART_NUM_2;
-uart_config_t uart_config = {
-    .baud_rate = 9600,
-    .data_bits = UART_DATA_8_BITS,
-    .parity = UART_PARITY_DISABLE,
-    .stop_bits = UART_STOP_BITS_1,
-    .flow_ctrl = UART_HW_FLOWCTRL_DISABLE ,
-    .source_clk = UART_SCLK_APB,
-};
-// Configure UART parameters
-ESP_ERROR_CHECK(uart_driver_install(uart_num, 1024 * 2, 0, 0, NULL, 0));
-ESP_ERROR_CHECK(uart_param_config(uart_num, &uart_config));
-ESP_ERROR_CHECK(uart_set_pin(uart_num, 17, 16, -1, -1));
-
-}
-#endif
-
-
-
 void vStartDemoTask(void)
 {
-        #ifdef USINGESP
-        ESP_ERROR_CHECK(spi_bus_initialize(SPI2_HOST, &bus_cfg, SPI_DMA_CH_AUTO));
+        
     
-        uart_init();
-    printf("\n spi_bus_initialize && mcp320x_initialize \n");
-    #endif
 
-{
-    //extern spi_bus_config_t bus_cfg;
-        ESP_ERROR_CHECK(spi_bus_initialize(SPI2_HOST, &bus_cfg, SPI_DMA_CH_AUTO));
     
-        uart_init();
-    printf("\n spi_bus_initialize && mcp320x_initialize \n");
-    //SemaphoreHandle_t  sema_vi=NULL; 
-//sema_vi = xSemaphoreCreateBinary();
     /* This example uses a single application task, which in turn is used to
      * connect, subscribe, publish, unsubscribe and disconnect from the IoT Hub */
     xTaskCreate(prvAzureDemoTask, /* Function that implements the task. */

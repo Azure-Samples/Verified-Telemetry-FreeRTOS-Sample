@@ -20,6 +20,8 @@
 #define GPIO_MISO GPIO_NUM_12
 #define GPIO_MOSI GPIO_NUM_13
 
+#define USINGESP
+
 /* ADC Definitions */
 extern uint16_t vt_adc_id_sensor_1;
 extern uint16_t vt_adc_id_sensor_2;
@@ -63,7 +65,7 @@ void vt_adc_buffer_read(uint16_t adc_id,
     float desired_sampling_frequency,
     float* set_sampling_frequency,
     void (*vt_adc_buffer_read_conv_half_cplt_callback)(),
-    uint16_t (*vt_adc_buffer_read_conv_cplt_callback)());
+    uint16_t (*vt_adc_buffer_read_conv_cplt_callback)(uint16_t mode));
 uint16_t vt_gpio_on(uint16_t gpio_id, void* gpio_port, void* gpio_pin);
 uint16_t vt_gpio_off(uint16_t gpio_id, void* gpio_port, void* gpio_pin);
 uint16_t vt_tick_init(uint16_t* max_value, uint16_t* resolution_usec);

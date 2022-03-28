@@ -33,7 +33,7 @@ extern "C"
         float millivolts_per_resolution_step; /*!< Millivolts per resolution step (reference voltage / ADC resolution). */
     };
 
-    mcp320x_err_t mcp320x_initialize(mcp320x_config_t *config, mcp320x_handle_t *handle, void (*transmit_callback)(spi_transaction_t *trans))
+    mcp320x_err_t mcp320x_initialize(mcp320x_config_t *config, mcp320x_handle_t *handle)
     {
         
         MCP320X_CHECK((config != NULL), "config error(NULL)", MCP320X_ERR_INVALID_CONFIG_HANDLE);

@@ -49,8 +49,9 @@ float* adc_mcp3204_read_buffer_local;
 uint16_t adc_mcp3204_read_buffer_length_local;
 uint16_t adc_mcp3204_read_buffer_datapoints_stored = 0;
 typedef void (*VT_ADC_BUFFER_READ_CALLBACK_FUNC)(void);
+typedef uint16_t (*VT_ADC_BUFFER_READ_FULL_CALLBACK_FUNC)(uint16_t mode);
 VT_ADC_BUFFER_READ_CALLBACK_FUNC adc_mcp3204_read_buffer_half_complete_callback;
-VT_ADC_BUFFER_READ_CALLBACK_FUNC adc_mcp3204_read_buffer_full_complete_callback;
+VT_ADC_BUFFER_READ_FULL_CALLBACK_FUNC adc_mcp3204_read_buffer_full_complete_callback;
 
 uint16_t vt_adc_single_read_init(
     uint16_t adc_id, void* adc_controller, void* adc_channel, uint16_t* adc_resolution, float* adc_ref_volt)
@@ -165,7 +166,7 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef* hspi)
     }
     else if (adc_mcp3204_read_buffer_datapoints_stored == adc_mcp3204_read_buffer_length_local)
     {
-        adc_mcp3204_read_buffer_full_complete_callback();
+        adc_mcp3204_read_buffer_full_complete_callback(1);
     }
     if (adc_mcp3204_read_buffer_datapoints_stored < adc_mcp3204_read_buffer_length_local)
     {
@@ -192,7 +193,7 @@ void vt_adc_buffer_read(uint16_t adc_id,
     float desired_sampling_frequency,
     float* set_sampling_frequency,
     void (*vt_adc_buffer_read_conv_half_cplt_callback)(),
-    void (*vt_adc_buffer_read_conv_cplt_callback)())
+    uint16_t (*vt_adc_buffer_read_conv_cplt_callback)(uint16_t mode))
 {
     
     if (adc_id == SAMPLE_EXTERNAL_ADC_TYPE_ID)
