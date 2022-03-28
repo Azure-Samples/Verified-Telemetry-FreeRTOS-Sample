@@ -10,9 +10,6 @@
 /* Kernel includes. */
 #include "FreeRTOS.h"
 #include "task.h"
-#include "semphr.h"
-#include "driver/uart.h"
-#include "sdkconfig.h"
 /* Azure Provisioning/IoT Hub library includes */
 #include "azure_iot_hub_client.h"
 #include "azure_iot_hub_client_properties.h"
@@ -223,16 +220,6 @@ static AzureIoTHubClient_t xAzureIoTHubClient;
 
 
 
-    spi_bus_config_t bus_cfg = {
-        .mosi_io_num = GPIO_MOSI,
-        .miso_io_num = GPIO_MISO,
-        .sclk_io_num = GPIO_SCLK,
-        .quadwp_io_num = -1,
-        .quadhd_io_num = -1,
-        .max_transfer_sz = 0,
-        .flags = SPICOMMON_BUSFLAG_MASTER, 
-        .intr_flags= ESP_INTR_FLAG_IRAM
-        };
 
 //     mcp320x_config_t mcp320x_cfg = {
 //         .host = SPI2_HOST,
@@ -2007,12 +1994,12 @@ void vStartDemoTask(void)
     printf("\n spi_bus_initialize && mcp320x_initialize \n");
     #endif
 
-{
-    //extern spi_bus_config_t bus_cfg;
-        ESP_ERROR_CHECK(spi_bus_initialize(SPI2_HOST, &bus_cfg, SPI_DMA_CH_AUTO));
+// {
+//     //extern spi_bus_config_t bus_cfg;
+//         ESP_ERROR_CHECK(spi_bus_initialize(SPI2_HOST, &bus_cfg, SPI_DMA_CH_AUTO));
     
-        uart_init();
-    printf("\n spi_bus_initialize && mcp320x_initialize \n");
+//         uart_init();
+//     printf("\n spi_bus_initialize && mcp320x_initialize \n");
     //SemaphoreHandle_t  sema_vi=NULL; 
 //sema_vi = xSemaphoreCreateBinary();
     /* This example uses a single application task, which in turn is used to
