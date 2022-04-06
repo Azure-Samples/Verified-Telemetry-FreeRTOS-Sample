@@ -130,6 +130,7 @@ Parameter | Value
  `Azure IoT Hub FQDN` | _{Your Azure IoT Hub Host FQDN}_
  `Azure IoT Device ID` | _{Your Azure IoT Hub device ID}_
  `Azure IoT Device Symmetric Key` | _{Your Azure IoT Hub device symmetric key}_
+ `Azure Task Stack Size` | 8192
 
 > Some parameters contain default values that do not need to be updated.
 
