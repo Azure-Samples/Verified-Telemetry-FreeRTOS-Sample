@@ -115,7 +115,7 @@ xSemaphoreHandle xWifiSemaphoreHandle;
 /* Private variables ---------------------------------------------------------*/
 /* Use by the pseudo random number generator. */
 static UBaseType_t ulNextRand;
-static uint64_t ulGlobalEntryTime = 1639093301;
+static uint64_t ulGlobalEntryTime = 1673769600;
 
 /* Private function prototypes -----------------------------------------------*/
 
