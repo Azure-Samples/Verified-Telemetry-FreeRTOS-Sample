@@ -85,7 +85,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * @brief IoTHub device Id.
  *
  */
-#define democonfigDEVICE_ID                 "FreeRTOS_CS"
+#define democonfigDEVICE_ID                 ""
 
 /**
  * @brief IoTHub module Id.
@@ -97,13 +97,13 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * @brief IoTHub hostname.
  *
  */
-#define democonfigHOSTNAME                  "AzureRtosPnP.azure-devices.net"
+#define democonfigHOSTNAME                  ""
 
 /**
  * @brief Device symmetric key
  *
  */
-#define democonfigDEVICE_SYMMETRIC_KEY      "n9IJ5Wxul8KdbR2IMhJPLk/UIdsDZduwIq1WJ+bebsg="
+#define democonfigDEVICE_SYMMETRIC_KEY      ""
 
 /**
  * @brief Client's X509 Certificate.
@@ -163,13 +163,13 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * @brief Wifi SSID
  * 
  */
-#define WIFI_SSID   "TGC1"
+#define WIFI_SSID   ""
 
 /**
  * @brief Wifi Password
  * 
  */
-#define WIFI_PASSWORD "20392020"
+#define WIFI_PASSWORD ""
 
 /**
  * @brief WIFI Security type, the security types are defined in wifi.h.
