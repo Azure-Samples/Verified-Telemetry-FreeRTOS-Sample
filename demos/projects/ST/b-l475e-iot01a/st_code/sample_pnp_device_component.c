@@ -422,150 +422,150 @@ VT_UINT getpmdata()
 
 //temp sensor requiremnts
 
-static void set_pin_output(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
-{
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
+// static void set_pin_output(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+// {
+//     GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-    GPIO_InitStruct.Pin   = GPIO_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
-}
+//     GPIO_InitStruct.Pin   = GPIO_Pin;
+//     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+//     GPIO_InitStruct.Pull  = GPIO_NOPULL;
+//     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+//     HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
+// }
 
-static void set_pin_input(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
-{
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
+// static void set_pin_input(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+// {
+//     GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-    GPIO_InitStruct.Pin   = GPIO_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
-}
+//     GPIO_InitStruct.Pin   = GPIO_Pin;
+//     GPIO_InitStruct.Mode  = GPIO_MODE_INPUT;
+//     GPIO_InitStruct.Pull  = GPIO_NOPULL;
+//     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+//     HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
+// }
 
-static void delay_usec(uint32_t delay_usec)
-{
-    TIM_HandleTypeDef delay_usec_timer;
-    delay_usec_timer.Instance               = TIM7;
-    delay_usec_timer.Init.Prescaler         = (uint32_t)((SystemCoreClock / 1000000) - 1);
-    delay_usec_timer.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    delay_usec_timer.Init.Period            = 65535;
-    delay_usec_timer.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-    delay_usec_timer.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    if (HAL_TIM_Base_Init(&delay_usec_timer) != HAL_OK)
-    {
-        // add error handling
-    }
-    HAL_TIM_Base_Start(&delay_usec_timer);
-    while ((__HAL_TIM_GET_COUNTER(&delay_usec_timer)) < delay_usec)
-        ;
-}
+// static void delay_usec(uint32_t delay_usec)
+// {
+//     TIM_HandleTypeDef delay_usec_timer;
+//     delay_usec_timer.Instance               = TIM7;
+//     delay_usec_timer.Init.Prescaler         = (uint32_t)((SystemCoreClock / 1000000) - 1);
+//     delay_usec_timer.Init.CounterMode       = TIM_COUNTERMODE_UP;
+//     delay_usec_timer.Init.Period            = 65535;
+//     delay_usec_timer.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+//     delay_usec_timer.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+//     if (HAL_TIM_Base_Init(&delay_usec_timer) != HAL_OK)
+//     {
+//         // add error handling
+//     }
+//     HAL_TIM_Base_Start(&delay_usec_timer);
+//     while ((__HAL_TIM_GET_COUNTER(&delay_usec_timer)) < delay_usec)
+//         ;
+// }
 
-static uint8_t ds18b20_start(GPIO_TypeDef* ds18b20_port, uint16_t ds18b20_pin)
-{
-    uint8_t response = 0;
-    set_pin_output(ds18b20_port, ds18b20_pin);       // set the pin as output
-    HAL_GPIO_WritePin(ds18b20_port, ds18b20_pin, 0); // pull the pin low
-    delay_usec(480);                                 // delay according to datasheet
+// static uint8_t ds18b20_start(GPIO_TypeDef* ds18b20_port, uint16_t ds18b20_pin)
+// {
+//     uint8_t response = 0;
+//     set_pin_output(ds18b20_port, ds18b20_pin);       // set the pin as output
+//     HAL_GPIO_WritePin(ds18b20_port, ds18b20_pin, 0); // pull the pin low
+//     delay_usec(480);                                 // delay according to datasheet
 
-    set_pin_input(ds18b20_port, ds18b20_pin); // set the pin as input
-    delay_usec(80);                           // delay according to datasheet
+//     set_pin_input(ds18b20_port, ds18b20_pin); // set the pin as input
+//     delay_usec(80);                           // delay according to datasheet
 
-    if (!(HAL_GPIO_ReadPin(ds18b20_port, ds18b20_pin)))
-    {
-        response = 1; // if the pin is low i.e the presence pulse is detected
-    }
-    else
-    {
-        response = 0;
-    }
+//     if (!(HAL_GPIO_ReadPin(ds18b20_port, ds18b20_pin)))
+//     {
+//         response = 1; // if the pin is low i.e the presence pulse is detected
+//     }
+//     else
+//     {
+//         response = 0;
+//     }
 
-    delay_usec(400); // 480 us delay totally.
-    return response;
-}
+//     delay_usec(400); // 480 us delay totally.
+//     return response;
+// }
 
-static void ds18b20_write(GPIO_TypeDef* ds18b20_port, uint16_t ds18b20_pin, uint8_t data)
-{
-    set_pin_output(ds18b20_port, ds18b20_pin); // set as output
+// static void ds18b20_write(GPIO_TypeDef* ds18b20_port, uint16_t ds18b20_pin, uint8_t data)
+// {
+//     set_pin_output(ds18b20_port, ds18b20_pin); // set as output
 
-    for (int i = 0; i < 8; i++)
-    {
-        if ((data & (1 << i)) != 0) // if the bit is high
-        {
-            // write 1
-            set_pin_output(ds18b20_port, ds18b20_pin);       // set as output
-            HAL_GPIO_WritePin(ds18b20_port, ds18b20_pin, 0); // pull the pin LOW
-            delay_usec(1);                                   // wait for 1 us
+//     for (int i = 0; i < 8; i++)
+//     {
+//         if ((data & (1 << i)) != 0) // if the bit is high
+//         {
+//             // write 1
+//             set_pin_output(ds18b20_port, ds18b20_pin);       // set as output
+//             HAL_GPIO_WritePin(ds18b20_port, ds18b20_pin, 0); // pull the pin LOW
+//             delay_usec(1);                                   // wait for 1 us
 
-            set_pin_input(ds18b20_port, ds18b20_pin); // set as input
-            delay_usec(50);                           // wait for 60 us
-        }
+//             set_pin_input(ds18b20_port, ds18b20_pin); // set as input
+//             delay_usec(50);                           // wait for 60 us
+//         }
 
-        else // if the bit is low
-        {
-            // write 0
-            set_pin_output(ds18b20_port, ds18b20_pin);
-            HAL_GPIO_WritePin(ds18b20_port, ds18b20_pin, 0); // pull the pin LOW
-            delay_usec(50);                                  // wait for 60 us
+//         else // if the bit is low
+//         {
+//             // write 0
+//             set_pin_output(ds18b20_port, ds18b20_pin);
+//             HAL_GPIO_WritePin(ds18b20_port, ds18b20_pin, 0); // pull the pin LOW
+//             delay_usec(50);                                  // wait for 60 us
 
-            set_pin_input(ds18b20_port, ds18b20_pin);
-        }
-    }
-}
+//             set_pin_input(ds18b20_port, ds18b20_pin);
+//         }
+//     }
+// }
 
-static uint8_t ds18b20_read(GPIO_TypeDef* ds18b20_port, uint16_t ds18b20_pin)
-{
-    uint8_t value = 0;
-    set_pin_input(ds18b20_port, ds18b20_pin);
+// static uint8_t ds18b20_read(GPIO_TypeDef* ds18b20_port, uint16_t ds18b20_pin)
+// {
+//     uint8_t value = 0;
+//     set_pin_input(ds18b20_port, ds18b20_pin);
 
-    for (int i = 0; i < 8; i++)
-    {
-        set_pin_output(ds18b20_port, ds18b20_pin); // set as output
+//     for (int i = 0; i < 8; i++)
+//     {
+//         set_pin_output(ds18b20_port, ds18b20_pin); // set as output
 
-        HAL_GPIO_WritePin(ds18b20_port, ds18b20_pin, 0); // pull the data pin LOW
-        delay_usec(2);                                   // wait for 2 us
+//         HAL_GPIO_WritePin(ds18b20_port, ds18b20_pin, 0); // pull the data pin LOW
+//         delay_usec(2);                                   // wait for 2 us
 
-        set_pin_input(ds18b20_port, ds18b20_pin);        // set as input
-        if (HAL_GPIO_ReadPin(ds18b20_port, ds18b20_pin)) // if the pin is HIGH
-        {
-            value |= 1 << i; // read = 1
-        }
-        delay_usec(60); // wait for 60 us
-    }
-    return value;
-}
+//         set_pin_input(ds18b20_port, ds18b20_pin);        // set as input
+//         if (HAL_GPIO_ReadPin(ds18b20_port, ds18b20_pin)) // if the pin is HIGH
+//         {
+//             value |= 1 << i; // read = 1
+//         }
+//         delay_usec(60); // wait for 60 us
+//     }
+//     return value;
+// }
 
-static float ds18b20_temperature_read(GPIO_TypeDef* ds18b20_port, uint16_t ds18b20_pin)
-{
-    uint8_t byte1 = 0;
-    uint8_t byte2 = 0;
-    float integer;
-    float decimal;
-    if (ds18b20_start(ds18b20_port, ds18b20_pin))
-    {
-        HAL_Delay(1);
-        ds18b20_write(ds18b20_port, ds18b20_pin, 0xCC); // skip ROM
-        ds18b20_write(ds18b20_port, ds18b20_pin, 0x44); // convert t
-        HAL_Delay(800);
+// static float ds18b20_temperature_read(GPIO_TypeDef* ds18b20_port, uint16_t ds18b20_pin)
+// {
+//     uint8_t byte1 = 0;
+//     uint8_t byte2 = 0;
+//     float integer;
+//     float decimal;
+//     if (ds18b20_start(ds18b20_port, ds18b20_pin))
+//     {
+//         HAL_Delay(1);
+//         ds18b20_write(ds18b20_port, ds18b20_pin, 0xCC); // skip ROM
+//         ds18b20_write(ds18b20_port, ds18b20_pin, 0x44); // convert t
+//         HAL_Delay(800);
 
-        if (ds18b20_start(ds18b20_port, ds18b20_pin))
-        {
-            HAL_Delay(1);
-            ds18b20_write(ds18b20_port, ds18b20_pin, 0xCC); // skip ROM
-            ds18b20_write(ds18b20_port, ds18b20_pin, 0xBE); // Read Scratch-pad
+//         if (ds18b20_start(ds18b20_port, ds18b20_pin))
+//         {
+//             HAL_Delay(1);
+//             ds18b20_write(ds18b20_port, ds18b20_pin, 0xCC); // skip ROM
+//             ds18b20_write(ds18b20_port, ds18b20_pin, 0xBE); // Read Scratch-pad
 
-            byte1 = ds18b20_read(ds18b20_port, ds18b20_pin);
-            byte2 = ds18b20_read(ds18b20_port, ds18b20_pin);
+//             byte1 = ds18b20_read(ds18b20_port, ds18b20_pin);
+//             byte2 = ds18b20_read(ds18b20_port, ds18b20_pin);
 
-            integer = (int8_t)((byte1 >> 4) | (byte2 << 4));
-            decimal = (float)(byte1 & 0x0F) * 0.0625f;
+//             integer = (int8_t)((byte1 >> 4) | (byte2 << 4));
+//             decimal = (float)(byte1 & 0x0F) * 0.0625f;
 
-            return (integer + decimal);
-        }
-    }
-    return (0);
-}
+//             return (integer + decimal);
+//         }
+//     }
+//     return (0);
+// }
 
 /* Implementation of Set LED state command of device component  */
 static UINT sample_pnp_device_set_led_state_command(
@@ -651,7 +651,7 @@ UINT get_sensor_data(SAMPLE_PNP_DEVICE_COMPONENT* handle)
     float pms_extrernal1= (float) getpmdata();
     //printf("%.2f",pms_extrernal1);
 
-    float temperatureExternal1 = ds18b20_temperature_read(DS18B20_1_PORT, DS18B20_1_PIN);
+    //float temperatureExternal1 = ds18b20_temperature_read(DS18B20_1_PORT, DS18B20_1_PIN);
 
 
 
