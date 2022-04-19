@@ -47,7 +47,7 @@ You will complete the following tasks:
     ```shell
     git clone https://github.com/Azure-Samples/Verified-Telemetry-FreeRTOS-Sample.git
     cd Verified-Telemetry-FreeRTOS-Sample
-    git checkout features/currentsensefinal
+    git checkout features/currentsense
     git submodule update --init --recursive 
     ```
 
