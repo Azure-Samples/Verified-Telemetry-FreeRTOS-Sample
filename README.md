@@ -4,6 +4,7 @@
 
 * [Verified Telemetry Overview](#verified-telemetry-overview)
 * [Links to board specific Device Samples](#links-to-board-specific-device-samples)
+* [Analog and Digital Sensors configuration guide for Verified Telemetry.](#configure-your-sample-for-analog-or-digital-sensors)
 * [Verified Telemetry Concepts](#verified-telemetry-concepts)
 * [Verified Telemetry Device Sample](#verified-telemetry-device-sample)
 
