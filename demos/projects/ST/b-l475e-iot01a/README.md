@@ -88,24 +88,8 @@ Confirm that you have Copied the the following values from your Iot Hub and the 
 > * `primaryKey`
 
 ## Connect Sensors for Verified Telemetry
-This sample showcases Verified Telemetry feature for telemetry generated from two external sensors that are connected to STM DevKit
-* Connect Sensors        
 
-    Refer to the table and image below to connect the Cubic PM2012 Sensor with the STM Devkit Baseboard PCB Pin.
-
-    | Sensor Name   | Sensor Pin           | MCU Pin | STM Devkit Baseboard PCB Pin |
-    |---------------|----------------------|-----------------------------|------------|
-    | Cubic PM2012 | Sensor’s TX (PIN 9)           | RX                           | RX        |
-    | Cubic PM2012 | VCC (PIN 1)                  | VCC                          | VCC        |
-    | Cubic PM2012       | GND (PIN 3)  | GND                           | GND        |
-
-
-    * Connection Schematic
-    ![B-L475E-IOT01A Sensor Connections](media/stm_baseboard_schematic.png)
-    * CS PCB Connections
-    ![B-L475E-IOT01A-labeled](media/labeled.jpeg)
-    * Sample Setup
-    ![B-L475E-IOT01A Sensor Connections_photo](media/connections.jpeg)
+Verified Telemetry supports both Analog and Digital Sensors for which we have developed different Fingerprinting Technologies, to use only one type of sensors or to add more sensors, minimal changes are required to the sample, refer the [Sensor Configuration Guide](../../../../demos/sample_azure_iot_pnp/) which would walk you through the connection diagrams and the code modifications.
 
 
 
