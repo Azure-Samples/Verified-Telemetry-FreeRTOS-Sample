@@ -41,36 +41,35 @@ typedef struct {
 static const adc_bits_width_t width = ADC_WIDTH_BIT_12;
 static const adc_atten_t atten = ADC_ATTEN_DB_11;
 
+/* Sensor Hardware Definitions */
+
+//sensor_1
 uint16_t vt_gpio_id_sensor_1 = SAMPLE_INTERNAL_GPIO_TYPE_ID;
-uint16_t vt_gpio_id_sensor_2 = SAMPLE_INTERNAL_GPIO_TYPE_ID;
-
-
-/* ADC Definitions */
 uint16_t vt_adc_id_sensor_1 = SAMPLE_INTERNAL_ADC_TYPE_ID;
-uint16_t vt_adc_id_sensor_2 = SAMPLE_INTERNAL_ADC_TYPE_ID;
-uint16_t vt_adc_id_sensor_3 = SAMPLE_EXTERNAL_ADC_TYPE_ID;
-uint16_t vt_adc_id_sensor_4 = SAMPLE_EXTERNAL_ADC_TYPE_ID;
-
 adc_unit_t vt_adc_controller_sensor_1 = ADC_UNIT_1;
-adc_unit_t vt_adc_controller_sensor_2 = ADC_UNIT_1;
-spi_host_device_t vt_adc_controller_sensor_3 = SPI2_HOST;
-spi_host_device_t vt_adc_controller_sensor_4 = SPI2_HOST;
-
-
 uint32_t vt_adc_channel_sensor_1 = ADC1_CHANNEL_4;
+uint16_t* vt_gpio_port_sensor_1;
+uint16_t vt_gpio_pin_sensor_1 = GPIO_NUM_18;
+
+//sensor_2
+uint16_t vt_gpio_id_sensor_2 = SAMPLE_INTERNAL_GPIO_TYPE_ID;
+uint16_t vt_adc_id_sensor_2 = SAMPLE_INTERNAL_ADC_TYPE_ID;
+adc_unit_t vt_adc_controller_sensor_2 = ADC_UNIT_1;
 uint32_t vt_adc_channel_sensor_2 = ADC1_CHANNEL_5;
+uint16_t* vt_gpio_port_sensor_2;
+uint16_t vt_gpio_pin_sensor_2 = GPIO_NUM_19;
+
+//sensor_3
+uint16_t vt_adc_id_sensor_3 = SAMPLE_EXTERNAL_ADC_TYPE_ID;
+spi_host_device_t vt_adc_controller_sensor_3 = SPI2_HOST;
 uint32_t vt_adc_channel_sensor_3 = 0;
+
+//sensor_4
+uint16_t vt_adc_id_sensor_4 = SAMPLE_EXTERNAL_ADC_TYPE_ID;
+spi_host_device_t vt_adc_controller_sensor_4 = SPI2_HOST;
 uint32_t vt_adc_channel_sensor_4 = 1;
 
-/* GPIO Definitions */
-//uint16_t vt_gpio_id_sensor_1 = SAMPLE_INTERNAL_GPIO_TYPE_ID;
-//uint16_t vt_gpio_id_sensor_2 = SAMPLE_INTERNAL_GPIO_TYPE_ID;
 
-uint16_t* vt_gpio_port_sensor_1;
-uint16_t* vt_gpio_port_sensor_2;
-
-uint16_t vt_gpio_pin_sensor_1 = GPIO_NUM_18;
-uint16_t vt_gpio_pin_sensor_2 = GPIO_NUM_19;
 
 gpio_num_t ADC_GPIO_NUM ;
 

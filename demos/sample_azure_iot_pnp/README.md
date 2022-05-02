@@ -3,24 +3,58 @@
 ## Table of Contents
 
 * [General Overview](#general-overview)
-* [Sample configuration for both Analog and Digital Sensors](#sample-configuration-for-both-analog-and-digital-sensors)
-* [Sample configuration for only Digital](#sample-configuration-for-only-digital-sensors)
 * [Sample configuration for only Analog](#sample-configuration-for-only-analog-sensors)
+* [Sample configuration for only Digital](#sample-configuration-for-only-digital-sensors)
+* [Sample configuration for both Analog and Digital Sensors](#sample-configuration-for-both-analog-and-digital-sensors)
+* [Modifying ADC, GPIO, Hardware Definitions of sample and new sensors](#modifying-adc-gpio-hardware-definitions-of-sample-and-new-sensors)
+* [Adding new sensors to the sample](#adding-new-sensors-to-the-sample)
 
 ## General Overview
 
-Verified Telemetry supports both Analog and Digital Sensors, to use only one type of sensors or to add more sensors, changes are required to [sample_freertos_verified_telemetry_init.c](sample_freertos_verified_telemetry_init.c) file.
+Verified Telemetry supports both Analog and Digital Sensors for which we have developed different Fingerprinting Technologies, to use only one type of sensors or to add more sensors, minimal changes are required to [sample_freertos_verified_telemetry_init.c](sample_freertos_verified_telemetry_init.c) file which are described below.
 
-## Sample configuration for both Analog and Digital Sensors
+## Sample configuration for only Analog Sensors
 
-* the default sample is configured for 2 Analog and 2 Digital sensors, use the below schematic for connections.
+* the sample needs to be configured for only 2 Analog sensors, use the below schematic for connections, and the following instructions for changes in the [sample_freertos_verified_telemetry_init.c](sample_freertos_verified_telemetry_init.c) file.
+
+* ESP32 Connections 
 
     * ESP32 Connection Schematic
-    ![B-L475E-IOT01A Sensor Connections](media/ESP_Both_FC_CS.jpg)
-   
-    * STM Connection Schematic
-    ![B-L475E-IOT01A Sensor Connections](media/STM_Both_FC_CS.jpg)
+    ![B-L475E-IOT01A Sensor Connections](media/esp_only_fc.png)
     
+      | Sensor Name     | Sensor Pin | MCU Pin  | DOIT ESP32 Devkit |
+      |-----------------|------------|----------|-------------------|
+      | Soil Moisture 1 | Analog Out | ADC1 CH4 | D32               |
+      | Soil Moisture 1 | VCC        | GPIO18   | D18               |
+      | Soil Moisture 1 | GND        | GND      | GND               |
+      | Soil Moisture 2 | Analog Out | ADC1 CH5 | D33               |
+      | Soil Moisture 2 | VCC        | GPIO19   | D19               |
+      | Soil Moisture 2 | GND        | GND      | GND               |
+    
+* STM Connections
+
+    * STM Connection Schematic
+    ![B-L475E-IOT01A Sensor Connections](media/STM_only_fc.png)
+    
+       | Sensor Name   | Sensor Pin           | MCU Pin | Devkit Pin |
+       |---------------|----------------------|-----------------------------|------------|
+       | Soil Moisture 1 | Analog Out           | PC0                           | A5        |
+       | Soil Moisture 1 | VCC                  | PB9                          | D14        |
+       | Soil Moisture 1 | GND                  | GND                          | GND        |
+       | Soil Moisture 2       | Analog Out  | PC1                           | A4        |
+       | Soil Moisture 2       | VCC                  | PB8                           | D15       |
+       | Soil Moisture 2       | GND                  | GND                           | GND       |
+    
+    
+* Changes in file [sample_freertos_verified_telemetry_init.c](sample_freertos_verified_telemetry_init.c)
+
+    * Comment lines 13 & 15
+    
+            //#define BOTH_ANALOG_AND_DIGITAL_SENSORS
+            #define ONLY_ANALOG_SENSORS
+            //#define ONLY_DIGITAL_SENSORS
+
+
 ## Sample configuration for only Digital Sensors
 
 * the sample needs to be configured for only 2 Digital sensors, use the below schematic for connections, and the following instructions for changes in the [sample_freertos_verified_telemetry_init.c](sample_freertos_verified_telemetry_init.c) file.
@@ -29,6 +63,13 @@ Verified Telemetry supports both Analog and Digital Sensors, to use only one typ
 
     * ESP32 Connection Schematic
     ![B-L475E-IOT01A Sensor Connections](media/esp_only_cs.png)
+    
+      | Sensor Name   | Sensor Pin           | MCU Pin | ESP32 Devkit Baseboard PCB Pin |
+      |---------------|----------------------|-----------------------------|------------|
+      | Cubic PM2012 | Sensor’s TX (PIN 9)   | RX                          | RX                    |
+      | Cubic PM2012 | VCC (PIN 1)           | -                           | JP5                   |
+      | Cubic PM2012 | GND (PIN 3)           | -                           | SENS1GND (JP4)        |    
+    
     * ESP32 CS PCB Connections
     ![B-L475E-IOT01A-labeled](media/esp_only_cs_side.jpeg)
     * ESP32 Sample Setup
@@ -38,6 +79,13 @@ Verified Telemetry supports both Analog and Digital Sensors, to use only one typ
 
     * STM Connection Schematic
     ![B-L475E-IOT01A Sensor Connections](media/STM_Only_CS.png)
+    
+       | Sensor Name   | Sensor Pin           | MCU Pin | STM Devkit Baseboard PCB Pin |
+       |---------------|----------------------|-----------------------------|------------|
+       | Cubic PM2012 | Sensor’s TX (PIN 9)           | RX                           | RX        |
+       | Cubic PM2012 | VCC (PIN 1)                  | VCC                          | VCC        |
+       | Cubic PM2012       | GND (PIN 3)  | GND                           | GND        |    
+    
     * STM CS PCB Connections
     ![B-L475E-IOT01A-labeled](media/STM_Only_CS_side.png)
     * STM Sample Setup
@@ -45,120 +93,134 @@ Verified Telemetry supports both Analog and Digital Sensors, to use only one typ
     
 * Changes in file [sample_freertos_verified_telemetry_init.c](sample_freertos_verified_telemetry_init.c)
 
-    * Comment lines 15 & 17
+    * Comment lines 13 & 14
     
-          //static FreeRTOS_VT_OBJECT sample_signature_sensor_1;
-          
-          //static FreeRTOS_VT_OBJECT sample_signature_sensor_2;
+            //#define BOTH_ANALOG_AND_DIGITAL_SENSORS
+            //#define ONLY_ANALOG_SENSORS
+            #define ONLY_DIGITAL_SENSORS
+         
 
-    * Comment lines 25 & 26
-    
-          //static VT_SENSOR_HANDLE sample_handle_sensor_1;
-          //static VT_SENSOR_HANDLE sample_handle_sensor_2;
-          
-    * Comment lines 50 to 86
-    
-          /*
-          sample_handle_sensor_1.adc_id         = vt_adc_id_sensor_1;
-          sample_handle_sensor_1.adc_controller = (void*)&vt_adc_controller_sensor_1;
-          sample_handle_sensor_1.adc_channel    = (void*)&vt_adc_channel_sensor_1;
-          sample_handle_sensor_1.gpio_id        = vt_gpio_id_sensor_1;
-          sample_handle_sensor_1.gpio_port      = (void*)vt_gpio_port_sensor_1;
-          sample_handle_sensor_1.gpio_pin       = (void*)&vt_gpio_pin_sensor_1;
+## Sample configuration for both Analog and Digital Sensors
 
-          if ((status = FreeRTOS_vt_signature_init(&verified_telemetry_DB,
-                   &sample_signature_sensor_1,
-                   (UCHAR*)"soilMoistureExternal1",
-                   VT_SIGNATURE_TYPE_FALLCURVE,
-                   (UCHAR*)"soilMoistureExternal1",
-                   true,
-                   &sample_handle_sensor_1)))
-          {
-              printf("Failed to initialize VT for soilMoistureExternal1 telemetry: error code = 0x%08x\r\n", status);
-          }
-
-          sample_handle_sensor_2.adc_id         = vt_adc_id_sensor_2;
-          sample_handle_sensor_2.adc_controller = (void*)&vt_adc_controller_sensor_2;
-          sample_handle_sensor_2.adc_channel    = (void*)&vt_adc_channel_sensor_2;
-          sample_handle_sensor_2.gpio_id        = vt_gpio_id_sensor_2;
-          sample_handle_sensor_2.gpio_port      = (void*)vt_gpio_port_sensor_2;
-          sample_handle_sensor_2.gpio_pin       = (void*)&vt_gpio_pin_sensor_2;
-
-          if ((status = FreeRTOS_vt_signature_init(&verified_telemetry_DB,
-                   &sample_signature_sensor_2,
-                   (UCHAR*)"soilMoistureExternal2",
-                   VT_SIGNATURE_TYPE_FALLCURVE,
-                   (UCHAR*)"soilMoistureExternal2",
-                   true,
-                   &sample_handle_sensor_2)))
-          {
-              printf("Failed to initialize VT for soilMoistureExternal2 telemetry: error code = 0x%08x\r\n", status);
-          }
-          */
-          
-## Sample configuration for only Analog Sensors
-
-* the sample needs to be configured for only 2 Digital sensors, use the below schematic for connections, and the following instructions for changes in the [sample_freertos_verified_telemetry_init.c](sample_freertos_verified_telemetry_init.c) file.
-
-* ESP32 Connections 
+* the default sample is configured for 2 Analog and 2 Digital sensors, use the below schematic for connections.
 
     * ESP32 Connection Schematic
-    ![B-L475E-IOT01A Sensor Connections](media/esp_only_fc.png)
+    ![B-L475E-IOT01A Sensor Connections](media/ESP_Both_FC_CS.jpg)
     
-* STM Connections
-
+      | Sensor Name   | Sensor Pin           | MCU Pin | ESP32 Devkit Baseboard PCB Pin |
+      |---------------|----------------------|-----------------------------|------------|
+      | Cubic PM2012 | Sensor’s TX (PIN 9)   | RX                          | RX                    |
+      | Cubic PM2012 | VCC (PIN 1)           | -                           | JP5                   |
+      | Cubic PM2012 | GND (PIN 3)           | -                           | SENS1GND (JP4)        |
+      | Soil Moisture 1 | Analog Out | ADC1 CH4 | IO32               |
+      | Soil Moisture 1 | VCC        | GPIO18   | IO18               |
+      | Soil Moisture 1 | GND        | GND      | GND               |
+      | Soil Moisture 2 | Analog Out | ADC1 CH5 | IO33               |
+      | Soil Moisture 2 | VCC        | GPIO19   | IO19               |
+      | Soil Moisture 2 | GND        | GND      | GND               |      
+   
     * STM Connection Schematic
-    ![B-L475E-IOT01A Sensor Connections](media/STM_only_fc.png)
+    ![B-L475E-IOT01A Sensor Connections](media/STM_Both_FC_CS.jpg)
+    
+       | Sensor Name   | Sensor Pin           | MCU Pin | STM Devkit Baseboard PCB Pin |
+       |---------------|----------------------|-----------------------------|------------|
+       | Cubic PM2012 | Sensor’s TX (PIN 9)           | RX                           | RX        |
+       | Cubic PM2012 | VCC (PIN 1)                  | VCC                          | VCC        |
+       | Cubic PM2012       | GND (PIN 3)  | GND                           | GND        |'
+       | Soil Moisture 1 | Analog Out           | PC0                           | A5        |
+       | Soil Moisture 1 | VCC                  | PB9                          | D14        |
+       | Soil Moisture 1 | GND                  | GND                          | GND        |
+       | Soil Moisture 2       | Analog Out  | PC1                           | A4        |
+       | Soil Moisture 2       | VCC                  | PB8                           | D15       |
+       | Soil Moisture 2       | GND                  | GND                           | GND       |    
+    
     
 * Changes in file [sample_freertos_verified_telemetry_init.c](sample_freertos_verified_telemetry_init.c)
 
-    * Comment lines 19 & 20
+    * Comment lines 14 & 15
     
-          //static FreeRTOS_VT_OBJECT sample_signature_sensor_3;
-
-          //static FreeRTOS_VT_OBJECT sample_signature_sensor_4;
-
-    * Comment lines 27 & 28
+            #define BOTH_ANALOG_AND_DIGITAL_SENSORS
+            //#define ONLY_ANALOG_SENSORS
+            //#define ONLY_DIGITAL_SENSORS
     
-          //static VT_SENSOR_HANDLE sample_handle_sensor_3;
-          //static VT_SENSOR_HANDLE sample_handle_sensor_4;
-          
-    * Comment lines 86 to 122
+## Modifying ADC, GPIO, Hardware Definitions of sample and new sensors
     
-          /*
-          sample_handle_sensor_3.adc_id                      = vt_adc_id_sensor_3;
-          sample_handle_sensor_3.adc_controller              = (void*)&vt_adc_controller_sensor_3;
-          sample_handle_sensor_3.adc_channel                 = (void*)&vt_adc_channel_sensor_3;
-          sample_handle_sensor_3.currentsense_adc_ref_volt   = CURRENTSENSE_EXTERNAL_ADC_REF_VOLT;
-          sample_handle_sensor_3.currentsense_adc_resolution = CURRENTSENSE_EXTERNAL_ADC_RESOLUTION;
-          sample_handle_sensor_3.currentsense_mV_to_mA       = 1.0f / (CURRENTSENSE_SHUNT_RESISTOR * CURRENTSENSE_OPAMP_GAIN);
+* Hardware Definitions are present in file sample_vt_device_driver.c and is externed in sample_vt_device_driver.h, for any new sensor or to modify current hardware, check the instruction below.
 
-          if ((status = FreeRTOS_vt_signature_init(&verified_telemetry_DB,
-                   &sample_signature_sensor_3,
-                   (UCHAR*)"PMSExternal1",
-                   VT_SIGNATURE_TYPE_CURRENTSENSE,
-                   (UCHAR*)"PMSExternal1",
-                   true,
-                   &sample_handle_sensor_3)))
-          {
-              printf("Failed to initialize VT for PMSExternal1 telemetry: error code = 0x%08x\r\n", status);
-          }
+* for ESP32 
+   
+   * got to file [sample_vt_device_driver.c](../projects/ESPRESSIF/esp32/verified-telemetry/sample_vt_device_driver.c) and add/modify Hardware Definitions under ``` /* Sensor Hardware Definitions */ ```
+   * got to file [sample_vt_device_driver.h](../projects/ESPRESSIF/esp32/verified-telemetry/sample_vt_device_driver.h) and extern any new/modified Hardware Definitions under ``` /* Sensor Hardware Declaration */ ```
 
-          sample_handle_sensor_4.adc_id                      = vt_adc_id_sensor_4;
-          sample_handle_sensor_4.adc_controller              = (void*)&vt_adc_controller_sensor_4;
-          sample_handle_sensor_4.adc_channel                 = (void*)&vt_adc_channel_sensor_4;
-          sample_handle_sensor_4.currentsense_adc_ref_volt   = CURRENTSENSE_EXTERNAL_ADC_REF_VOLT;
-          sample_handle_sensor_4.currentsense_adc_resolution = CURRENTSENSE_EXTERNAL_ADC_RESOLUTION;
-          sample_handle_sensor_4.currentsense_mV_to_mA       = 1.0f / (CURRENTSENSE_SHUNT_RESISTOR * CURRENTSENSE_OPAMP_GAIN);
+* for STM 
+   
+   * got to file [sample_vt_device_driver.c](../projects/ST/b-l475e-iot01a/st_code/sample_vt_device_driver.c) and add/modify Hardware Definitions under ``` /* Sensor Hardware Definitions */ ```
+   * got to file [sample_vt_device_driver.h](../projects/ST/b-l475e-iot01a/st_code/sample_vt_device_driver.h) and extern any new/modified Hardware Definitions under ``` /* Sensor Hardware Declaration */ ```
+   * 
+## Adding new sensors to the sample 
 
-          if ((status = FreeRTOS_vt_signature_init(&verified_telemetry_DB,
-                   &sample_signature_sensor_4,
-                   (UCHAR*)"temperatureExternal2",
-                   VT_SIGNATURE_TYPE_CURRENTSENSE,
-                   (UCHAR*)"temperatureExternal2",
-                   true,
-                   &sample_handle_sensor_4)))
-          {
-              printf("Failed to initialize VT for temperatureExternal2 telemetry: error code = 0x%08x\r\n", status);
-          }
-          */
+* To add new sensors to the sample, the following changes are required in [sample_freertos_verified_telemetry_init.c](sample_freertos_verified_telemetry_init.c).
+
+1. Add new VT_SENSOR_HANDLE & FreeRTOS_VT_OBJECT according to the type of sensor.
+   
+   * to add an Analog Sensor, add new VT_SENSOR_HANDLE & FreeRTOS_VT_OBJECT between lines 21 & 26 
+         
+            #if defined(BOTH_ANALOG_AND_DIGITAL_SENSORS) || defined(ONLY_ANALOG_SENSORS)
+                static FreeRTOS_VT_OBJECT sample_signature_sensor_1;
+                static FreeRTOS_VT_OBJECT sample_signature_sensor_2;
+                static FreeRTOS_VT_OBJECT sample_signature_sensor_N; // <- replace N with the number of the sensor
+                static VT_SENSOR_HANDLE sample_handle_sensor_1;
+                static VT_SENSOR_HANDLE sample_handle_sensor_2;
+                static VT_SENSOR_HANDLE sample_handle_sensor_N;      // <- replace N with the number of the sensor
+            #endif
+            
+   * to add a Digital Sensor, add new VT_SENSOR_HANDLE & FreeRTOS_VT_OBJECT between lines 30 & 35 
+         
+            #if defined(BOTH_ANALOG_AND_DIGITAL_SENSORS) || defined(ONLY_DIGITAL_SENSORS)
+                static FreeRTOS_VT_OBJECT sample_signature_sensor_1;
+                static FreeRTOS_VT_OBJECT sample_signature_sensor_2;
+                static FreeRTOS_VT_OBJECT sample_signature_sensor_N; // <- replace N with the number of the sensor
+                static VT_SENSOR_HANDLE sample_handle_sensor_1;
+                static VT_SENSOR_HANDLE sample_handle_sensor_2;
+                static VT_SENSOR_HANDLE sample_handle_sensor_N;      // <- replace N with the number of the sensor
+            #endif     
+            
+2. Call init function according to the type of sensor
+
+      * to add an Analog Sensor, call vt_analog_sensor_signature_init() between lines 130 & 156 
+         
+       #if defined(BOTH_ANALOG_AND_DIGITAL_SENSORS) || defined(ONLY_ANALOG_SENSORS)
+
+           vt_analog_sensor_signature_init(&verified_telemetry_DB,
+                                           &sample_signature_sensor_N,
+                                           (UCHAR*)"newAnalogSensorN",
+                                           true,
+                                           vt_adc_id_sensor_N,
+                                           (void*)&vt_adc_controller_sensor_N,
+                                           (void*)&vt_adc_channel_sensor_N,
+                                           vt_gpio_id_sensor_N,
+                                           (void*)vt_gpio_port_sensor_N,
+                                           (void*)&vt_gpio_pin_sensor_N,
+                                           &sample_handle_sensor_N);
+
+       #endif
+       
+      * to add an Digital Sensor, call vt_digital_sensor_signature_init() between lines 158 & 184 
+         
+       #if defined(BOTH_ANALOG_AND_DIGITAL_SENSORS) || defined(ONLY_DIGITAL_SENSORS)
+
+           vt_digital_sensor_signature_init(&verified_telemetry_DB,
+                                           &sample_signature_sensor_N,
+                                           (UCHAR*)"newDigitalSensorN",
+                                           true,
+                                           vt_adc_id_sensor_N,
+                                           (void*)&vt_adc_controller_sensor_N,
+                                           (void*)&vt_adc_channel_sensor_N,
+                                           CURRENTSENSE_EXTERNAL_ADC_REF_VOLT,
+                                           CURRENTSENSE_EXTERNAL_ADC_RESOLUTION,
+                                           (1.0f / (CURRENTSENSE_SHUNT_RESISTOR * CURRENTSENSE_OPAMP_GAIN)),
+                                           &sample_handle_sensor_N);
+
+       #endif       
+       
+            

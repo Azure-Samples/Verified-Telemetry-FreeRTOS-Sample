@@ -15,31 +15,34 @@
 
 TIM_HandleTypeDef vt_tick_timer;
 
-/* ADC Definitions */
+/* Sensor Hardware Definitions */
+
+//sensor_1
 uint16_t vt_adc_id_sensor_1 = SAMPLE_INTERNAL_ADC_TYPE_ID;
-uint16_t vt_adc_id_sensor_2 = SAMPLE_INTERNAL_ADC_TYPE_ID;
-uint16_t vt_adc_id_sensor_3 = SAMPLE_EXTERNAL_ADC_TYPE_ID;
-uint16_t vt_adc_id_sensor_4 = SAMPLE_EXTERNAL_ADC_TYPE_ID;
-
 ADC_HandleTypeDef vt_adc_controller_sensor_1 = {.Instance = ADC1};
-ADC_HandleTypeDef vt_adc_controller_sensor_2 = {.Instance = ADC1};
-SPI_HandleTypeDef vt_adc_controller_sensor_3 = {.Instance = SPI1};
-SPI_HandleTypeDef vt_adc_controller_sensor_4 = {.Instance = SPI1};
-
 uint32_t vt_adc_channel_sensor_1 = ADC_CHANNEL_1;
+uint16_t vt_gpio_id_sensor_1 = SAMPLE_INTERNAL_GPIO_TYPE_ID;
+GPIO_TypeDef* vt_gpio_port_sensor_1 = GPIOB;
+uint16_t vt_gpio_pin_sensor_1 = GPIO_PIN_9;
+
+//sensor_2
+uint16_t vt_adc_id_sensor_2 = SAMPLE_INTERNAL_ADC_TYPE_ID;
+ADC_HandleTypeDef vt_adc_controller_sensor_2 = {.Instance = ADC1};
 uint32_t vt_adc_channel_sensor_2 = ADC_CHANNEL_2;
+uint16_t vt_gpio_id_sensor_2 = SAMPLE_INTERNAL_GPIO_TYPE_ID;
+GPIO_TypeDef* vt_gpio_port_sensor_2 = GPIOB;
+uint16_t vt_gpio_pin_sensor_2 = GPIO_PIN_8;
+
+//sensor_3
+uint16_t vt_adc_id_sensor_3 = SAMPLE_EXTERNAL_ADC_TYPE_ID;
+SPI_HandleTypeDef vt_adc_controller_sensor_3 = {.Instance = SPI1};
 uint32_t vt_adc_channel_sensor_3 = 0;
+
+//sensor_4
+uint16_t vt_adc_id_sensor_4 = SAMPLE_EXTERNAL_ADC_TYPE_ID;
+SPI_HandleTypeDef vt_adc_controller_sensor_4 = {.Instance = SPI1};
 uint32_t vt_adc_channel_sensor_4 = 1;
 
-/* GPIO Definitions */
-uint16_t vt_gpio_id_sensor_1 = SAMPLE_INTERNAL_GPIO_TYPE_ID;
-uint16_t vt_gpio_id_sensor_2 = SAMPLE_INTERNAL_GPIO_TYPE_ID;
-
-GPIO_TypeDef* vt_gpio_port_sensor_1 = GPIOB;
-GPIO_TypeDef* vt_gpio_port_sensor_2 = GPIOB;
-
-uint16_t vt_gpio_pin_sensor_1 = GPIO_PIN_9;
-uint16_t vt_gpio_pin_sensor_2 = GPIO_PIN_8;
 
 /* Variables needed for External ADC Buffer Read */
 uint8_t adc_mcp3204_TxData[3];
