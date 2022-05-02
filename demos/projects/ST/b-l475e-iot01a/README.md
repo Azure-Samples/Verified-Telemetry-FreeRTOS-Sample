@@ -37,7 +37,8 @@ You will complete the following tasks:
     >   * [B-L475E-IOT01A](https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html)
     > * Wi-Fi 2.4 GHz
     > * USB 2.0 A male to Micro USB male cable
-    > * 1 * PM2012 Sensor
+    > * 1 * PM2012 Sensor(Digital Sensor)
+    > * 2 * Soil Moisture Sensor(Analog Sensor)
 
 
 ## Prepare the development environment
