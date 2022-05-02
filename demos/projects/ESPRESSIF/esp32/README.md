@@ -60,7 +60,8 @@ You will complete the following tasks:
     > * ESP32 Board.
     > * Wi-Fi 2.4 GHz
     > * USB 2.0 A male to Micro USB male cable
-    > * 1 * PM2012 Sensor
+    > * 1 * PM2012 Sensor(Digital Sensor)
+    > * 2 * Soil Moisture Sensor(Analog Sensor)
 
 
 ## Prepare the development environment
@@ -83,26 +84,7 @@ Confirm that you have copied the the following values from your Iot Hub and the 
 
 ## Connect Sensors for Verified Telemetry
 
-This sample showcases Verified Telemetry feature for telemetry generated from two external sensors that are connected to ESP32 DevKit
-
-### Connect Sensors
-
-**NOTE - Connections given in "Devkit Pin" are DevKit specific, to find connections for your Devkit refer to the DevKit's datasheet & "MCU Pin" which remains samefor ESP32.**
-
-Refer to the table and image below to connect the two [Soil Moisture](https://www.dfrobot.com/product-1385.html) sensors.
-
-| Sensor Name   | Sensor Pin           | MCU Pin | ESP32 Devkit Baseboard PCB Pin |
-|---------------|----------------------|-----------------------------|------------|
-| Cubic PM2012 | Sensor’s TX (PIN 9)   | RX                          | RX                    |
-| Cubic PM2012 | VCC (PIN 1)           | -                           | JP5                   |
-| Cubic PM2012 | GND (PIN 3)           | -                           | SENS1GND (JP4)        |
-
-* Connection Schematic
-![B-L475E-IOT01A Sensor Connections](media/esp32_baseboard_schematic.png)
-* CS PCB Connections
-![B-L475E-IOT01A-labeled](media/side_baseboard_esp.jpeg)
-* Sample Setup
-![B-L475E-IOT01A Sensor Connections_photo](media/top_baseboard_esp.jpeg)
+Verified Telemetry supports both Analog and Digital Sensors for which we have developed different Fingerprinting Technologies, to use only one type of sensors or to add more sensors, minimal changes are required to the sample, refer the [Sensor Configuration Guide](../../../../demos/sample_azure_iot_pnp/) which would walk you through the connection diagrams and the code modifications.
 
 ### Update sample configuration
 
