@@ -16,6 +16,7 @@ Verified Telemetry supports both Analog and Digital Sensors for which we have de
 ## Sample configuration for only Analog Sensors
 
 * the sample needs to be configured for only 2 Analog sensors, use the below schematic for connections, and the following instructions for changes in the [sample_freertos_verified_telemetry_init.c](sample_freertos_verified_telemetry_init.c) file.
+* to modify preexisting Hardware Definitions refer [Modifying ADC, GPIO, Hardware Definitions of sample and new sensors](#modifying-adc-gpio-hardware-definitions-of-sample-and-new-sensors).
 
 * ESP32 Connections 
 
@@ -58,6 +59,8 @@ Verified Telemetry supports both Analog and Digital Sensors for which we have de
 ## Sample configuration for only Digital Sensors
 
 * the sample needs to be configured for only 2 Digital sensors, use the below schematic for connections, and the following instructions for changes in the [sample_freertos_verified_telemetry_init.c](sample_freertos_verified_telemetry_init.c) file.
+* to modify preexisting Hardware Definitions refer [Modifying ADC, GPIO, Hardware Definitions of sample and new sensors](#modifying-adc-gpio-hardware-definitions-of-sample-and-new-sensors).
+
 
 * ESP32 Connections 
 
@@ -103,6 +106,8 @@ Verified Telemetry supports both Analog and Digital Sensors for which we have de
 ## Sample configuration for both Analog and Digital Sensors
 
 * the default sample is configured for 2 Analog and 2 Digital sensors, use the below schematic for connections.
+* to modify preexisting Hardware Definitions refer [Modifying ADC, GPIO, Hardware Definitions of sample and new sensors](#modifying-adc-gpio-hardware-definitions-of-sample-and-new-sensors).
+
 
     * ESP32 Connection Schematic
     ![B-L475E-IOT01A Sensor Connections](media/ESP_Both_FC_CS.jpg)
