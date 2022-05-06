@@ -42,12 +42,10 @@ You will complete the following tasks:
 
     Clone the following repo to download all sample device code, setup scripts, and offline versions of the documentation.
 
-    **If you previously cloned this repo in another sample, you don't need to do it again.**
-
+  
     ```shell
     git clone https://github.com/Azure-Samples/Verified-Telemetry-FreeRTOS-Sample.git
     cd Verified-Telemetry-FreeRTOS-Sample
-    git checkout features/currentsense
     git submodule update --init --recursive 
     ```
 
@@ -111,7 +109,7 @@ Parameter | Value
 ---------|----------
  `Azure IoT Hub FQDN` | _{Your Azure IoT Hub Host FQDN}_
  `Azure IoT Device ID` | _{Your Azure IoT Hub device ID}_
- `Azure IoT Device Symmetric Key` | _{Your Azure IoT Hub device symmetric key}_
+ `Azure IoT Device Symmetric Key` | _{Your Azure IoT Hub device primary key}_
  `Azure Task Stack Size` | 8192
 
 > Some parameters contain default values that do not need to be updated.
