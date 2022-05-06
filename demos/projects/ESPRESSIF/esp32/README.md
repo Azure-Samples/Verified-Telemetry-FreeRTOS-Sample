@@ -329,6 +329,6 @@ I (9770) AZ IOT: Creating an MQTT connection to AzureRtosPnP.azure-devices.net.
 
 
 ## Next Steps ***Verified Telemetry***
-* With this sample, you have now setup Verified Telemetry device sample on STM Devkit
+* With this sample, you have now setup Verified Telemetry device sample on ESP32 Devkit
 * To understand how to interact and consume Verified Telemetry components, refer to the following guide - 
     * Interact with Verified Telemetry using our [custom Solution Sample Template](https://github.com/Azure/Verified-Telemetry-Solution-Sample) which uses a Grafana Dashboard
