@@ -44,9 +44,7 @@ You will complete the following tasks:
 
   
     ```shell
-    git clone https://github.com/Azure-Samples/Verified-Telemetry-FreeRTOS-Sample.git
-    cd Verified-Telemetry-FreeRTOS-Sample
-    git submodule update --init --recursive 
+    git clone https://github.com/Azure-Samples/Verified-Telemetry-FreeRTOS-Sample.git --recursive
     ```
 
     You may also need to enable long path support for both Microsoft Windows and git:
@@ -82,7 +80,7 @@ Confirm that you have copied the the following values from your Iot Hub and the 
 
 ## Connect Sensors for Verified Telemetry
 
-Verified Telemetry supports both Analog and Digital Sensors for which we have developed different Fingerprinting Technologies, to use only one type of sensors or to add more sensors, minimal changes are required to the sample, refer the [Sensor Configuration Guide](../../../../demos/sample_azure_iot_pnp/) which would walk you through the connection diagrams and the code modifications.
+Verified Telemetry supports both Analog and Digital Sensors for which we have developed different Fingerprinting Technologies. To use only one type of sensors or to add more sensors, minimal changes are required to the sample, refer the [Sensor Configuration Guide](../../../../demos/sample_azure_iot_pnp/) which would walk you through the connection diagrams and the code modifications.
 
 ### Update sample configuration
 
