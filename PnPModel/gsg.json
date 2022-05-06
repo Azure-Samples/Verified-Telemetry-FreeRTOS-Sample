@@ -32,6 +32,20 @@
       "name": "vTsoilMoistureExternal2",
       "displayName": "Verified Telemetry component for soilMoistureExternal2 telemetry",
       "description": "Verified Telemetry and Fingerprint information of soilMoistureExternal2 telemetry"
+    },
+    {
+      "@type" : "Component",
+      "schema": "dtmi:azure:verifiedtelemetry:telemetryinformation;1",
+      "name": "vTPMSExternal1",
+      "displayName": "Verified Telemetry component for PMSExternal1 telemetry",
+      "description": "Verified Telemetry and Fingerprint information of PMSExternal1 telemetry"
+    },
+    {
+      "@type" : "Component",
+      "schema": "dtmi:azure:verifiedtelemetry:telemetryinformation;1",
+      "name": "vTtemperatureExternal2",
+      "displayName": "Verified Telemetry component for temperatureExternal2 telemetry",
+      "description": "Verified Telemetry and Fingerprint information of temperatureExternal2 telemetry"
     }
   ]
 }

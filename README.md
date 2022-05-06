@@ -4,9 +4,9 @@
 
 * [Verified Telemetry Overview](#verified-telemetry-overview)
 * [Links to board specific Device Samples](#links-to-board-specific-device-samples)
+* [Analog and Digital Sensors configuration guide for Verified Telemetry.](#configure-your-sample-for-analog-or-digital-sensors)
 * [Verified Telemetry Concepts](#verified-telemetry-concepts)
 * [Verified Telemetry Device Sample](#verified-telemetry-device-sample)
-* [Steps to setup end-to-end Verified Telemetry demo](#steps-to-setup-end-to-end-verified-telemetry-demo)
 
 ## Verified Telemetry Overview
 
@@ -32,9 +32,10 @@ To understand how to interact and consume Verified Telemetry information, refer 
 * Interact with Verified Telemetry using the [Azure IoT Explorer Sample](docs/vTIoTExplorerSample.md)
 * Interact with Verified Telemetry using the [Custom Solution Sample Template](https://github.com/Azure/Verified-Telemetry-Solution-Sample)
 
-> **Note**
->
-> Verified Telemetry status is supported only to analog sensors. We are currently working on extending the SDK to support digital sensors.
+## Configure your sample for Analog or Digital sensors
+
+Verified Telemetry now support both Analog and Digital sensors, refer to the [Sensor Configuration Guide](/demos/sample_azure_iot_pnp/) to configure your sample according to the sensors used.
+
 
 ## Verified Telemetry Concepts
 
@@ -86,7 +87,7 @@ A few key concepts of VT are introduced and discussed below:
     | **Interface** | Interface | `Sample Device` | Example standard Device Model for getting started with Verified Telemetry/Dependable IoT Guide |
     | **Properties (read-only)** | Property | `ledState` | The current state of the LED |
     | **Commands** | Command | `setLedState` | Enable or disable the LED |
-    | **Telemetry** | Telemetry | `soilMoistureExternal1`, `soilMoistureExternal2`, `temperature`, `pressure`, `humidityPercentage`, `acceleration`, `magnetic` | Telemetries originating from various onboard and external sensors |
+    | **Telemetry** | Telemetry | `soilMoistureExternal1`, `soilMoistureExternal2`,`PMSExternal1`, `temperatureExternal2`, `temperature`, `pressure`, `humidityPercentage`, `acceleration`, `magnetic` | Telemetries originating from various onboard and external sensors |
 * The following telemetries support Verified Telemetry:
     1. soilMoistureExternal1
     1. soilMoistureExternal2
@@ -95,6 +96,8 @@ A few key concepts of VT are introduced and discussed below:
     |---|---|
     | soilMoistureExternal1 | vTsoilMoistureExternal1 |
     | soilMoistureExternal2 | vTsoilMoistureExternal2 |
+    | PMSExternal1 | vTPMSExternal1 |
+    | temperatureExternal2 | vTtemperatureExternal2 |
 * The 'telemetryStatus' property present inside each of these components represents whether the respective telemetry is verified or has a fault.
 * The 'vTDevice' component implements the [Verified Telemetry Device Information](./PnPModel/vTDevice.json) Interface -
     | Type | Name | Description |

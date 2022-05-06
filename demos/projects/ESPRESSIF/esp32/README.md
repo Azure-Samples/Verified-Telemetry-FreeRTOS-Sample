@@ -45,7 +45,10 @@ You will complete the following tasks:
     **If you previously cloned this repo in another sample, you don't need to do it again.**
 
     ```shell
-    git clone --recursive https://github.com/Azure-Samples/Verified-Telemetry-FreeRTOS-Sample.git
+    git clone https://github.com/Azure-Samples/Verified-Telemetry-FreeRTOS-Sample.git
+    cd Verified-Telemetry-FreeRTOS-Sample
+    git checkout features/currentsense
+    git submodule update --init --recursive 
     ```
 
     You may also need to enable long path support for both Microsoft Windows and git:
@@ -57,7 +60,8 @@ You will complete the following tasks:
     > * ESP32 Board.
     > * Wi-Fi 2.4 GHz
     > * USB 2.0 A male to Micro USB male cable
-    > * 2 * [Soil Moisture Sensor](https://www.dfrobot.com/product-1385.html)
+    > * 1 * PM2012 Sensor(Digital Sensor)
+    > * 2 * Soil Moisture Sensor(Analog Sensor)
 
 
 ## Prepare the development environment
@@ -80,23 +84,7 @@ Confirm that you have copied the the following values from your Iot Hub and the 
 
 ## Connect Sensors for Verified Telemetry
 
-This sample showcases Verified Telemetry feature for telemetry generated from two external sensors that are connected to ESP32 DevKit
-
-### Connect Sensors
-
-**NOTE - Connections given in "Devkit Pin" are DevKit specific, to find connections for your Devkit refer to the DevKit's datasheet & "MCU Pin" which remains samefor ESP32.**
-
-Refer to the table and image below to connect the two [Soil Moisture](https://www.dfrobot.com/product-1385.html) sensors.
-| Sensor Name     | Sensor Pin | MCU Pin  | DOIT ESP32 Devkit |
-|-----------------|------------|----------|-------------------|
-| Soil Moisture 1 | Analog Out | ADC1 CH4 | D32               |
-| Soil Moisture 1 | VCC        | GPIO18   | D18               |
-| Soil Moisture 1 | GND        | GND      | GND               |
-| Soil Moisture 2 | Analog Out | ADC1 CH5 | D33               |
-| Soil Moisture 2 | VCC        | GPIO19   | D19               |
-| Soil Moisture 2 | GND        | GND      | GND               |
-
-![B-L475E-IOT01A Sensor Connections](media/ESP32_Board_Connections.png)
+Verified Telemetry supports both Analog and Digital Sensors for which we have developed different Fingerprinting Technologies, to use only one type of sensors or to add more sensors, minimal changes are required to the sample, refer the [Sensor Configuration Guide](../../../../demos/sample_azure_iot_pnp/) which would walk you through the connection diagrams and the code modifications.
 
 ### Update sample configuration
 
@@ -124,6 +112,7 @@ Parameter | Value
  `Azure IoT Hub FQDN` | _{Your Azure IoT Hub Host FQDN}_
  `Azure IoT Device ID` | _{Your Azure IoT Hub device ID}_
  `Azure IoT Device Symmetric Key` | _{Your Azure IoT Hub device symmetric key}_
+ `Azure Task Stack Size` | 8192
 
 > Some parameters contain default values that do not need to be updated.
 

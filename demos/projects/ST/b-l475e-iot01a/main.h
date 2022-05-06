@@ -43,12 +43,18 @@ extern "C" {
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
 
-extern RTC_HandleTypeDef xHrtc;
-extern RNG_HandleTypeDef xHrng;
-extern TIM_HandleTypeDef htim6;
+// extern RTC_HandleTypeDef xHrtc;
+// extern RNG_HandleTypeDef xHrng;
+ extern TIM_HandleTypeDef htim6;
+
+// extern UART_HandleTypeDef UartHandle;
+// extern ADC_HandleTypeDef hadc1;
 
 extern UART_HandleTypeDef UartHandle;
+extern UART_HandleTypeDef UartHandle4;
 extern ADC_HandleTypeDef hadc1;
+extern SPI_HandleTypeDef hspi1;
+
 
 /* USER CODE END EC */
 
@@ -59,6 +65,7 @@ extern ADC_HandleTypeDef hadc1;
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
+int hardware_rand(void);
 
 /* USER CODE BEGIN EFP */
 

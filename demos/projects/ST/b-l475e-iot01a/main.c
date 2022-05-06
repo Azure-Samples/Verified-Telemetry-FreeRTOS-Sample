@@ -77,38 +77,99 @@ void vApplicationDaemonTaskStartupHook( void );
 
 /* Defined in es_wifi_io.c. */
 extern void SPI_WIFI_ISR( void );
-extern SPI_HandleTypeDef hspi;
+
 
 /**********************
 * Global Variables
 **********************/
-RTC_HandleTypeDef xHrtc;
-RNG_HandleTypeDef xHrng;
+
+UART_HandleTypeDef UartHandle;
+UART_HandleTypeDef UartHandle4; 
+
 ADC_HandleTypeDef hadc1;
+RTC_HandleTypeDef RtcHandle;
 TIM_HandleTypeDef TimCCHandle;
+extern SPI_HandleTypeDef hspi;
+SPI_HandleTypeDef mcp3204;
+TIM_HandleTypeDef HTIMx;
+volatile uint32_t ButtonPressed = 0;
+volatile uint32_t SendData      = 0;
+uint32_t gu32_ticks;
+static uint32_t t_TIM_CC1_Pulse;
+RNG_HandleTypeDef xHrng;
+
+
+#define TIMER  TIM4
 
 #define DEFAULT_TIM_CC1_PULSE 4000
+
+// Defines related to Clock configuration
+#define RTC_ASYNCH_PREDIV 0x7F // LSE as RTC clock
+#define RTC_SYNCH_PREDIV  0x00FF // LSE as RTC clock
+
+#define REG32(x) (*(volatile unsigned int*)(x))
 
 StaticSemaphore_t xSemaphoreBuffer;
 xSemaphoreHandle xWifiSemaphoreHandle;
 
 /* Private variables ---------------------------------------------------------*/
-static UART_HandleTypeDef xConsoleUart;
 /* Use by the pseudo random number generator. */
 static UBaseType_t ulNextRand;
-static uint64_t ulGlobalEntryTime = 1639093301;
+static uint64_t ulGlobalEntryTime = 1673769600;
 
 /* Private function prototypes -----------------------------------------------*/
-static void SystemClock_Config( void );
-static void Console_UART_Init( void );
-static void RTC_Init( void );
-static void Init_MEM1_Sensors(void);
 
+/* Define RNG registers.  */
+#define STM32_RNG    0x50060800
+#define STM32_RNG_CR REG32(STM32_RNG + 0x00)
+#define STM32_RNG_SR REG32(STM32_RNG + 0x04)
+#define STM32_RNG_DR REG32(STM32_RNG + 0x08)
+
+#define STM32_RNG_CR_RNGEN 0x00000004
+#define STM32_RNG_CR_IE    0x00000008
+#define STM32_RNG_CR_CED   0x00000020
+
+#define STM32_RNG_SR_DRDY 0x00000001
+#define STM32_RNG_SR_CECS 0x00000002
+#define STM32_RNG_SR_SECS 0x00000004
+#define STM32_RNG_SR_CEIS 0x00000020
+#define STM32_RNG_SR_SEIS 0x00000040
+
+/* UART settings */
+#define CFG_HW_UART1_BAUDRATE       115200
+#define CFG_HW_UART1_WORDLENGTH     UART_WORDLENGTH_8B
+#define CFG_HW_UART1_STOPBITS       UART_STOPBITS_1
+#define CFG_HW_UART1_PARITY         UART_PARITY_NONE
+#define CFG_HW_UART1_HWFLOWCTL      UART_HWCONTROL_NONE
+#define CFG_HW_UART1_MODE           UART_MODE_TX_RX
+#define CFG_HW_UART1_ADVFEATUREINIT UART_ADVFEATURE_NO_INIT
+
+#define CFG_HW_UART4_BAUDRATE       9600
+#define CFG_HW_UART4_WORDLENGTH     UART_WORDLENGTH_8B
+#define CFG_HW_UART4_STOPBITS       UART_STOPBITS_1
+#define CFG_HW_UART4_PARITY         UART_PARITY_NONE
+#define CFG_HW_UART4_HWFLOWCTL      UART_HWCONTROL_NONE
+#define CFG_HW_UART4_MODE           UART_MODE_TX_RX
+#define CFG_HW_UART4_ADVFEATUREINIT UART_ADVFEATURE_NO_INIT
+
+
+//static void hardware_rand_initialize(void);
+static void STM32_Error_Handler(void);
+static void Init_MEM1_Sensors(void);
+static void SystemClock_Config(void);
+static void InitTimers(void);
+static void InitRTC(void);
+static void UART_Console_Init(void);
+static void UART4_Console_Init(void);
+// static void MX_SPI1_Init(void);
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
+void SPI3_IRQHandler(void);
+// void SPI1_IRQHandler(void);
 
 static void MX_ADC1_Init(void);
 static void MX_GPIO_Init(void);
-static void InitTimers(void);
-static void STM32_Error_Handler(void);
+void TimerDelay_Init(void);
 
 /*
  * Prototypes for the demos that can be started from this project.
@@ -343,7 +404,7 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
 void vSTM32L475putc( void * pv,
                      char ch )
 {
-    while( HAL_OK != HAL_UART_Transmit( &xConsoleUart, ( uint8_t * ) &ch, 1, 30000 ) )
+    while( HAL_OK != HAL_UART_Transmit( &UartHandle, ( uint8_t * ) &ch, 1, 30000 ) )
     {
     }
 }
@@ -378,8 +439,10 @@ static void prvMiscInitialization( void )
      * heap must be initialized. */
     prvInitializeHeap();
 
-    BSP_LED_Init( LED_GREEN );
-    BSP_PB_Init( BUTTON_USER, BUTTON_MODE_EXTI );
+    //    hardware_rand_initialize();
+    // srand(hardware_rand());
+
+
 
     /* RNG init function. */
     xHrng.Instance = RNG;
@@ -389,11 +452,17 @@ static void prvMiscInitialization( void )
         Error_Handler();
     }
 
-    /* RTC init. */
-    RTC_Init();
+    // Initialize Real Time Clock
+    InitRTC();
 
-    /* UART console init. */
-    Console_UART_Init();
+        // Initialize console
+    UART_Console_Init();
+    UART4_Console_Init();
+
+    BSP_LED_Init( LED2 );
+    BSP_PB_Init( BUTTON_USER, BUTTON_MODE_EXTI );
+
+
 
     if( prvInitializeWifi() != 0 )
     {
@@ -409,7 +478,66 @@ static void prvMiscInitialization( void )
 
     Init_MEM1_Sensors();
 
+    TimerDelay_Init();
+
 }
+
+void TimerDelay_Init(void)
+{
+    gu32_ticks = (HAL_RCC_GetHCLKFreq() / 1000000);
+ 
+    TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+    TIM_MasterConfigTypeDef sMasterConfig = {0};
+ 
+    HTIMx.Instance = TIMER;
+    HTIMx.Init.Prescaler = gu32_ticks-1;
+    HTIMx.Init.CounterMode = TIM_COUNTERMODE_UP;
+    HTIMx.Init.Period = 65535;
+    HTIMx.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    HTIMx.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+    if (HAL_TIM_Base_Init(&HTIMx) != HAL_OK)
+    {
+      STM32_Error_Handler();
+    }
+    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+    if (HAL_TIM_ConfigClockSource(&HTIMx, &sClockSourceConfig) != HAL_OK)
+    {
+      STM32_Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&HTIMx, &sMasterConfig) != HAL_OK)
+    {
+      STM32_Error_Handler();
+    }
+ 
+    HAL_TIM_Base_Start(&HTIMx);
+}
+
+void delay_us(uint16_t au16_us)
+{
+    HTIMx.Instance->CNT = 0;
+    while (HTIMx.Instance->CNT < au16_us);
+}
+
+int hardware_rand(void)
+{
+    /* Wait for data ready.  */
+    while ((STM32_RNG_SR & STM32_RNG_SR_DRDY) == 0)
+        ;
+
+    /* Return the random number.  */
+    return STM32_RNG_DR;
+}
+
+// static void hardware_rand_initialize(void)
+// {
+//     /* Enable clock for the RNG.  */
+//     STM32L4_RCC_AHB2ENR |= STM32L4_RCC_AHB2ENR_RNGEN;
+
+//     /* Enable the random number generator.  */
+//     STM32_RNG_CR = STM32_RNG_CR_RNGEN;
+// }
 /*-----------------------------------------------------------*/
 
 /**
@@ -426,6 +554,8 @@ void STM32_Error_Handler(void)
     {
     }
 }
+
+
 
 /**
  * @brief ADC1 Initialization Function
@@ -562,6 +692,19 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin : PB8 */
     GPIO_InitStruct.Pin = GPIO_PIN_9;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+        /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);
+
+  /*Configure GPIO pin : PA2 */
+  GPIO_InitStruct.Pin = GPIO_PIN_2;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
 
 /**
@@ -669,71 +812,104 @@ static void SystemClock_Config( void )
     /* Enable MSI PLL mode. */
     HAL_RCCEx_EnableMSIPLLMode();
 }
+
+/**
+ * @brief  Output Compare callback in non blocking mode
+ * @param  htim : TIM OC handle
+ * @retval None
+ */
+void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef* htim)
+{
+    uint32_t uhCapture = 0;
+
+    // TIM1_CH1 toggling with frequency = 2Hz
+    if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
+    {
+        uhCapture = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
+        // Set the Capture Compare Register value
+        __HAL_TIM_SET_COMPARE(&TimCCHandle, TIM_CHANNEL_1, (uhCapture + t_TIM_CC1_Pulse));
+        SendData = 1;
+        BSP_LED_Toggle(LED2);
+    }
+}
 /*-----------------------------------------------------------*/
 
 /**
- * @brief UART console initialization function.
+ * @brief  Configures UART interface
+ * @param  None
+ * @retval None
  */
-static void Console_UART_Init( void )
+static void UART_Console_Init(void)
 {
-    xConsoleUart.Instance = USART1;
-    xConsoleUart.Init.BaudRate = 115200;
-    xConsoleUart.Init.WordLength = UART_WORDLENGTH_8B;
-    xConsoleUart.Init.StopBits = UART_STOPBITS_1;
-    xConsoleUart.Init.Parity = UART_PARITY_NONE;
-    xConsoleUart.Init.Mode = UART_MODE_TX_RX;
-    xConsoleUart.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-    xConsoleUart.Init.OverSampling = UART_OVERSAMPLING_16;
-    xConsoleUart.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-    xConsoleUart.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-    BSP_COM_Init( COM1, &xConsoleUart );
+    UartHandle.Instance                    = USART1;
+    UartHandle.Init.BaudRate               = CFG_HW_UART1_BAUDRATE;
+    UartHandle.Init.WordLength             = CFG_HW_UART1_WORDLENGTH;
+    UartHandle.Init.StopBits               = CFG_HW_UART1_STOPBITS;
+    UartHandle.Init.Parity                 = CFG_HW_UART1_PARITY;
+    UartHandle.Init.Mode                   = CFG_HW_UART1_MODE;
+    UartHandle.Init.HwFlowCtl              = CFG_HW_UART1_HWFLOWCTL;
+    UartHandle.AdvancedInit.AdvFeatureInit = CFG_HW_UART1_ADVFEATUREINIT;
+    BSP_COM_Init(COM1, &UartHandle);
+
+}
+
+static void UART4_Console_Init(void)
+{
+    UartHandle4.Instance                    = UART4;
+    UartHandle4.Init.BaudRate               = CFG_HW_UART4_BAUDRATE;
+    UartHandle4.Init.WordLength             = CFG_HW_UART4_WORDLENGTH;
+    UartHandle4.Init.StopBits               = CFG_HW_UART4_STOPBITS;
+    UartHandle4.Init.Parity                 = CFG_HW_UART4_PARITY;
+    UartHandle4.Init.Mode                   = CFG_HW_UART4_MODE;
+    UartHandle4.Init.HwFlowCtl              = CFG_HW_UART4_HWFLOWCTL;
+    UartHandle4.AdvancedInit.AdvFeatureInit = CFG_HW_UART4_ADVFEATUREINIT;
+    BSP_COM2_Init(COM2, &UartHandle4);
 }
 /*-----------------------------------------------------------*/
 
 /**
  * @brief RTC init function.
  */
-static void RTC_Init( void )
+static void InitRTC( void )
 {
-    RTC_TimeTypeDef xsTime;
-    RTC_DateTypeDef xsDate;
+    // RTC_TimeTypeDef xsTime;
+    // RTC_DateTypeDef xsDate;
 
     /* Initialize RTC Only. */
-    xHrtc.Instance = RTC;
-    xHrtc.Init.HourFormat = RTC_HOURFORMAT_24;
-    xHrtc.Init.AsynchPrediv = 127;
-    xHrtc.Init.SynchPrediv = 255;
-    xHrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
-    xHrtc.Init.OutPutRemap = RTC_OUTPUT_REMAP_NONE;
-    xHrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
-    xHrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+    RtcHandle.Instance            = RTC;
+    RtcHandle.Init.HourFormat     = RTC_HOURFORMAT_24;
+    RtcHandle.Init.AsynchPrediv   = RTC_ASYNCH_PREDIV;
+    RtcHandle.Init.SynchPrediv    = RTC_SYNCH_PREDIV;
+    RtcHandle.Init.OutPut         = RTC_OUTPUT_DISABLE;
+    RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+    RtcHandle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
 
-    if( HAL_RTC_Init( &xHrtc ) != HAL_OK )
+    if( HAL_RTC_Init( &RtcHandle ) != HAL_OK )
     {
         Error_Handler();
     }
 
-    /* Initialize RTC and set the Time and Date. */
-    xsTime.Hours = 0x12;
-    xsTime.Minutes = 0x0;
-    xsTime.Seconds = 0x0;
-    xsTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-    xsTime.StoreOperation = RTC_STOREOPERATION_RESET;
+    // /* Initialize RTC and set the Time and Date. */
+    // xsTime.Hours = 0x12;
+    // xsTime.Minutes = 0x0;
+    // xsTime.Seconds = 0x0;
+    // xsTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+    // xsTime.StoreOperation = RTC_STOREOPERATION_RESET;
 
-    if( HAL_RTC_SetTime( &xHrtc, &xsTime, RTC_FORMAT_BCD ) != HAL_OK )
-    {
-        Error_Handler();
-    }
+    // if( HAL_RTC_SetTime( &RtcHandle, &xsTime, RTC_FORMAT_BCD ) != HAL_OK )
+    // {
+    //     Error_Handler();
+    // }
 
-    xsDate.WeekDay = RTC_WEEKDAY_FRIDAY;
-    xsDate.Month = RTC_MONTH_JANUARY;
-    xsDate.Date = 0x24;
-    xsDate.Year = 0x17;
+    // xsDate.WeekDay = RTC_WEEKDAY_FRIDAY;
+    // xsDate.Month = RTC_MONTH_JANUARY;
+    // xsDate.Date = 0x24;
+    // xsDate.Year = 0x17;
 
-    if( HAL_RTC_SetDate( &xHrtc, &xsDate, RTC_FORMAT_BCD ) != HAL_OK )
-    {
-        Error_Handler();
-    }
+    // if( HAL_RTC_SetDate( &RtcHandle, &xsDate, RTC_FORMAT_BCD ) != HAL_OK )
+    // {
+    //     Error_Handler();
+    // }
 }
 /*-----------------------------------------------------------*/
 
@@ -885,6 +1061,9 @@ void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
     {
         /* Pin number 1 is connected to Inventek Module Cmd-Data
          * ready pin. */
+        case GPIO_PIN_13:
+            ButtonPressed = 1;
+            break;
         case ( GPIO_PIN_1 ):
             SPI_WIFI_ISR();
             break;

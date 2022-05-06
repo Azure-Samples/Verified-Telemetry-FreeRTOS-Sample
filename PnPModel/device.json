@@ -19,6 +19,18 @@
     },
     {
       "@type": "Telemetry",
+      "name": "PMSExternal1",
+      "displayName" : "PMS External 1",
+      "schema": "float"
+    },
+    {
+      "@type": "Telemetry",
+      "name": "temperatureExternal2",
+      "displayName" : "Temperature External 2",
+      "schema": "float"
+    },
+    {
+      "@type": "Telemetry",
       "name": "temperature",
       "displayName" : "Temperature",
       "schema": "float"

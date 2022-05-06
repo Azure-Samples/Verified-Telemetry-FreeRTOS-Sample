@@ -197,6 +197,9 @@ void HAL_SPI_MspInit( SPI_HandleTypeDef * hspi )
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
         GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
         HAL_GPIO_Init( GPIOA, &GPIO_InitStruct );
+
+            HAL_NVIC_SetPriority(SPI1_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(SPI1_IRQn);
     }
 }
 

@@ -40,6 +40,22 @@ list(APPEND COMPONENT_SOURCES
     ${VERIFIED_TELEMETRY}/src/core/fallcurve/internal/vt_fc_signature_evaluate.c
     ${VERIFIED_TELEMETRY}/src/middleware/freertos_middleware/FreeRTOS_verified_telemetry.c
     ${VERIFIED_TELEMETRY}/src/middleware/freertos_middleware/FreeRTOS_vt_fallcurve_component.c
+    ${VERIFIED_TELEMETRY}/src/middleware/freertos_middleware/FreeRTOS_vt_currentsense_component.c
+    ${VERIFIED_TELEMETRY}/src/core/currentsense/vt_cs_object_signature.c
+    ${VERIFIED_TELEMETRY}/src/core/currentsense/vt_cs_object_sensor.c
+    ${VERIFIED_TELEMETRY}/src/core/currentsense/vt_cs_object_initialize.c
+    ${VERIFIED_TELEMETRY}/src/core/currentsense/vt_cs_object_database_sync.c
+    ${VERIFIED_TELEMETRY}/src/core/currentsense/vt_cs_object_database_fetch.c
+    ${VERIFIED_TELEMETRY}/src/core/currentsense/internal/vt_cs_signature_features_evaluate
+    ${VERIFIED_TELEMETRY}/src/core/currentsense/internal/vt_cs_signature_features_compute
+    ${VERIFIED_TELEMETRY}/src/core/currentsense/internal/vt_cs_sensor_status_compute
+    ${VERIFIED_TELEMETRY}/src/core/currentsense/internal/vt_cs_raw_signature_read
+    ${VERIFIED_TELEMETRY}/src/core/currentsense/internal/vt_cs_fft
+    ${VERIFIED_TELEMETRY}/src/core/currentsense/internal/vt_cs_database_store
+    ${VERIFIED_TELEMETRY}/src/core/currentsense/internal/vt_cs_database_reset
+    ${VERIFIED_TELEMETRY}/src/core/currentsense/internal/vt_cs_database_fetch
+    ${VERIFIED_TELEMETRY}/src/core/currentsense/internal/vt_cs_calibrate_sensor
+    ${VERIFIED_TELEMETRY}/src/core/currentsense/internal/vt_cs_calibrate_compute_collection_settings
 
     ../../verified-telemetry/sample_pnp_device_component.c
     ../../verified-telemetry/sample_vt_device_driver.c    
@@ -59,11 +75,14 @@ set(COMPONENT_INCLUDE_DIRS
     ${VERIFIED_TELEMETRY}/inc/core/fallcurve/config
     ${VERIFIED_TELEMETRY}/inc/middleware/freertos_middleware
     ${VERIFIED_TELEMETRY}/inc/core/fallcurve/internal
+    ${VERIFIED_TELEMETRY}/inc/core/currentsense
+    ${VERIFIED_TELEMETRY}/inc/core/currentsense/config
+    ${VERIFIED_TELEMETRY}/inc/core/currentsense/internal 
 
 )
 
 idf_component_register(
     SRCS ${COMPONENT_SOURCES}
     INCLUDE_DIRS ${COMPONENT_INCLUDE_DIRS}
-    REQUIRES esp_adc_cal mbedtls tcp_transport coreMQTT azure-sdk-for-c azure-iot-middleware-freertos)
+    REQUIRES mcp320x esp_adc_cal mbedtls tcp_transport coreMQTT azure-sdk-for-c azure-iot-middleware-freertos)
 

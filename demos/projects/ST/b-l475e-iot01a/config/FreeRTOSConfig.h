@@ -72,6 +72,7 @@
 #define configOVERRIDE_DEFAULT_TICK_CONFIGURATION    1
 #define configRECORD_STACK_HIGH_ADDRESS              1
 #define configUSE_STATS_FORMATTING_FUNCTIONS         1
+#define INCLUDE_xTaskGetHandle                       1
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES                        0
