@@ -69,7 +69,7 @@ Verified Telemetry supports both Analog and Digital Sensors for which we have de
     
       | Sensor Name   | Sensor Pin           | MCU Pin | ESP32 Devkit Baseboard PCB Pin |
       |---------------|----------------------|-----------------------------|------------|
-      | Cubic PM2012 | Sensor’s TX (PIN 9)   | RX                          | RX                    |
+      | Cubic PM2012 | Sensor’s TX (PIN 9)   | RX                          | RX(IO16)                    |
       | Cubic PM2012 | VCC (PIN 1)           | -                           | JP5                   |
       | Cubic PM2012 | GND (PIN 3)           | -                           | SENS1GND (JP4)        |    
     
@@ -114,7 +114,7 @@ Verified Telemetry supports both Analog and Digital Sensors for which we have de
     
       | Sensor Name   | Sensor Pin           | MCU Pin | ESP32 Devkit Baseboard PCB Pin |
       |---------------|----------------------|-----------------------------|------------|
-      | Cubic PM2012 | Sensor’s TX (PIN 9)   | RX                          | RX                    |
+      | Cubic PM2012 | Sensor’s TX (PIN 9)   | RX                          | RX(IO16)                    |
       | Cubic PM2012 | VCC (PIN 1)           | -                           | JP5                   |
       | Cubic PM2012 | GND (PIN 3)           | -                           | SENS1GND (JP4)        |
       | Soil Moisture 1 | Analog Out | ADC1 CH4 | IO32               |
