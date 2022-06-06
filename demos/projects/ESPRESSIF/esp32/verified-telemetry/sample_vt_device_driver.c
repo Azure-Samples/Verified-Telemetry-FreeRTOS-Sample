@@ -422,7 +422,7 @@ static void callback_task(){
         //vTaskDelay(100);
         
         vTaskSuspend(TaskHandle_1);
-        vTaskDelay(200);
+        vTaskDelay(2000/portTICK_RATE_MS);
         
         // vTaskGetInfo(  TaskHandle_1, &xTaskDetails, pdTRUE, eInvalid );
         // printf("\nstatusb=%d\n",xTaskDetails.eCurrentState);
